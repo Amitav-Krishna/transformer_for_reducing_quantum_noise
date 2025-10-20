@@ -1,0 +1,8 @@
+*py 
+csvs/*
+graphs/*
+.ipynb_checkpoints/
+models/*
+dataset.pt
+*~
+\#*\#
