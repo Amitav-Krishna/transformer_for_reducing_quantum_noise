@@ -3,6 +3,11 @@ csvs/*
 graphs/*
 .ipynb_checkpoints/
 models/*
-dataset.pt
+*.pt
+csvs/*
+model_checkpoints/*
+*~
+
 *~
 \#*\#
+*.pth
