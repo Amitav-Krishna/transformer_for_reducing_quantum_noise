@@ -6,8 +6,6 @@
 /This is currently a work in progress. The todos will be removed once the training has been run./
 * Abstract
 Running experiments on real quantum hardware remains extremely costly. Current cloud platforms charge between $0.03 and $0.05 per measurement, and practical algorithms often require tens of thousands of shots. Even modest experiments can therefore accumulate thousands of dollars in runtime fees, which places a hard barrier on iterative design and experimentation. Noise mitigation offers a way to extract higher quality results from the same number of measurements, reducing the number of measurements needed, and. This work presents a systematic comparison of four density matrix denoising strategies that pair two model classes, a convolutional autoencoder and a transformer autoencoder, with two loss formulations, a fidelity oriented reconstruction loss and a physics informed structural loss. We will be comparing how closely each model can return a pre-noise density matrix given the corresponding noisy density matrix.
-
-The cat is cute. The cat is cool.
 ** TODO Once results come in, add a sentence or two discussing the empirical gains
 
 * Introduction
@@ -30,7 +28,8 @@ $$
 F(\hat{\rho}, \rho)
 = \left( \mathrm{Tr}\sqrt{\sqrt{\hat{\rho}}\,\rho\,\sqrt{\hat{\rho}}}\right)^2 
 $$
-*** TODO Citation needed on that formula
+*** TODO Switch out Uhlmann fidelity with frobenius reconstruction loss
+*** TODO Citation needed on that frobeniuis reconstruction loss
 
 ** Physics-informed loss
 
@@ -98,7 +97,79 @@ Evaluation is performed on the held out test set using multiple metrics. These i
 ** TODO Add details on compute used
 ** TODO Add random-seed table or specify seed range
 * Results
-** TODO Run training + evals
+** Make charts out of the csvs :noexport:
+#+BEGIN_SRC python results:file
+  import pandas as pd
+  import matplotlib.pyplot as plt
+  picnn_df = pd.read_csv('csvs/eval_PICNN.csv')
+  fig, ax = plt.subplots(figsize=(6, 3), dpi=100)
+  fig.patch.set_facecolor('white')
+  ax.plot(picnn_df['epoch'], picnn_df['avg_loss'], color='#1f77b3', linewidth=2)
+  ax.set_title("Line Plot", fontsize=16, fontweight='bold')
+  # Axes formatting
+  ax.tick_params(labelsize=12, direction='out', length=5, width=1)
+  for spine in ax.spines.values():
+      spine.set_visible(True)
+      ax.set_ylim(bottom=0, top=1)
+  plt.savefig("figures/eval_PICNN_chart.png")
+  plt.close()
+
+  picnn_df = pd.read_csv('csvs/eval_CNN_frobenius.csv')
+  fig, ax = plt.subplots(figsize=(6, 3), dpi=100)
+  fig.patch.set_facecolor('white')
+  ax.plot(picnn_df['epoch'], picnn_df['avg_loss'], color='#1f77b3', linewidth=2)
+  ax.set_title("Line Plot", fontsize=16, fontweight='bold')
+  # Axes formatting
+  ax.tick_params(labelsize=12, direction='out', length=5, width=1)
+  for spine in ax.spines.values():
+      spine.set_visible(True)
+      ax.set_ylim(bottom=0, top=1)
+
+  plt.savefig("figures/eval_CNN_frobenius_chart.png")
+  plt.close()
+
+  picnn_df = pd.read_csv('csvs/eval_Transformer_frobenius.csv')
+  fig, ax = plt.subplots(figsize=(6, 3), dpi=100)
+  fig.patch.set_facecolor('white')
+  ax.plot(picnn_df['epoch'], picnn_df['avg_loss'], color='#1f77b3', linewidth=2)
+  ax.set_title("", fontsize=16, fontweight='bold')
+  # Axes formatting
+  ax.tick_params(labelsize=12, direction='out', length=5, width=1)
+  for spine in ax.spines.values():
+      spine.set_visible(True)
+      ax.set_ylim(bottom=0, top=1)
+
+  plt.savefig("figures/eval_Transformer_frobenius_chart.png")
+  plt.close()
+
+  picnn_df = pd.read_csv('csvs/eval_Transformer_physics.csv')
+  fig, ax = plt.subplots(figsize=(6, 3), dpi=100)
+  fig.patch.set_facecolor('white')
+  ax.plot(picnn_df['epoch'], picnn_df['avg_loss'], color='#1f77b3', linewidth=2)
+  ax.set_title("Physics-informed Transformer", fontsize=16, fontweight='bold')
+  # Axes formatting
+  ax.tick_params(labelsize=12, direction='out', length=5, width=1)
+  for spine in ax.spines.values():
+      spine.set_visible(True)
+      ax.set_ylim(bottom=0, top=1)
+
+  plt.savefig("figures/eval_Transformer_physics_chart.png")
+  plt.close()
+#+END_SRC
+
+#+RESULTS:
+: None
+
+[[./figures/eval_CNN_frobenius_chart.png]]
+[[./figures/eval_PICNN_chart.png]]
+[[./figures/eval_Transformer_frobenius_chart.png]]
+[[./figures/eval_Transformer_physics_chart.png]]
+*** Quantitative Performance Comparison
+|Model|Loss Type|Final Loss
+*** Training Dynamics and Convergence Behavior
+*** ARchitecture and Loss Function Comparison
+*** Failure Modes and Qualitative Analysis
+*** Variability Across Random Seeds
 * Limitations
 * Conclusion
 ** TODO Add conclusion
