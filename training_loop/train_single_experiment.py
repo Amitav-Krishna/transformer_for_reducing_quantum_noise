@@ -66,4 +66,5 @@ def train_single_experiment(name, config, train_chunks, val_chunks, device):
         if val_loss < best_val:
             best_val = val_loss
             torch.save(model.state_dict(), f"{ckpt_dir}/best.pt")
-            print("Saved BEST checkpoint")
+            print(f"{epoch} is the best checkpoint so far.")
+        torch.save(model.state_dict(), f"{ckpt_dir}/{epoch}.pt")
