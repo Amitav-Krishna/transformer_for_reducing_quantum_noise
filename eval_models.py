@@ -4,6 +4,11 @@ from training_loop.dataset.split_chunks import split_chunks
 from training_loop.evaluate_all_on_test import evaluate_all_checkpoints_on_test
 
 from train_models import EXPERIMENTS
+import models.transformer
+print(">>> Transformer loaded from:", models.transformer.__file__)
+
+import sys
+print(">>> Python path:", sys.path)
 
 def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

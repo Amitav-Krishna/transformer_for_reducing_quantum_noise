@@ -1,5 +1,5 @@
-*py 
 venv/
+*/__pycache__/*
 model_more_data/
 graphs/*
 .ipynb_checkpoints/
