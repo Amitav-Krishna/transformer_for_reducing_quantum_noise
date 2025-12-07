@@ -1,9 +1,10 @@
 #+OPTIONS: toc:nil
 #+LATEX_CLASS_OPTIONS: [a4paper, 11pt, colorlinks=true, citecolor=., linkcolor=black, urlcolor=black]
 #+LATEX_HEADER: \usepackage{fourier}
-#+LATEX_HEADER: \usepackage{natbib}
+#+LATEX_HEADER: \usepackage[style=authoryear, maxcitenames=1, maxbibnames=3]{biblatex}
+#+LATEX_HEADER: \addbibresource{references.bib}
+#+CITE_EXPORT: biblatex authoryear
 #+BIND: org-cite-global-bibliography nil
-#+BIBLIOGRAPHY: references.bib
 #+AUTHOR: Amitav Krishna, Shanmukh Garimella
 #+TITLE: Comparing Machine Learning Strategies for Quantum Noise Reduction
 /This is currently a work in progress. The todos will be removed once the training has been run./
@@ -12,20 +13,26 @@ Running experiments on real quantum hardware remains extremely costly. Current c
 ** TODO Once results come in, add a sentence or two discussing the empirical gains
 
 * Introduction
-** TODO Add context on the state of ML-based noise reduction
-*** Kendre
+** DONE Add context on the state of ML-based noise reduction
+Machine learning has rapidly become a major tool for mitigating quantum noise by learning direct mappings from corrupted measurement statistics or density matrices to cleaner quantum states. Early work used convolutional architectures to denoise mixed states by exploiting local spatial correlations in the density-matrix representation, demonstrating that even modest CNN autoencoders can partially reverse decoherence effects without any explicit knowledge of the underlying hardware noise channel[cite:@kendre2025machinelearningquantumnoise]. More recent approaches explore feedforward networks for reconstructing states corrupted by unknown dynamics, showing that neural approximators can serve as model-agnostic quantum noise suppressors [cite:@Morgillo_2024]. In parallel, several groups have focused on learning-based quantum state tomography, replacing traditional inversion with neural estimators that better tolerate measurement noise and incomplete data[cite:@PhysRevA.106.012409].
+
+Beyond tomography, machine learning has seen strong adoption in quantum error correction. Classical convolutional and multilayer perceptron decoders typically operate on local syndrome neighborhoods, which limits scalability and forces retraining when code distances change. Transformer-based QEC decoders were introduced to overcome this limitation, treating all stabilizer syndromes globally so that long-range correlations remain accessible to the model[cite:@wang2023transformerqecquantumerrorcorrection]. Related threads leverage reinforcement learning and optimal control networks to improve system robustness in closed-loop settings[cite:@Ma_2025]. Together, these developments reveal a field that has matured from proof-of-concept denoisers into a broad class of neural architectures that learn to suppress, correct, or compensate for noise across diverse quantum information tasks.
+*** Kendre :noexport:
 CNN autoencoder for quantum noise reduction. Converting a noisy density matrix to its clean representation. Cirq. 5 qubit circuits.
-*** Wang et al., transformer-QEC
+*** Wang et al., transformer-QEC :noexport:
 High error rates in quantum devices hamper useful algorithm execution. QEC mitigates error rates with redundancy, distributing quantum information across multiple *data qubits* and utilizing *syndrome qubits* to monitor their states for errors. Syndromes are decoded to identify and correct errors in the *data qubits*. MLPs and CNNs have been proposed, but they focus on /local/ syndrome regions and require /retraining/ when adjusting for different code distances. They introduce a transformer-based QEC decoder, *Transformer-QEC*, which employs self-attention to achieve a global receptive field across all input syndromes. It uses local physical error and global parity label losses.
-*** Halian Ma Machine Learning for Estimation and Control of quantum systems
+*** Halian Ma Machine Learning for Estimation and Control of quantum systems :noexport:
 Machine learning have been used for different quantum quantum tasks. This paper discusses neural networks-based learning for optimal control of quantum systems, machine learning for quantum rrobust control, and reinforcement learning for quantum control. *Review paper*.
-*** Morgillo et al.
+*** Morgillo et al. :noexport:
 Using feedforward neural networks to reconstruct and classify quantum states corrupted by an *unknown* noise channel.
-*** Neural-network QST Hradil et al.
+*** Neural-network QST Hradil et al. :noexport:
 Positivity constrained feed-forward neural networks convert outputs to valid quantum states. Like our constraints but hard instead of soft.
-*** QEC w/ quantum autoencoders Locher et al.
+*** QEC w/ quantum autoencoders Locher et al. :noexport:
 Quantum machine learning for quantum error correction in a quantum memory. How quantum autoencoders can be trained to learn optimal streategies for active detection and correction of errors, including spatially correlated computational errors as well as qubit losses. 
-** TODO Add context on the current status quo for quantum error correction and quantum error mitigation.
+** DONE Add context on the current status quo for quantum error correction and quantum error mitigation.
+Quantum computing research has coalesced around two complementary strategies for managing hardware noise. Quantum error correction provides a principled route to fault-tolerant computation by encoding logical information into larger composite systems and continuously detecting and correcting physical errors [cite:@202509.2149; @Bravyi_2024]. In theory, this approach supports arbitrarily long computations with bounded overhead once physical error rates fall below a threshold [cite:@2024; @202509.2149]. However, present devices remain significantly above those thresholds, and the resource costs associated with real-time decoding and large code distances limit practical deployment [cite:@Bravyi_2024; @202509.2149].
+
+Quantum error mitigation offers an alternative aligned with current hardware constraints. It reduces the impact of noise through circuit-level extrapolation, classical inference, and statistical post-processing, allowing experiments to extract more reliable observables without modifying the underlying qubit architecture [cite:@Bultrini_2023; @RevModPhys.95.045005]. Unlike QEC, mitigation does not guarantee correctness at scale, and its cost typically grows rapidly with circuit depth and system size [cite:@RevModPhys.95.045005; @filippov2024scalabilityquantumerrormitigation]. As a result, QEM serves as the standard tool for near-term applications, while progress in QEC continues to define the long-term path toward fully fault-tolerant quantum computation[cite:@Bultrini_2023; @202509.2149].
 * Related implementations
 ** TODO Summarize prior ML denoising architectures 
 * Methods
@@ -35,16 +42,23 @@ The convolutional autoencoder follows the architecture introduced by [cite:@kend
 ** Transformer Autoencoder 
 The Transformer autoencoder models each 32×32 complex-valued density matrix as a sequence of token embeddings, where each token corresponds to a row or column vectorized from the matrix’s real and imaginary parts. This architecture allows every element in the input to attend globally to every other element, preserving the non-local structure characteristic of entangled quantum states. The encoder consists of a stack of Transformer encoder layers with multi-head self-attention, enabling the model to capture global correlations across the entire state. The encoded sequence is compressed through a symmetric bottleneck module that projects the embedding dimension down and back up, serving as a latent representation. The decoder comprises Transformer decoder layers that apply both self-attention within the output sequence and cross-attention to the encoder memory. A linear projection and sigmoid activation generate the reconstructed sequence, which is reshaped into a 2D matrix.
 
-** Uhlmann fidelity-oriented reconstruction loss
-The reconstruction loss incorporates the Uhlmann fidelity, the standard measure of similarity between mixed quantum states. For each predicted–target pair of density matrices ($\hat{\rho}$) and ($\rho$), the fidelity is computed by diagonalizing ($\hat{\rho}$), forming its matrix square root, and evaluating the trace of the geometric mean ($\sqrt{\hat{\rho}}$, $\rho$, $\sqrt{\hat{\rho}}$). This procedure captures discrepancies across eigenvalues and coherences, making it substantially more informative than elementwise losses when evaluating density-matrix reconstructions.
+** Frobenius reconstruction loss
+The reconstruction loss used in our experiments is the Frobenius norm between the predicted and target density matrices. For each predicted–target pair of density matrices (\hat{\rho}) and (\rho), the loss is computed as the squared Frobenius distance
+$$
+\lVert \hat{\rho} - \rho \rVert_F^2
+$$
+which penalizes elementwise deviations across both diagonal and off-diagonal components. The Uhlmann fidelity is the correct operational measure of state distinguishability and captures eigenvalue structure and coherence relationships that the Frobenius norm can miss, but its reliance on matrix square roots and diagonalization makes it orders of magnitude more expensive to evaluate during training. Unlike the Uhlmann fidelity, the Frobenius loss is a purely algebraic metric and introduces no additional computational overhead during training. Although it does not directly capture eigenvalue-level structure, it provides a smooth and stable optimization target, and in practice correlates well with global reconstruction accuracy for supervised density-matrix denoising tasks.
 
-The Uhlmann fidelity is defined as
+Formally, the loss is defined as
 $$
-F(\hat{\rho}, \rho)
-= \left( \mathrm{Tr}\sqrt{\sqrt{\hat{\rho}}\,\rho\,\sqrt{\hat{\rho}}}\right)^2 
+\mathcal{L}_{\text{Frob}}(\hat{\rho}, \rho)
+= \lVert \hat{\rho} - \rho \rVert_F^2
+= \mathrm{Tr}\left[(\hat{\rho} - \rho)^\dagger (\hat{\rho} - \rho)\right].
 $$
-*** TODO Switch out Uhlmann fidelity with frobenius reconstruction loss
-*** TODO Citation needed on that frobeniuis reconstruction loss
+
+This formulation encourages the model to reproduce both the amplitude and phase structure of the clean state, while remaining compatible with gradient-based optimization and scalable to large training sets.
+
+*** TODO Add citation for how Uhlmann is more accurate but more expensive than the Frobenius
 
 ** Physics-informed loss
 
@@ -58,7 +72,7 @@ $$
 \lambda_{\mathrm{psd}},\big| \min(0,, \lambda_i(\hat{\rho})) \big|_2^2 ,
 $$
 
-  where ($\lambda_i(\hat{\rho})$) are the eigenvalues of ($\hat{\rho}$). The total training loss combines this term with the Uhlmann fidelity loss
+  where ($\lambda_i(\hat{\rho})$) are the eigenvalues of ($\hat{\rho}$). The total training loss combines this term with the Frobenius reconstruction loss
 
 $$
 \mathcal{L}_{total} = F(\hat{\rho}, \rho) + \mathcal{L}_{physics}(\hat{\rho}).
@@ -76,7 +90,7 @@ Clean states are generated by sampling random pure states and evolving them unde
 ** TODO Add expansion / citations for types of noise.
 
 * Experimental Design
-We evaluate the four denoising configurations under a controlled and reproducible simulation pipeline designed to isolate the effects of architecture and loss function. All models are trained to map noisy density matrices to their clean counterparts using identical optimization settings. Training uses the Adam optimizer with a learning rate of 1e−4, a batch size of 8 for the transformer, and a fixed budget of 50 epochs. Weight initialization follows PyTorch defaults, and a validation split of ten percent of the training set is used for early stopping based on validation fidelity. Each model is trained from five different random seeds to account for stochastic variation, and reported results are averaged across these runs.
+We evaluate the four denoising configurations under a controlled and reproducible simulation pipeline designed to isolate the effects of architecture and loss function. All models are trained to map noisy density matrices to their clean counterparts using identical optimization settings. Training uses the Adam optimizer with a learning rate of 1e-4, a batch size of 8 for the transformer, and a fixed budget of 50 epochs. Weight initialization follows PyTorch defaults, and a validation split of ten percent of the training set is used for early stopping based on validation fidelity. Each model is trained from five different random seeds to account for stochastic variation, and reported results are averaged across these runs.
 
 Evaluation is performed on the held out test set using multiple metrics. These include Uhlmann fidelity between the reconstructed and target states, Frobenius reconstruction error, trace deviation, Hermiticity deviation, and the magnitude of any negative eigenvalues. This combination of metrics allows us to assess both denoising performance and physical validity. Model capacities are kept comparable across architectures by matching parameter counts within ten percent.
 ** Hyperparameters
@@ -100,9 +114,9 @@ Evaluation is performed on the held out test set using multiple metrics. These i
 | Batch size           | 8                                                     | 32                                          |
 | Encoder depth        | 3 conv blocks                                         | 4 layers, 4 heads                           |
 | Decoder depth        | 3 conv blocks                                         | 4 layers                                    |
-| Kernel size          | 3 $\times$ 3                                          | —                                           |
-| Pooling              | MaxPool 2 $\times$ 2                                  | —                                           |
-| Upsampling           | Nearest neighbor                                      | —                                           |
+| Kernel size          | 3 $\times$ 3                                          | -                                           |
+| Pooling              | MaxPool 2 $\times$ 2                                  | -                                           |
+| Upsampling           | Nearest neighbor                                      | -                                           |
 | MLP hidden size      | —                                                     | 64                                          |
 | Dropout              | 0.1 — 0.2                                             | 0.1                                         |
 | Bottleneck           | —                                                     | Linear 32 $\rightarrow$ 16 $\rightarrow$ 32 |
@@ -114,7 +128,8 @@ Evaluation is performed on the held out test set using multiple metrics. These i
 *** It was an RTX A4000 
 ** TODO Add random-seed table or specify seed range
 * Results
-*** Test Loss Charts                                               :noexport:
+*** Charts :noexport:
+**** Test Loss Charts                                              :noexport:
 #+BEGIN_SRC python results:file
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -202,7 +217,7 @@ print("All 8 figures saved!")
 [[./figures/transformer_physics_test_fidelity.png]]
 [[./figures/transformer_frob_test_fidelity.png]]
 
-*** Train Loss charts :noexport:
+**** Train Loss charts                                             :noexport:
 #+BEGIN_SRC python results:file
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -306,7 +321,7 @@ print("All training and validation loss figures saved!")
 #+RESULTS:
 : None
 
-*** Train Loss mean csvs :noexport:
+**** Train Loss mean csvs                                          :noexport:
 #+BEGIN_SRC python results:file
 import pandas as pd
 import os
@@ -356,7 +371,7 @@ print("\nDone. Mean train-loss CSVs written.")
 #+RESULTS:
 : None
 
-*** Performance by Noise Level heatmaps :noexport:
+**** Performance by Noise Level heatmaps                           :noexport:
 #+BEGIN_SRC python :results file
 import pandas as pd
 import numpy as np
@@ -442,7 +457,7 @@ outputs
 #+RESULTS:
 [[file:None]]
 
-*** Quantitative Performance Comparison
+**** Quantitative Performance Comparison
 
 Across all models, the CNN with Frobenius loss achieves the lowest final reconstruction loss, while the Transformer with Frobenius loss achieves the highest fidelity proxy. Physics-informed losses systematically reduce reconstruction quality but increase physical consistency.
 
@@ -499,7 +514,7 @@ A closer inspection of individual reconstruction failures reveals distinct failu
 ** TODO Add conclusion
 ** TODO Talk about the scalabitlity of each approach
 * References
-#+print_bibliography:references.bib
+#+print_bibliography:
 ** TODO Add more citations
 * Footnotes
 [fn:2] The Frobenius loss is model-agnostic and architecture-agnostic, and so can be compared directly

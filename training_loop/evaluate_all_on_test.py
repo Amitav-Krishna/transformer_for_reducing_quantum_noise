@@ -2,15 +2,14 @@ import os
 import torch
 from training_loop.dataset.csv_logger import CSVLogger
 from training_loop.evaluate_on_chunks import evaluate_on_chunks
-from training_loop.dataset.ChunkDataset import ChunkDataset
-from torch.utils.data import DataLoader
+from training_loop.fidelity import evaluate_fidelity_on_chunks
 
 
 def evaluate_all_checkpoints_on_test(EXPERIMENTS, device, test_chunks):
     """
     Evaluate *every epoch checkpoint* for every model on the test set.
-    Logs results to csvs_2/{model_name}_test.csv.
-    Returns a dict: {model_name: {epoch: test_loss}}
+    Logs BOTH loss and fidelity to csvs_2/{model_name}_test.csv.
+    Returns nested dict.
     """
 
     results = {}
@@ -25,13 +24,10 @@ def evaluate_all_checkpoints_on_test(EXPERIMENTS, device, test_chunks):
 
         print(f"\n===== Evaluating ALL checkpoints for {name} =====")
 
-        # Logger for this model's test results
         csv_logger = CSVLogger("csvs_2", f"{name}_test")
 
-        # Store test results in-memory too
         model_results = {}
 
-        # Evaluate in order of epochs
         ckpts = sorted(
             f for f in os.listdir(ckpt_dir)
             if f.startswith("epoch_") and f.endswith(".pt")
@@ -43,32 +39,32 @@ def evaluate_all_checkpoints_on_test(EXPERIMENTS, device, test_chunks):
 
             print(f"Evaluating {name} epoch {epoch} ...")
 
-            # Recreate and load model
             model = config["create_model"]().to(device)
             model.load_state_dict(torch.load(ckpt_path, map_location=device))
 
             BATCH = 32 if arch == "cnn" else 8
 
-            # Compute test loss
+            # LOSS
             test_loss = evaluate_on_chunks(model, test_chunks, arch, device, BATCH)
-            print(f"  Test Loss: {test_loss:.6f}")
 
-            # Log to CSV
-            csv_logger.log_val(epoch=epoch, val_loss=float(test_loss))
+            # FIDELITY
+            fid_mean, fid_std = evaluate_fidelity_on_chunks(
+                model, test_chunks, arch, device, BATCH
+            )
 
-            # Store in-memory
-            model_results[epoch] = float(test_loss)
+            print(f"  Test Loss: {test_loss:.6f} | Fidelity: {fid_mean:.4f}")
 
-        # Also evaluate BEST checkpoint last
-        best_path = os.path.join(ckpt_dir, "best.pt")
-        if os.path.exists(best_path):
-            print("Evaluating BEST checkpoint ...")
-            model = config["create_model"]().to(device)
-            model.load_state_dict(torch.load(best_path, map_location=device))
-            BATCH = 32 if arch == "cnn" else 8
-            best_loss = evaluate_on_chunks(model, test_chunks, arch, device, BATCH)
-            csv_logger.log_val(epoch="BEST", val_loss=float(best_loss))
-            model_results["BEST"] = float(best_loss)
+            # CSV logging: patch our logger to include fidelity columns
+            csv_logger.log_val(epoch=epoch, val_loss=test_loss)
+            # Append a fidelity-only line:
+            with open(csv_logger.csv_path, "a") as f:
+                f.write(f"{epoch},fid,,,{fid_mean}\n")
+
+            model_results[epoch] = {
+                "loss": float(test_loss),
+                "fid_mean": float(fid_mean),
+                "fid_std": float(fid_std),
+            }
 
         results[name] = model_results
 

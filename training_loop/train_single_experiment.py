@@ -16,12 +16,14 @@ def train_single_experiment(name, config, train_chunks, val_chunks, device):
     ckpt_dir = f"checkpoints_2/{name}"
     os.makedirs(ckpt_dir, exist_ok=True)
 
+    # Unified CSV logger (handles formatting safely)
     csv_logger = CSVLogger(csv_dir="csvs_2", name=name)
 
-    # Model + Optimizer
+    # Model + optimizer
     model = config["create_model"]().to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=3e-4)
 
+    # Hyperparameters
     EPOCHS = 100
     BATCH = 32 if arch == "cnn" else 8
 
@@ -33,10 +35,12 @@ def train_single_experiment(name, config, train_chunks, val_chunks, device):
 
     best_val = float("inf")
 
-    for epoch in range(1, EPOCHS+1):
+    for epoch in range(1, EPOCHS + 1):
         print(f"Epoch {epoch}")
 
-        # Training loop
+        # --------------------------
+        # Training over all chunks
+        # --------------------------
         for c_idx, (X, Y) in enumerate(train_chunks):
             ds = ChunkDataset(X, Y, arch)
             loader = DataLoader(ds, batch_size=BATCH, shuffle=True)
@@ -51,20 +55,28 @@ def train_single_experiment(name, config, train_chunks, val_chunks, device):
                 train_loss.backward()
                 optimizer.step()
 
-                # CSV logging (SAFE)
+                # Safe CSV logging
                 csv_logger.log_train(epoch, c_idx, b_idx, float(train_loss.item()))
 
             print(f"  chunk {c_idx} final batch loss = {train_loss.item():.6f}")
 
+        # --------------------------
         # Validation
+        # --------------------------
         val_loss = evaluate_on_chunks(model, val_chunks, arch, device, BATCH)
         print(f"Validation loss: {val_loss:.6f}")
 
         csv_logger.log_val(epoch, float(val_loss))
 
-        # Save best model
+        # Save best checkpoint
         if val_loss < best_val:
             best_val = val_loss
-            torch.save(model.state_dict(), f"{ckpt_dir}/best.pt")
-            print(f"{epoch} is the best checkpoint so far.")
-        torch.save(model.state_dict(), f"{ckpt_dir}/{epoch}.pt")
+            best_path = os.path.join(ckpt_dir, "best.pt")
+            torch.save(model.state_dict(), best_path)
+            print(f"Saved BEST checkpoint → {best_path}")
+
+        # Save epoch checkpoint
+        epoch_path = os.path.join(ckpt_dir, f"epoch_{epoch}.pt")
+        torch.save(model.state_dict(), epoch_path)
+        print(f"Saved checkpoint → {epoch_path}")
+
