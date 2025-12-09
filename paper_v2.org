@@ -38,43 +38,6 @@ Quantum error mitigation offers an alternative aligned with current hardware con
 * Related implementations
 ** TODO Summarize prior ML denoising architectures 
 * Methods
-** Convolutional Autoencoder
-The convolutional autoencoder follows the architecture introduced by [cite:@kendre2025machinelearningquantumnoise] for density-matrix denoising. The model treats each 32×32 complex-valued density matrix as a two-channel image (real and imaginary components), enabling the network to exploit the local spatial patterns created by different quantum noise channels. The encoder consists of a sequence of convolutional blocks with ReLU activations and 2×2 max-pooling, progressively reducing spatial resolution while expanding the channel dimension (2→48→96→192). The decoder mirrors the encoder through nearest-neighbor upsampling and transposed convolutions, reconstructing the full resolution density matrix. A final convolutional layer projects the output back to two channels representing the real and imaginary components.
-** Transformer Autoencoder 
-The Transformer autoencoder models each 32×32 complex-valued density matrix as a sequence of token embeddings, where each token corresponds to a row or column vectorized from the matrix’s real and imaginary parts. This architecture allows every element in the input to attend globally to every other element, preserving the non-local structure characteristic of entangled quantum states. The encoder consists of a stack of Transformer encoder layers with multi-head self-attention, enabling the model to capture global correlations across the entire state. The encoded sequence is compressed through a symmetric bottleneck module that projects the embedding dimension down and back up, serving as a latent representation. The decoder comprises Transformer decoder layers that apply both self-attention within the output sequence and cross-attention to the encoder memory. A linear projection generates the reconstructed sequence, which is reshaped into a 2D matrix.
-** Normalized Frobenius fidelity loss
-The reconstruction loss used in our experiments is a normalized Frobenius inner product that measures the correlation between predicted and target density matrices. For each predicted–target pair of density matrices ($\hat{\rho}$) and ($\rho$), the loss is computed as
-$$
-\mathcal{L}_{\text{fid}}(\hat{\rho}, \rho) = 1 - \frac{\mathrm{Re}\langle \hat{\rho}, \rho \rangle_F}{\lVert \hat{\rho} \rVert_F \cdot \lVert \rho \rVert_F}
-$$
-where ($\langle \hat{\rho}, \rho \rangle_F = \mathrm{Tr}(\hat{\rho}^\dagger \rho)$) is the Frobenius inner product and ($\lVert \cdot \rVert_F$) is the Frobenius norm. This formulation is analogous to cosine similarity for complex matrices: it measures the alignment between predicted and target states while normalizing for magnitude differences. The loss is bounded between 0 and 2, achieving 0 when the matrices are perfectly aligned and 2 when they are maximally anti-correlated.
-
-Unlike the squared Frobenius distance ($\lVert \hat{\rho} - \rho \rVert_F^2$), the normalized fidelity is scale-invariant and focuses on structural similarity rather than absolute elementwise error. This property is desirable for density-matrix reconstruction, where preserving the relative structure of coherences matters more than matching raw magnitudes. The Uhlmann fidelity remains the correct operational measure of quantum state distinguishability, but its reliance on matrix square roots and diagonalization makes it orders of magnitude more expensive to evaluate during training. The normalized Frobenius fidelity provides a computationally efficient proxy that correlates well with reconstruction quality while remaining compatible with gradient-based optimization.
-** Physics-informed loss
-
-The physics term enforces the basic structural axioms of a valid density matrix during reconstruction. Given a predicted state ($\hat{\rho}$), the loss penalizes violations of Hermiticity, trace normalization, and positive semidefiniteness, which are the three core constraints defining legitimate quantum states. Hermiticity is enforced by measuring the deviation between ($\hat{\rho}$) and its conjugate transpose, trace preservation is encouraged by penalizing deviations of ($\mathrm{Tr}(\hat{\rho})$) from unity, and positivity is promoted by penalizing negative eigenvalues of ($\hat{\rho}$). Together, these terms guide the model toward producing physically consistent outputs, irrespective of the noise model or architecture.
-
-Formally, 
-$$
-\mathcal{L}_{physics}(\hat{\rho})
-= \lambda_{\mathrm{herm}} \left|\hat{\rho} - \hat{\rho}^\dagger\right|_2^2 +
-\lambda_{\mathrm{trace}},\big(\mathrm{Tr}(\hat{\rho}) - 1\big)^2 +
-\lambda_{\mathrm{psd}},\big| \min(0,, \lambda_i(\hat{\rho})) \big|_2^2 ,
-$$
-
-  where ($\lambda_i(\hat{\rho})$) are the eigenvalues of ($\hat{\rho}$). The total training loss combines this term with the normalized fidelity loss
-
-$$
-\mathcal{L}_{total} = \mathcal{L}_{\text{fid}}(\hat{\rho}, \rho) + 0.1 \cdot \mathcal{L}_{physics}(\hat{\rho}).
-$$
-
-The physics term is weighted by 0.1 to prevent it from dominating the reconstruction objective during early training.
-*** TODO Citation needed on that loss
-** TODO Talk about how the transformer reshapes outputs to images for compatibility with CNN and how the loss functions are designed around the CNN
-
-
-
-
 ** Dataset 
 All experiments use 5-qubit quantum states, each represented as a 32 $\times$ 32 density matrix since the Hilbert space of an /n/-qubit system has dimension $2^n$. Clean states are generated by sampling random quantum circuits with depths uniformly drawn from 6 to 9 layers. Each layer applies (i) a single-qubit gate chosen uniformly from \(\{X, Y, Z, H, T, S, R_x(\theta), R_y(\theta), R_z(\theta)\}\) with \(\theta \sim \mathcal{U}(0, 2\pi)\), followed by (ii) two randomly selected adjacent two-qubit gates from \(\{CNOT, CZ, SWAP\}\). This produces moderately deep circuits with nontrivial entanglement structure.
 
@@ -111,6 +74,39 @@ $$
 $$
 
 As previously stated, the mixed channel applies these four channels sequentially, each with strength /p/ /4.
+
+** Convolutional Autoencoder
+The convolutional autoencoder follows the architecture introduced by [cite:@kendre2025machinelearningquantumnoise] for density-matrix denoising. The model treats each 32×32 complex-valued density matrix as a two-channel image (real and imaginary components), enabling the network to exploit the local spatial patterns created by different quantum noise channels. The encoder consists of a sequence of convolutional blocks with ReLU activations and 2×2 max-pooling, progressively reducing spatial resolution while expanding the channel dimension (2→48→96→192). The decoder mirrors the encoder through nearest-neighbor upsampling and transposed convolutions, reconstructing the full resolution density matrix. A final convolutional layer projects the output back to two channels representing the real and imaginary components.
+** Transformer Autoencoder 
+The Transformer autoencoder models each 32×32 complex-valued density matrix as a sequence of token embeddings, where each token corresponds to one element in the row-vectorized matrix, with real and imaginary parts. This architecture allows every element in the input to attend globally to every other element, preserving the non-local structure characteristic of entangled quantum states. The encoder consists of a stack of Transformer encoder layers with multi-head self-attention, enabling the model to capture global correlations across the entire state. The encoded sequence is compressed through a symmetric bottleneck module that projects the embedding dimension down and back up, serving as a latent representation. The decoder comprises Transformer decoder layers that apply both self-attention within the output sequence and cross-attention to the encoder memory. A linear projection generates the reconstructed sequence, which is reshaped into a 2D matrix.
+** Normalized Frobenius fidelity loss
+The reconstruction loss used in our experiments is a normalized Frobenius inner product that measures the correlation between predicted and target density matrices. For each predicted–target pair of density matrices ($\hat{\rho}$) and ($\rho$), the loss is computed as
+$$
+\mathcal{L}_{\text{fid}}(\hat{\rho}, \rho) = 1 - \frac{\mathrm{Re}\langle \hat{\rho}, \rho \rangle_F}{\lVert \hat{\rho} \rVert_F \cdot \lVert \rho \rVert_F}
+$$
+where ($\langle \hat{\rho}, \rho \rangle_F = \mathrm{Tr}(\hat{\rho}^\dagger \rho)$) is the Frobenius inner product and ($\lVert \cdot \rVert_F$) is the Frobenius norm. This formulation is analogous to cosine similarity for complex matrices: it measures the alignment between predicted and target states while normalizing for magnitude differences. The loss is bounded between 0 and 2, achieving 0 when the matrices are perfectly aligned and 2 when they are maximally anti-correlated.
+
+Unlike the squared Frobenius distance ($\lVert \hat{\rho} - \rho \rVert_F^2$), the normalized fidelity is scale-invariant and focuses on structural similarity rather than absolute elementwise error. This property is desirable for density-matrix reconstruction, where preserving the relative structure of coherences matters more than matching raw magnitudes. The Uhlmann fidelity remains the correct operational measure of quantum state distinguishability, but its reliance on matrix square roots and diagonalization makes it orders of magnitude more expensive to evaluate during training. The normalized Frobenius fidelity provides a computationally efficient proxy that correlates well with reconstruction quality while remaining compatible with gradient-based optimization.
+** Physics-informed loss
+
+The physics term enforces the basic structural axioms of a valid density matrix during reconstruction. Given a predicted state ($\hat{\rho}$), the loss penalizes violations of Hermiticity, trace normalization, and positive semidefiniteness, which are the three core constraints defining legitimate quantum states. Hermiticity is enforced by measuring the deviation between ($\hat{\rho}$) and its conjugate transpose, trace preservation is encouraged by penalizing deviations of ($\mathrm{Tr}(\hat{\rho})$) from unity, and positivity is promoted by penalizing negative eigenvalues of ($\hat{\rho}$). Together, these terms guide the model toward producing physically consistent outputs, irrespective of the noise model or architecture.
+
+Formally, 
+$$
+\mathcal{L}_{physics}(\hat{\rho})
+= \lambda_{\mathrm{herm}} \left|\hat{\rho} - \hat{\rho}^\dagger\right|_2^2 +
+\lambda_{\mathrm{trace}},\big(\mathrm{Tr}(\hat{\rho}) - 1\big)^2 +
+\lambda_{\mathrm{psd}},\big| \min(0,, \lambda_i(\hat{\rho})) \big|_2^2 ,
+$$
+
+  where ($\lambda_i(\hat{\rho})$) are the eigenvalues of ($\hat{\rho}$). The total training loss combines this term with the normalized fidelity loss
+
+$$
+\mathcal{L}_{total} = \mathcal{L}_{\text{fid}}(\hat{\rho}, \rho) + 0.1 \cdot \mathcal{L}_{physics}(\hat{\rho}).
+$$
+
+The physics term is weighted by 0.1 to prevent it from dominating the reconstruction objective during early training.
+*** TODO Citation needed on that loss
 * Experimental Design
 We evaluate the four denoising configurations under a controlled and reproducible simulation pipeline designed to isolate the effects of architecture and loss function. All models are trained to map noisy density matrices to their clean counterparts using identical optimization settings. Training uses the Adam optimizer with a learning rate of 3e-4, a batch size of 8 for the transformer and 32 for the CNN, and a fixed budget of 100 epochs. Weight initialization follows PyTorch defaults, and a validation split of ten percent of the training set is used for checkpoint selection based on validation loss. Each model is trained using PyTorch's default random initialization.
 
