@@ -1,4 +1,4 @@
-#+OPTIONS: toc:nil
+ #+OPTIONS: toc:nil
 #+LATEX_CLASS_OPTIONS: [a4paper, 11pt, colorlinks=true, citecolor=., linkcolor=black, urlcolor=black]
 #+LATEX_HEADER: \usepackage{fourier}
 #+LATEX_HEADER: \usepackage{tikz}
@@ -94,7 +94,8 @@ $$
 $$
 where ($\langle \hat{\rho}, \rho \rangle_F = \mathrm{Tr}(\hat{\rho}^\dagger \rho)$) is the Frobenius inner product and ($\lVert \cdot \rVert_F$) is the Frobenius norm. This formulation is analogous to cosine similarity for complex matrices: it measures the alignment between predicted and target states while normalizing for magnitude differences. The loss is bounded between 0 and 2, achieving 0 when the matrices are perfectly aligned and 2 when they are maximally anti-correlated.
 
-Unlike the squared Frobenius distance ($\lVert \hat{\rho} - \rho \rVert_F^2$), the normalized fidelity is scale-invariant and focuses on structural similarity rather than absolute elementwise error. This property is desirable for density-matrix reconstruction, where preserving the relative structure of coherences matters more than matching raw magnitudes. The Uhlmann fidelity remains the correct operational measure of quantum state distinguishability, but its reliance on matrix square roots and diagonalization makes it orders of magnitude more expensive to evaluate during training. The normalized Frobenius fidelity provides a computationally efficient proxy that correlates well with reconstruction quality in our experiments while remaining compatible with gradient-based optimization.
+Unlike the squared Frobenius distance ($\lVert \hat{\rho} - \rho \rVert_F^2$), the normalized fidelity is scale-invariant and focuses on structural similarity rather than absolute elementwise error. This property is desirable for density-matrix reconstruction, where p
+reserving the relative structure of coherences matters more than matching raw magnitudes. The Uhlmann fidelity remains the correct operational measure of quantum state distinguishability, but its reliance on matrix square roots and diagonalization makes it orders of magnitude more expensive to evaluate during training. The normalized Frobenius fidelity provides a computationally efficient proxy that correlates well with reconstruction quality in our experiments while remaining compatible with gradient-based optimization.
 ** Physics-informed loss
 
 The physics term enforces the basic structural axioms of a valid density matrix during reconstruction. Given a predicted state ($\hat{\rho}$), the loss penalizes violations of Hermiticity, trace normalization, and positive semidefiniteness, which are the three core constraints defining legitimate quantum states[cite:@Torlai2018]. Hermiticity is enforced by measuring the deviation between ($\hat{\rho}$) and its conjugate transpose, trace preservation is encouraged by penalizing deviations of ($\mathrm{Tr}(\hat{\rho})$) from unity, and positivity is promoted by penalizing negative eigenvalues of ($\hat{\rho}$). Together, these terms guide the model toward producing physically consistent outputs, irrespective of the noise model or architecture.
@@ -573,7 +574,6 @@ Across all four models, we observe clear and stable convergence patterns, but wi
 The transformer models behave very differently. Both transformer variants undergo a rapid and steep drop in loss during the first 5–10 epochs, followed by a long plateau phase with only marginal improvements thereafter. This is characteristic of overparameterized attention models: once the model discovers a representation that captures the dominant global correlations, subsequent training mostly fine-tunes local structure and stabilizes the latent space. The physics-informed transformer exhibits a slightly higher early-stage loss due to the additional constraints, but it converges to a value similar to the unconstrained version, suggesting that the transformer’s capacity is large enough to satisfy physical priors without sacrificing reconstruction performance. Importantly, neither transformer shows signs of divergence, mode collapse, or pathological oscillation during training; after the initial sharp transient, the curves flatten and become smooth.
 
 Overall, the training trajectories align well with architectural expectations: CNNs improve slowly but consistently, while transformers learn fast and then saturate. The physics-informed regularization increases training loss for both families, but does not destabilize optimization, and the regularized models converge to values within a small margin of their unconstrained baselines.
-
 
 *** Architecture and Loss Function Comparison
 [[./figures/fidelity_log_combined.png]]
