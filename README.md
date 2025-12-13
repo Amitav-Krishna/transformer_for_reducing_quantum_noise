@@ -51,6 +51,8 @@ This project compares CNN and Transformer autoencoders for density-matrix denois
 | `figures/baseline_comparison_charts.py` | Generates baseline heatmap, improvement heatmaps, and bar charts |
 | `figures/transformer_architecture.py` | Generates transformer architecture diagram |
 | `figures/uhlmann_bar_chart.py` | Generates Uhlmann fidelity comparison bar chart |
+| `figures/uhlmann_vs_frobenius_baseline.py` | Compares Uhlmann vs Frobenius fidelity on noisy-vs-clean baseline |
+| `figures/spearman_uhlmann_frobenius.py` | Computes Spearman's ρ between Uhlmann and Frobenius over test set |
 
 ---
 
@@ -246,9 +248,13 @@ python figures/transformer_architecture.py
 
 ## Dependencies
 
-- PyTorch
-- Cirq (for dataset generation)
-- pandas, numpy, matplotlib
-- tqdm
+```bash
+pip install -r requirements.txt
+```
 
-See `venv/` for the full virtual environment.
+- **torch** - PyTorch for model training
+- **numpy, pandas** - Data manipulation
+- **matplotlib, scipy** - Visualization and scientific computing
+- **scikit-learn** - Train/test splitting
+- **cirq** - Quantum circuit simulation for dataset generation
+- **tqdm** - Progress bars

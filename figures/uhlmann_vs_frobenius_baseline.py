@@ -62,6 +62,7 @@ def main():
 
     all_uhlmann = []
     all_frobenius = []
+    all_meta = []
 
     print("Computing fidelities for noisy vs clean test states...")
     for blob in test_chunks:
@@ -86,9 +87,14 @@ def main():
                 "noise_level": m["noise_level"],
                 "frobenius_fidelity": float(ff)
             })
+            all_meta.append(m)
 
     df_uhl = pd.DataFrame(all_uhlmann)
     df_frob = pd.DataFrame(all_frobenius)
+
+    # Arrays for scatter plot
+    uhl_arr = df_uhl["uhlmann_fidelity"].values
+    frob_arr = df_frob["frobenius_fidelity"].values
 
     # Aggregate by noise type and level
     uhl_agg = df_uhl.groupby(["noise_type", "noise_level"])["uhlmann_fidelity"].agg(["mean", "std"]).reset_index()
@@ -198,6 +204,51 @@ def main():
     plt.savefig(out_path2)
     plt.savefig(out_path2.replace(".pdf", ".png"))
     print(f"Saved: {out_path2}")
+    plt.close()
+
+    # Scatter plot: Uhlmann vs Frobenius
+    from scipy.stats import spearmanr
+    rho, pval = spearmanr(uhl_arr, frob_arr)
+
+    fig, ax = plt.subplots(figsize=(8, 8), dpi=150)
+
+    # Color by noise type
+    noise_type_colors = {
+        "depolarizing": "#1f77b4",
+        "amplitude_damping": "#ff7f0e",
+        "phase_damping": "#2ca02c",
+        "bitflip": "#d62728",
+        "mixed": "#9467bd"
+    }
+
+    for ntype in noise_types:
+        mask = df_uhl["noise_type"] == ntype
+        ax.scatter(
+            frob_arr[mask], uhl_arr[mask],
+            c=noise_type_colors.get(ntype, "gray"),
+            label=ntype,
+            alpha=0.5,
+            s=15,
+            edgecolors="none"
+        )
+
+    # Diagonal line (y=x)
+    ax.plot([0, 1], [0, 1], "k--", alpha=0.5, label="y = x")
+
+    ax.set_xlabel("Frobenius Fidelity", fontsize=12)
+    ax.set_ylabel("Uhlmann Fidelity", fontsize=12)
+    ax.set_title(f"Uhlmann vs Frobenius Fidelity (Noisy vs Clean)\nSpearman's ρ = {rho:.4f}, p = {pval:.2e}", fontsize=12, fontweight="bold")
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.set_aspect("equal")
+    ax.legend(loc="upper left", fontsize=9)
+    ax.grid(True, alpha=0.3)
+
+    plt.tight_layout()
+    out_path3 = "figures/uhlmann_vs_frobenius_scatter.pdf"
+    plt.savefig(out_path3)
+    plt.savefig(out_path3.replace(".pdf", ".png"))
+    print(f"Saved: {out_path3}")
     plt.close()
 
 
