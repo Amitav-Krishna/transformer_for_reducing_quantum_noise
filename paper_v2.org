@@ -95,7 +95,9 @@ $$
 where ($\langle \hat{\rho}, \rho \rangle_F = \mathrm{Tr}(\hat{\rho}^\dagger \rho)$) is the Frobenius inner product and ($\lVert \cdot \rVert_F$) is the Frobenius norm. This formulation is analogous to cosine similarity for complex matrices: it measures the alignment between predicted and target states while normalizing for magnitude differences. The loss is bounded between 0 and 2, achieving 0 when the matrices are perfectly aligned and 2 when they are maximally anti-correlated.
 
 Unlike the squared Frobenius distance ($\lVert \hat{\rho} - \rho \rVert_F^2$), the normalized fidelity is scale-invariant and focuses on structural similarity rather than absolute elementwise error. This property is desirable for density-matrix reconstruction, where p
-reserving the relative structure of coherences matters more than matching raw magnitudes. The Uhlmann fidelity remains the correct operational measure of quantum state distinguishability, but its reliance on matrix square roots and diagonalization makes it orders of magnitude more expensive to evaluate during training. The normalized Frobenius fidelity provides a computationally efficient proxy that correlates well with reconstruction quality in our experiments while remaining compatible with gradient-based optimization.
+reserving the relative structure of coherences matters more than matching raw magnitudes. The Uhlmann fidelity remains the correct operational measure of quantum state distinguishability, but its reliance on matrix square roots and diagonalization makes it orders of magnitude more expensive to evaluate during training. While the correlation between the Frobenius and Uhlmann fidelity is strongly nonlinear (Fig. 1), we observe a very strong rank correlation between the two metrics (Spearman's \(\rho\) = 0.95, p \(\ll\) 10^(-10)), indicating that improvements under the Frobenius objective consistently correspond to improvements in operational fidelity.
+#+CAPTION: Relationship between normalized Frobenius fidelity and Uhlmann fidelity for noisy input states across all noise types and strengths. Each point corresponds to a noisy–clean state pair, colored by noise channel. Although the relationship is strongly nonlinear, the two metrics exhibit a very strong monotonic association (Spearman’s \(\rho\) = 0.95), indicating that improvements under the Frobenius objective consistently correspond to improvements in operational fidelity
+[[./figures/uhlmann_vs_frobenius_scatter.png]]
 ** Physics-informed loss
 
 The physics term enforces the basic structural axioms of a valid density matrix during reconstruction. Given a predicted state ($\hat{\rho}$), the loss penalizes violations of Hermiticity, trace normalization, and positive semidefiniteness, which are the three core constraints defining legitimate quantum states[cite:@Torlai2018]. Hermiticity is enforced by measuring the deviation between ($\hat{\rho}$) and its conjugate transpose, trace preservation is encouraged by penalizing deviations of ($\mathrm{Tr}(\hat{\rho})$) from unity, and positivity is promoted by penalizing negative eigenvalues of ($\hat{\rho}$). Together, these terms guide the model toward producing physically consistent outputs, irrespective of the noise model or architecture.
@@ -115,6 +117,8 @@ $$
 $$
 
 The physics term is weighted by 0.1 to prevent it from dominating the reconstruction objective during early training.
+
+We note that the positive-semidefiniteness penalty requires eigenvalue computation, which introduces additional nonlinearity and may affect optimization stability; we return to this in the discussion.
 * Experimental Design
 We evaluate the four denoising configurations under a controlled and reproducible simulation pipeline designed to isolate the effects of architecture and loss function. All models are trained to map noisy density matrices to their clean counterparts using identical optimization settings. Training uses the Adam optimizer with a learning rate of 3e-4, a batch size of 8 for the transformer and 32 for the CNN, and a fixed budget of 100 epochs. Weight initialization follows PyTorch defaults, and a validation split of ten percent of the training set is used for checkpoint selection based on validation loss. Each model is trained using PyTorch's default random initialization.
 
@@ -150,8 +154,9 @@ Evaluation is performed on the held out test set using multiple metrics. These i
 | Activation           | ReLU                                                  | GELU                                        |
 | Parameter Budget     | ~500k                                                 | ~500k                                       |
 /We avoid patch embeddings in the Transformer to preserve element-level nonlocal structure; patching would impose a locality bias that conflicts with the architectural comparison./
-** TODO Add details on compute used
-*** It was an RTX A4000 
+Model capacities are kept comparable across architectures by matching parameter counts within ten percent. Different batch sizes were used to accommodate memory constraints while keeping optimization settings otherwise identical.
+** Compute resources
+All experiments were conducted on a single NVIDIA RTX A4000 GPU with 16 GB of memory. Both the convolutional and transformer models fit entirely on a single GPU without gradient checkpointing or model parallelism. Training each model for 100 epochs required approximately 2–3 hours of wall-clock time, depending on architecture and batch size. No specialized hardware or distributed training was used.
 #+LATEX:\newpage
 * Results
 Transformers outperform CNNs by one to two orders of magnitude in fidelity, while physics-informed losses stabilize weaker models and constrain stronger ones. Across noise types and noise levels, transformer models retain structure that CNNs consistently lose, and the physics-informed variant trades peak performance for robustness under heavy corruption. These patterns appear consistently across training curves, test metrics, and noise-resolved evaluations, and they frame the detailed comparisons presented in the sections that follow.
