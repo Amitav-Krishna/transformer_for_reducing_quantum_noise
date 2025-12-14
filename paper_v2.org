@@ -12,11 +12,11 @@
 #+TITLE: Comparing Machine Learning Strategies for Quantum Noise Reduction
 /This is currently a work in progress. The todos will be removed once the training has been run./
 * Abstract
-Machine-learning denoisers for entangled quantum states greatly benefit from modeling global structure and long-range correlations in density matrices. We compare convolutional and transformer autoencoders for synthetic state-level density-matrix denoising across multiple noise channels. Averaged across 20 noise settings, noisy inputs have mean Uhlmann fidelity 0.11 to clean targets; a transformer trained with a Frobenius-norm reconstruction loss improves fidelity to 0.95, while a CNN trained with the same loss improves it to 0.30. In contrast, adding soft physics-based penalties for Hermiticity, positive semi-definiteness, and unit trace degrades performance for both architectures, and the physics-informed CNN underperforms the noisy baseline. These results suggest global-context architectures are advantageous for quantum state denoising and caution that naive soft physical regularization can be counterproductive.
+Denoising entangled quantum states requires capturing global structure and long-range correlations in density matrices, yet it remains unclear whether architectural inductive biases or raw model capacity drive performance. We compare convolutional and transformer autoencoders on synthetic density-matrix denoising across 20 noise settings, using Uhlmann fidelity to measure reconstruction quality. From a baseline of 0.11 fidelity for noisy inputs, a transformer with only 119k parameters achieves 0.95 fidelity, while a CNN with 749k parameters reaches just 0.30. The transformer closes 94% of the gap to perfect reconstruction compared to the CNN's 21%. Counterintuitively, scaling the transformer to 751k parameters to match CNN capacity /degrades/ performance to 0.87 fidelity, suggesting that the transformer's advantage is consistent with architectural properties rather than parameter count. Adding soft physics-based regularization (Hermiticity, positive semi-definiteness, unit trace) harms both architectures. These results suggest that architectural inductive bias, not capacity, is the primary factor in denoising efficacy for this task, though the precise mechanism requires further investigation.
 * Introduction
 Prior work has explored convolutional architectures for quantum state denoising, leveraging locally structured patterns induced by density-matrix representations to mitigate the effects of decoherence without assuming explicit knowledge of the underlying hardware noise channel [cite:@kendre2025machinelearningquantumnoise]. Earlier approaches employ feedforward neural networks to reconstruct states corrupted by unknown dynamics, demonstrating that supervised neural models can learn effective, data-driven mappings from noisy to cleaner quantum states [cite:@Morgillo_2024].
 
-Beyond state-level denoising, machine learning has been widely applied to quantum error correction and control. Classical convolutional decoders and multilayer perceptron models trained on local stabilizer syndrome neighborhoods which limits scalability and often necessitates retraining when code distances change. Transformer-based QEC decoders address this limitation by processing stabilizer syndromes globally, enabling access to long-range correlations and improved generalization across code parameters [cite:@wang2023transformerqecquantumerrorcorrection]. Related work applies reinforcement learning and optimal control networks to closed-loop quantum control tasks, targeting robustness at the hardware and pulse levels rather than direct state reconstruction [cite:@Ma_2025].
+Beyond state-level denoising, machine learning has been widely applied to quantum error correction and control. Classical convolutional decoders and multilayer perceptron models have been trained on local stabilizer syndrome neighborhoods, but this approach limits scalability and often necessitates retraining when code distances change. Transformer-based QEC decoders address this limitation by processing stabilizer syndromes globally, enabling access to long-range correlations and improved generalization across code parameters [cite:@wang2023transformerqecquantumerrorcorrection]. Related work applies reinforcement learning and optimal control networks to closed-loop quantum control tasks, targeting robustness at the hardware and pulse levels rather than direct state reconstruction [cite:@Ma_2025].
 
 At a higher level, approaches to managing hardware noise broadly fall into quantum error correction (QEC) and quantum error mitigation (QEM). QEC provides a principled route to fault-tolerant computation by encoding logical information into larger composite systems and continuously detecting and correcting physical errors, with threshold theorems guaranteeing scalability in the asymptotic regime [cite:@Bravyi_2024; @202509.2149]. However, current devices remain far above these thresholds, and the overhead associated with large code distances and real-time decoding limits near-term applicability.
 
@@ -38,11 +38,11 @@ Positivity constrained feed-forward neural networks convert outputs to valid qua
 Quantum machine learning for quantum error correction in a quantum memory. How quantum autoencoders can be trained to learn optimal streategies for active detection and correction of errors, including spatially correlated computational errors as well as qubit losses. 
 
 * Related implementations
-Recent work has explored convolutional autoencoders for density-matrix denoising. Kendre et al. introduced a CNN-based approach that treats the density matrix as a two-channel image and applies standard encoder-decoder convolutions to map noisy states to clean reconstructions [cite:@kendre2025machinelearningquantumnoise]. This architecture exploits local spatial correlations, but its inductive bias makes modeling long-range correlations induced by entanglement inefficient. Morgillo et al. used feedforward networks for states corrupted by unknown noise channels, demonstrating model-agnostic denoising, but without examining how architectural inductive biases affect performance on entangled states or comparing architectures with different global context mechanisms. Neither approach has been systematically compared to architectures capable of modeling long-range correlations induced by entanglement.
+Recent work has explored convolutional autoencoders for density-matrix denoising. Kendre et al. introduced a CNN-based approach that treats the density matrix as a two-channel image and applies standard encoder-decoder convolutions to map noisy states to clean reconstructions [cite:@kendre2025machinelearningquantumnoise]. This architecture exploits local spatial correlations, but its inductive bias makes modeling global correlations across the full matrix inefficient. Morgillo et al. used feedforward networks for states corrupted by unknown noise channels, demonstrating model-agnostic denoising, but without examining how architectural inductive biases affect performance on entangled states or comparing architectures with different global context mechanisms. Neither approach has been systematically compared to architectures capable of modeling non-local structure in entangled quantum states.
 
 A related line of work enforces physical validity through hard constraints in quantum state reconstruction. Koutny et al. proposed positivity-constrained feedforward networks that project outputs onto the space of valid quantum states, guaranteeing Hermiticity and positive semidefiniteness by construction [cite:@PhysRevA.106.012409]. While effective for tomography, this approach does not address whether the network itself learns representations suited to quantum structure, nor how constraint enforcement interacts with denoising performance when constraints are enforced approximately rather than exactly.
 
-Transformer architectures have been explored for related quantum tasks but not for density-matrix denoising. Wang et al. introduced Transformer-QEC for syndrome decoding in quantum error correction, demonstrating that self-attention enables global receptive fields that outperform local CNN decoders for quantum error-decoding tasks requiring access to long-range correlations induced by entanglement [cite:@wang2023transformerqecquantumerrorcorrection]. Their work motivates our hypothesis that attention mechanisms may similarly benefit density-matrix reconstruction, where long-range correlations induced by entanglement are fundamental.
+Transformer architectures have been explored for related quantum tasks but not for density-matrix denoising. Wang et al. introduced Transformer-QEC for syndrome decoding in quantum error correction, demonstrating that self-attention enables global receptive fields that outperform local CNN decoders for quantum error-decoding tasks requiring access to correlations across the full syndrome [cite:@wang2023transformerqecquantumerrorcorrection]. Their work motivates our hypothesis that attention mechanisms may similarly benefit density-matrix reconstruction, where global correlations are fundamental.
 
 No prior work has directly compared convolutional and attention-based architectures for density-matrix denoising under controlled conditions, nor evaluated the impact of physics-informed regularization on reconstruction quality. Our experiments address both gaps.
 * Methods
@@ -74,8 +74,17 @@ $$
 Phase damping applies
 
 $$
-K_0 = \sqrt{1-p}I, & K_1 = \sqrt{p}Z.
+K_0 = \begin{pmatrix}
+1 & 0\\
+0 & \sqrt{1-p}
+\end{pmatrix},
+K_1 = \begin{pmatrix}
+0 & 0\\
+0 & \sqrt{p}
+\end{pmatrix}
 $$
+
+which models pure dephasing (T_\phi), causing loss of off-diagonal coherence without energy exchange.
 Bit flip noise is
 
 $$
@@ -87,16 +96,15 @@ As previously stated, the mixed channel applies these four channels sequentially
 The convolutional autoencoder is inspired by the architecture introduced in [cite:@kendre2025machinelearningquantumnoise] for density-matrix denoising. The model treats each 32×32 complex-valued density matrix as a two-channel image (real and imaginary components), enabling the network to exploit the local spatial patterns created by different quantum noise channels. The encoder consists of a sequence of convolutional blocks with ReLU activations and 2×2 max-pooling, progressively reducing spatial resolution while expanding the channel dimension (2→48→96→192). The decoder mirrors the encoder through nearest-neighbor upsampling and transposed convolutions, reconstructing the full resolution density matrix. A final convolutional layer projects the output back to two channels representing the real and imaginary components.
 ** Transformer Autoencoder
 The Transformer autoencoder models each 32×32 complex-valued density matrix as a sequence of token embeddings, where each token corresponds to one element in the row-vectorized matrix, with real and imaginary parts. This architecture allows every element in the input to attend globally to every other element, preserving the /non-local/ structure characteristic of entangled quantum states. The encoder consists of a stack of Transformer encoder layers with multi-head self-attention, enabling the model to capture global correlations across the entire state. The encoded sequence is compressed through a symmetric bottleneck module that projects the embedding dimension down and back up, serving as a latent representation. The decoder comprises Transformer decoder layers that apply both self-attention within the output sequence and cross-attention to the encoder memory. A linear projection generates the reconstructed sequence, which is reshaped into a 2D matrix. The transformer uses learned absolute positional embeddings over the flattened density-matrix elements, allowing the model to distinguish matrix positions while preserving global attention across all entries.
-** Normalized Frobenius fidelity loss
+** Normalized Frobenius similarity loss
 The reconstruction loss used in our experiments is a normalized Frobenius inner product that measures the correlation between predicted and target density matrices. For each predicted–target pair of density matrices ($\hat{\rho}$) and ($\rho$), the loss is computed as
 $$
-\mathcal{L}_{\text{fid}}(\hat{\rho}, \rho) = 1 - \frac{\mathrm{Re}\langle \hat{\rho}, \rho \rangle_F}{\lVert \hat{\rho} \rVert_F \cdot \lVert \rho \rVert_F}
+\mathcal{L}_{\text{sim}}(\hat{\rho}, \rho) = 1 - \frac{\mathrm{Re}\langle \hat{\rho}, \rho \rangle_F}{\lVert \hat{\rho} \rVert_F \cdot \lVert \rho \rVert_F}
 $$
-where ($\langle \hat{\rho}, \rho \rangle_F = \mathrm{Tr}(\hat{\rho}^\dagger \rho)$) is the Frobenius inner product and ($\lVert \cdot \rVert_F$) is the Frobenius norm. This formulation is analogous to cosine similarity for complex matrices: it measures the alignment between predicted and target states while normalizing for magnitude differences. The loss is bounded between 0 and 2, achieving 0 when the matrices are perfectly aligned and 2 when they are maximally anti-correlated.
+where ($\langle \hat{\rho}, \rho \rangle_F = \mathrm{Tr}(\hat{\rho}^\dagger \rho)$) is the Frobenius inner product and ($\lVert \cdot \rVert_F$) is the Frobenius norm. This formulation is analogous to cosine similarity for complex matrices: it measures the alignment between predicted and target states while normalizing for magnitude differences. The normalized inner product is bounded above by 1 via the Cauchy-Schwarz inequality; for valid density matrices (positive semi-definite), the Frobenius inner product is non-negative, restricting the normalized similarity to [0, 1] and hence the loss to [0, 1]. During training, before outputs are fully constrained, the loss can exceed 1.
 
-Unlike the squared Frobenius distance ($\lVert \hat{\rho} - \rho \rVert_F^2$), the normalized fidelity is scale-invariant and focuses on structural similarity rather than absolute elementwise error. This property is desirable for density-matrix reconstruction, where p
-reserving the relative structure of coherences matters more than matching raw magnitudes. The Uhlmann fidelity remains the correct operational measure of quantum state distinguishability, but its reliance on matrix square roots and diagonalization makes it orders of magnitude more expensive to evaluate during training. While the correlation between the Frobenius and Uhlmann fidelity is strongly nonlinear (Fig. 1), we observe a very strong rank correlation between the two metrics (Spearman's \(\rho\) = 0.95, p \(\ll\) 10^(-10)), indicating that improvements under the Frobenius objective consistently correspond to improvements in operational fidelity.
-#+CAPTION: Relationship between normalized Frobenius fidelity and Uhlmann fidelity for noisy input states across all noise types and strengths. Each point corresponds to a noisy–clean state pair, colored by noise channel. Although the relationship is strongly nonlinear, the two metrics exhibit a very strong monotonic association (Spearman’s \(\rho\) = 0.95), indicating that improvements under the Frobenius objective consistently correspond to improvements in operational fidelity
+Unlike the squared Frobenius distance ($\lVert \hat{\rho} - \rho \rVert_F^2$), the normalized similarity is scale-invariant and focuses on structural alignment rather than absolute elementwise error. This property is desirable for density-matrix reconstruction, where preserving the relative structure of coherences matters more than matching raw magnitudes. The Uhlmann fidelity remains the correct operational measure of quantum state similarity, but its reliance on matrix square roots makes it approximately 30× more expensive to evaluate during training for 32×32 matrices. While the correlation between the Frobenius similarity and Uhlmann fidelity is strongly nonlinear (Fig. 1), we observe a very strong rank correlation between the two metrics (Spearman's \(\rho\) = 0.95, p \(\ll\) 10^(-10)), indicating that improvements under the Frobenius objective consistently correspond to improvements in Uhlmann fidelity.
+#+CAPTION: Relationship between normalized Frobenius similarity and Uhlmann fidelity for noisy input states across all noise types and strengths. Each point corresponds to a noisy–clean state pair, colored by noise channel. Although the relationship is strongly nonlinear, the two metrics exhibit a very strong monotonic association (Spearman's \(\rho\) = 0.95), indicating that improvements under the Frobenius objective consistently correspond to improvements in Uhlmann fidelity.
 [[./figures/uhlmann_vs_frobenius_scatter.png]]
 ** Physics-informed loss
 
@@ -110,7 +118,7 @@ $$
 \lambda_{\mathrm{psd}},\big| \min(0,, \lambda_i(\hat{\rho})) \big|_2^2 ,
 $$
 
-  where ($\lambda_i(\hat{\rho})$) are the eigenvalues of ($\hat{\rho}$). The total training loss combines this term with the normalized fidelity loss
+  where ($\lambda_i(\hat{\rho})$) are the eigenvalues of ($\hat{\rho}$). In all experiments, we use \(\lambda_{\mathrm{herm}} = \lambda_{\mathrm{trace}} = \lambda_{\mathrm{psd}} = 1.0\), weighting all three constraint violations equally. The total training loss combines this term with the normalized fidelity loss
 
 $$
 \mathcal{L}_{total} = \mathcal{L}_{\text{fid}}(\hat{\rho}, \rho) + 0.1 \cdot \mathcal{L}_{physics}(\hat{\rho}).
@@ -123,43 +131,72 @@ We note that the positive-semidefiniteness penalty requires eigenvalue computati
 We evaluate the four denoising configurations under a controlled and reproducible simulation pipeline designed to isolate the effects of architecture and loss function. All models are trained to map noisy density matrices to their clean counterparts using identical optimization settings. Training uses the Adam optimizer with a learning rate of 3e-4, a batch size of 8 for the transformer and 32 for the CNN, and a fixed budget of 100 epochs. Weight initialization follows PyTorch defaults, and a validation split of ten percent of the training set is used for checkpoint selection based on validation loss. Each model is trained using PyTorch's default random initialization.
 
 Evaluation is performed on the held out test set using multiple metrics. These include Uhlmann fidelity between the reconstructed and target states, Frobenius reconstruction error, trace deviation, Hermiticity deviation, and the magnitude of any negative eigenvalues. This combination of metrics allows us to assess both denoising performance and physical validity. Model capacities are kept comparable across architectures by matching parameter counts within ten percent.
+
+Beyond architecture and loss function, several additional factors differ between the CNN and transformer configurations and represent potential confounds. Specifically, the CNN uses ReLU activations while the transformer uses GELU; the CNN uses no dropout while the transformer uses dropout of 0.1; and batch sizes differ (32 for CNN, 8 for transformer) due to memory constraints. These differences were not systematically ablated and could contribute to observed performance gaps independently of the core architectural distinction between convolution and attention.
 ** Hyperparameters
 
 *** Shared Hyperparameters
 
-| Component                   | Value               |
-|-----------------------------+---------------------|
-| Optimizer                   | Adam                     |
-| Learning rate               | 3e-4                     |
-| Weight decay                | 0                        |
-| Epochs                      | 100                      |
-| Checkpoint selection        | Best validation loss     |
-| Dataset size                | 100,000 circuits    |
-| Train/validation/test split | 80/10/10            |
+| Component                   | Value            |
+|-----------------------------+------------------|
+| Optimizer                   | Adam             |
+| Learning rate               | 3e-4             |
+| Weight decay                | 0                |
+| Epochs                      | 100              |
+| Checkpoint selection        | Best validation loss |
+| Dataset size                | 100,000 circuits |
+| Train/validation/test split | 80/10/10         |
+
 *** Architecture-Specific Hyperparameters
+
+To isolate architectural effects from capacity effects, we matched the transformer to the CNN's parameter count as closely as possible. The resulting configurations differ by less than 0.3% in total parameters.
+
 | Component            | Convolutional Autoencoder                             | Transformer Autoencoder                     |
 |----------------------+-------------------------------------------------------+---------------------------------------------|
-| Input representation | 32 $\times$ 32 $\times$ 2                             | 1024 tokens (real/imag)                     |
-| Embedding / channels | 2 $\rightarrow$ 48 $\rightarrow$ 96 $\rightarrow$ 192 | Linear 2 $\rightarrow$ 32                   |
+| Input representation | 32 $\times$ 32 $\times$ 2                             | 1024 tokens $\times$ 2 (real/imag)          |
+| Embedding / channels | 2 $\rightarrow$ 48 $\rightarrow$ 96 $\rightarrow$ 192 | Linear 2 $\rightarrow$ 96                   |
 | Batch size           | 32                                                    | 8                                           |
 | Encoder depth        | 3 conv blocks                                         | 4 layers, 4 heads                           |
 | Decoder depth        | 3 conv blocks                                         | 4 layers                                    |
-| Kernel size          | 3 $\times$ 3                                          | -                                           |
-| Pooling              | MaxPool 2 $\times$ 2                                  | -                                           |
-| Upsampling           | Nearest neighbor                                      | -                                           |
-| MLP hidden size      | —                                                     | 64                                          |
-| Dropout              | —                                                     | 0.1                                         |
-| Bottleneck           | —                                                     | Linear 32 $\rightarrow$ 16 $\rightarrow$ 32 |
-| Output projection    | ConvTranspose2d(48 $\rightarrow$ 2)                   | Linear 32 $\rightarrow$ 2                   |
+| Kernel size          | 3 $\times$ 3                                          | —                                           |
+| Pooling              | MaxPool 2 $\times$ 2                                  | —                                           |
+| Upsampling           | Nearest neighbor                                      | —                                           |
+| Feed-forward dim     | —                                                     | 128                                         |
+| Dropout              | 0                                                     | 0.1                                         |
+| Bottleneck           | —                                                     | Linear 96 $\rightarrow$ 48 $\rightarrow$ 96 |
+| Output projection    | ConvTranspose2d(48 $\rightarrow$ 2)                   | Linear 96 $\rightarrow$ 2                   |
 | Activation           | ReLU                                                  | GELU                                        |
-| Parameter Budget     | ~500k                                                 | ~500k                                       |
-/We avoid patch embeddings in the Transformer to preserve element-level nonlocal structure; patching would impose a locality bias that conflicts with the architectural comparison./
-Model capacities are kept comparable across architectures by matching parameter counts within ten percent. Different batch sizes were used to accommodate memory constraints while keeping optimization settings otherwise identical.
+| Parameters           | 748,898                                               | 751,186                                     |
+
+Different batch sizes accommodate memory constraints; attention over 1024 tokens requires substantially more GPU memory than convolution over a 32×32 grid. Optimization settings are otherwise identical.
+
+We avoid patch embeddings in the transformer to preserve element-level resolution; patching would impose a locality bias that conflicts with our architectural comparison.
+
+*** Capacity Ablation
+
+The capacity-matched comparison controls for parameter count, but a natural question arises: does the transformer's advantage stem from its larger embedding dimension, or from the attention mechanism itself? To address this, we also trained a smaller transformer with reduced capacity.
+
+| Component        | Transformer (Matched)                      | Transformer (Small)                        |
+|------------------+--------------------------------------------+--------------------------------------------|
+| Embedding dim    | 96                                         | 32                                         |
+| Feed-forward dim | 128                                        | 64                                         |
+| Bottleneck       | 96 $\rightarrow$ 48 $\rightarrow$ 96       | 32 $\rightarrow$ 16 $\rightarrow$ 32       |
+| Encoder layers   | 4                                          | 4                                          |
+| Decoder layers   | 4                                          | 4                                          |
+| Attention heads  | 4                                          | 4                                          |
+| Dropout          | 0.1                                        | 0.1                                        |
+| Parameters       | 751,186                                    | 119,506                                    |
+
+The small transformer has roughly one-sixth the capacity of the CNN yet achieves 0.95 Uhlmann fidelity, which is higher than the capacity-matched transformer's 0.87. This inversion rules out capacity as the explanation for the transformer's advantage: if parameter count were the mechanism, the larger model should dominate. Instead, the results suggest that the critical factor is the attention mechanism's ability to model global correlations, and that additional capacity may even introduce optimization difficulties or overfitting on this task. The small transformer provides evidence consistent with the hypothesis that architectural inductive bias, not raw model size, is associated with performance on density-matrix denoising.
 ** Compute resources
 All experiments were conducted on a single NVIDIA RTX A4000 GPU with 16 GB of memory. Both the convolutional and transformer models fit entirely on a single GPU without gradient checkpointing or model parallelism. Training each model for 100 epochs required approximately 2–3 hours of wall-clock time, depending on architecture and batch size. No specialized hardware or distributed training was used.
 #+LATEX:\newpage
 * Results
-Transformers outperform CNNs by one to two orders of magnitude in fidelity, while physics-informed losses stabilize weaker models and constrain stronger ones. Across noise types and noise levels, transformer models retain structure that CNNs consistently lose, and the physics-informed variant trades peak performance for robustness under heavy corruption. These patterns appear consistently across training curves, test metrics, and noise-resolved evaluations, and they frame the detailed comparisons presented in the sections that follow.
+Transformer autoencoders dramatically outperform CNNs for density-matrix denoising, and this advantage is consistent with architectural inductive bias rather than model capacity. We evaluated CNN and transformer architectures across two loss functions (Frobenius and physics-informed) and two transformer capacities (119k and 751k parameters), providing evidence that global attention mechanisms, not parameter count, are associated with reconstruction quality.
+
+*Note on Uhlmann fidelity computation:* Because the Uhlmann fidelity formula requires Hermitian inputs, we symmetrize all outputs via \((\hat{\rho} + \hat{\rho}^\dagger)/2\) before evaluation. This enforces Hermiticity but does not correct trace deviations or negative eigenvalues. Eigenvalue clamping occurs only inside the matrix square root computation for numerical stability, not as post-processing on the output. This means the soft Hermiticity penalty in the physics-informed loss may be partially redundant at evaluation time, though it still affects the optimization trajectory during training.
+
+The smaller transformer (119k parameters) achieves 0.95 Uhlmann fidelity, outperforming both the CNN (749k parameters, 0.30 fidelity) and a capacity-matched transformer (751k parameters, 0.87 fidelity). Physics-informed regularization degrades both architectures, with the physics-informed CNN performing worse than the noisy baseline. These patterns appear consistently across training curves, test metrics, and noise-resolved evaluations.
 *** Charts :noexport:
 **** TODO Add log scale versions to appendix
 **** TODO Make charts colourblind friendly
@@ -213,8 +250,10 @@ def plot_val_curve(df, model_name, fname):
 models = {
     "CNN Physics": "cnn_physics.csv",
     "CNN Frobenius": "cnn_frob.csv",
-    "Transformer Frobenius": "transformer_frob.csv",
-    "Transformer Physics": "transformer_physics.csv",
+    "Transformer-Small Frobenius": "transformer_frob.csv",
+    "Transformer-Small Physics": "transformer_physics.csv",
+    "Transformer-Matched Frobenius": "transformer_matched_frob.csv",
+    "Transformer-Matched Physics": "transformer_matched_physics.csv",
 }
 
 outputs = []
@@ -260,12 +299,14 @@ def load_fid_curve(path):
 models = {
     "CNN Frobenius": "cnn_frob_test.csv",
     "CNN Physics": "cnn_physics_test.csv",
-    "Transformer Frobenius": "transformer_frob_test.csv",
-    "Transformer Physics": "transformer_physics_test.csv",
+    "Transformer-Small Frobenius": "transformer_frob_test.csv",
+    "Transformer-Small Physics": "transformer_physics_test.csv",
+    "Transformer-Matched Frobenius": "transformer_matched_frob_test.csv",
+    "Transformer-Matched Physics": "transformer_matched_physics_test.csv",
 }
 
 plt.figure(figsize=(8, 5), dpi=120)
-colors = ["#1f77b4", "#d62728", "#2ca02c", "#9467bd"]
+colors = ["#1f77b4", "#d62728", "#2ca02c", "#9467bd", "#ff7f0e", "#8c564b"]
 
 for (name, filename), color in zip(models.items(), colors):
     df = load_fid_curve(f"csvs_2/{filename}")
@@ -361,8 +402,10 @@ plt.close()
   models = {
       "CNN Physics": "cnn_physics.csv",
       "CNN Frobenius": "cnn_frob.csv",
-      "Transformer Frobenius": "transformer_frob.csv",
-      "Transformer Physics": "transformer_physics.csv",
+      "Transformer-Small Frobenius": "transformer_frob.csv",
+      "Transformer-Small Physics": "transformer_physics.csv",
+      "Transformer-Matched Frobenius": "transformer_matched_frob.csv",
+      "Transformer-Matched Physics": "transformer_matched_physics.csv",
   }
 
   for model_name, filename in models.items():
@@ -407,6 +450,8 @@ MODELS = {
     "cnn_physics": "cnn_physics.csv",
     "transformer_frob": "transformer_frob.csv",
     "transformer_physics": "transformer_physics.csv",
+    "transformer_matched_frob": "transformer_matched_frob.csv",
+    "transformer_matched_physics": "transformer_matched_physics.csv",
 }
 
 for model_name, filename in MODELS.items():
@@ -455,8 +500,10 @@ os.makedirs("figures", exist_ok=True)
 MODELS = {
     "CNN Frobenius": "cnn_frob_noise_cells.csv",
     "CNN Physics": "cnn_physics_noise_cells.csv",
-    "Transformer Frobenius": "transformer_frob_noise_cells.csv",
-    "Transformer Physics": "transformer_physics_noise_cells.csv",
+    "Transformer-Small Frobenius": "transformer_frob_noise_cells.csv",
+    "Transformer-Small Physics": "transformer_physics_noise_cells.csv",
+    "Transformer-Matched Frobenius": "transformer_matched_frob_noise_cells.csv",
+    "Transformer-Matched Physics": "transformer_matched_physics_noise_cells.csv",
 }
 
 INPUT_DIR = "csvs_2/noise_cells"
@@ -601,7 +648,7 @@ Taken together, these results show that (i) transformers are strictly more capab
 
 *** Uhlmann Fidelity Evaluation
 
-To verify that these findings are not artifacts of evaluating on the same metric used for training, we additionally evaluated all models on the Uhlmann fidelity, the standard quantum-mechanical measure of state distinguishability. Unlike the normalized Frobenius inner product, the Uhlmann fidelity is not directly optimized by any of the training objectives, providing an unbiased comparison across all four configurations.
+To verify that these findings are not artifacts of evaluating on the same metric used for training, we additionally evaluated all models on the Uhlmann fidelity, the standard quantum-mechanical measure of state similarity (related to distinguishability via the Fuchs-van de Graaf inequalities). Unlike the normalized Frobenius similarity, the Uhlmann fidelity is not directly optimized by any of the training objectives, providing an unbiased comparison across all configurations.
 
 **** Baseline: Noisy Input Fidelity
 
@@ -624,20 +671,26 @@ The overall baseline fidelity across the test set is *0.11 ± 0.15*, indicating 
 
 **** Model Performance and Improvement
 
-| Architecture | Loss Function | Uhlmann Fidelity | Improvement over Baseline |
-|--------------+---------------+------------------+---------------------------|
-| Baseline     | (Noisy input) |     0.11 ± 0.15 |                         — |
-| CNN          | Frobenius     |     0.30 ± 0.28 |                    +0.19 |
-| Transformer  | Frobenius     |     0.95 ± 0.12 |                    +0.84 |
-| CNN          | Physics       |     0.06 ± 0.05 |                    −0.05 |
-| Transformer  | Physics       |     0.33 ± 0.33 |                    +0.22 |
+| Architecture       | Parameters | Loss Function | Uhlmann Fidelity | Improvement |
+|--------------------+------------+---------------+------------------+-------------|
+| Baseline           | —          | (Noisy input) |     0.11 ± 0.15 |           — |
+| CNN                |       749k | Frobenius     |     0.30 ± 0.28 |       +0.19 |
+| CNN                |       749k | Physics       |     0.06 ± 0.05 |       −0.05 |
+| Transformer (119k) |       119k | Frobenius     |    *0.95 ± 0.12* |       +0.84 |
+| Transformer (119k) |       119k | Physics       |     0.33 ± 0.33 |       +0.22 |
+| Transformer (751k) |       751k | Frobenius     |     0.87 ± 0.30 |       +0.76 |
+| Transformer (751k) |       751k | Physics       |     0.26 ± 0.28 |       +0.15 |
 
 #+CAPTION: Reconstruction fidelity comparison. The baseline (gray) shows the fidelity of noisy inputs to clean targets. The Frobenius-trained transformer achieves near-perfect reconstruction (+0.84 improvement), while the physics-informed CNN performs worse than doing nothing.
 #+LABEL: fig:baseline-bar
 #+ATTR_LATEX: :width 0.8\textwidth
 [[file:figures/baseline_vs_models_bar.pdf]]
 
-The Frobenius-trained transformer achieves 0.95 mean fidelity, an improvement of +0.84 over the noisy baseline—recovering nearly all of the quantum information destroyed by the noise channels. The Frobenius-trained CNN provides a modest +0.19 improvement, while the physics-informed transformer achieves +0.22. Most strikingly, the physics-informed CNN achieves only 0.06 fidelity, which is *worse than the noisy input itself* (−0.05). This indicates that the physics constraints, rather than guiding the model toward valid reconstructions, cause it to collapse toward generic low-fidelity states that happen to satisfy Hermiticity, trace, and positivity constraints.
+The Frobenius-trained transformer (119k) achieves 0.95 mean fidelity, an improvement of +0.84 over the noisy baseline. This recovers nearly all of the structure destroyed by the noise channels. The Frobenius-trained CNN provides a modest +0.19 improvement despite having six times more parameters. Most strikingly, the physics-informed CNN achieves only 0.06 fidelity, which is *worse than the noisy input itself* (−0.05). This suggests that the physics constraints, rather than guiding the model toward valid reconstructions, cause it to collapse toward generic low-fidelity states that happen to satisfy Hermiticity, trace, and positivity constraints.
+
+Note: Fidelity values near the bounds (0 and 1) exhibit skewed distributions; mean ± standard deviation is reported for comparability across conditions, but median and interquartile range would more accurately characterize the central tendency for models achieving very high fidelity.
+
+The capacity-matched transformer (751k) achieves 0.87 fidelity with Frobenius loss. This represents strong performance, but it falls notably below the smaller transformer's 0.95. This counterintuitive result is examined in detail in the Capacity Ablation subsection.
 
 **** Improvement by Noise Type
 
@@ -694,14 +747,26 @@ These results validate the architectural conclusions on a neutral metric: transf
 \end{figure}
 #+END_EXPORT
 Across all architectures, fidelity varies systematically with both noise type and noise level, revealing clear differences in robustness among the four models. The CNN models achieve only marginal fidelity overall and show weak sensitivity to noise type, with values typically in the 0.02 to 0.05 range regardless of corruption. In contrast, the Transformer architectures display structured behavior: the Frobenius-loss Transformer consistently achieves the highest fidelity across nearly every noise cell, particularly for low-level phase damping and mixed noise, where it reaches its best performance. Its fidelity decays as the noise level increases, but it remains substantially above all CNN baselines. The physics-informed Transformer shows the opposite pattern. Although its absolute fidelity is lower than the Frobenius variant, it is markedly more stable across noise types and noise levels, exhibiting much smaller drops in fidelity as corruption increases. Notably, the physics-informed Transformer performs best on phase damping at low noise levels (0.05 and 0.10); this is likely because phase damping selectively destroys off-diagonal coherences while preserving diagonal populations, trace, and Hermiticity, meaning the corrupted state already satisfies the physics constraints and the regularization does not interfere with reconstruction. This indicates that the constraints enforced by the physics-informed loss improve robustness in high-noise regimes at the cost of peak performance in cleaner settings. Overall, these noise-resolved results show that Transformers not only outperform CNNs in denoising fidelity but also capture structure in the noise process itself, with the Frobenius variant excelling in low-noise cells and the physics-informed variant maintaining comparatively consistent behavior under stronger corruptions.
+*** Capacity Ablation
+
+A natural objection to the transformer's dominance is that it might simply benefit from a different parameter regime or optimization landscape rather than from attention per se. To test this, we trained a capacity-matched transformer with 751k parameters, within 0.3% of the CNN's 749k, using embedding dimension 96 and feed-forward width 128. If parameter count were the mechanism behind the transformer's success, the larger model should outperform the smaller one.
+
+The results refute this hypothesis. The transformer (119k) achieves 0.95 Uhlmann fidelity with Frobenius loss, while the transformer (751k) achieves only 0.87. This represents a degradation of 0.08 despite a sixfold increase in parameters. The same pattern holds for physics-informed training: the smaller transformer reaches 0.33 fidelity versus 0.26 for the larger variant. This inversion cannot be explained by underfitting, since the 751k model has strictly greater capacity. Instead, it suggests that the additional parameters introduce optimization difficulties or overfitting on this task, while the smaller model's constrained capacity forces it to learn more generalizable representations.
+
+These findings are consistent with the hypothesis that the transformer's advantage over CNNs is architectural rather than parametric. The attention mechanism's ability to model correlations across the entire density matrix in a single layer may explain this advantage, though we note that sufficiently deep CNNs can also achieve large receptive fields in principle. Scaling the transformer to match CNN capacity does not close the gap; it widens it. For this density-matrix denoising task, architectural inductive bias appears more important than raw model size, though ablation studies isolating specific architectural components would be needed to confirm the causal mechanism.
+
 *** Failure Modes and Qualitative Analysis
 A closer inspection of individual reconstruction failures reveals distinct failure modes tied to both architecture and loss design. The CNN models exhibit the most brittle behavior: when they fail, they typically collapse toward oversmoothed density matrices with attenuated off-diagonal structure, especially under high noise levels. This is consistent with their convolutional inductive bias, which cannot easily represent long-range correlations in the density matrix. The Frobenius-loss CNN is especially prone to this collapse, while the physics-informed CNN occasionally produces outputs that satisfy physical constraints but remain far from the true clean states, indicating that the added constraints can steer optimization without meaningfully improving reconstruction. The Transformer models fail in more structured ways. The Frobenius-loss Transformer sometimes produces sharp but globally misaligned reconstructions, suggesting that it has learned expressive global patterns but can be destabilized under heavy noise. The physics-informed Transformer exhibits the most “graceful” failures: even when fidelity drops, its outputs tend to retain Hermiticity, a well-formed eigenvalue spectrum, and approximately correct trace, confirming that the loss constraints operate as intended. These qualitative differences underline that architectural capacity governs how a model fails, while the loss function governs how bad those failures become.
 * Conclusion
-This work compared four machine learning strategies for density-matrix denoising and demonstrated that architectural choice is the dominant factor in reconstruction quality. The Frobenius-trained transformer achieved 0.95 Uhlmann fidelity on the test set, approaching near-perfect state reconstruction, while all other configurations remained below 0.35. This result was validated on the Uhlmann fidelity, a standard quantum-mechanical measure that none of the training objectives directly optimize, confirming that the transformer's superiority is not an artifact of metric alignment.
+This work compared CNN and transformer autoencoders across loss functions and model capacities for density-matrix denoising. The Frobenius-trained transformer (119k parameters) achieved 0.95 Uhlmann fidelity on the test set. To provide operational context, F=0.95 corresponds to a trace distance of at most \(\sqrt{1-0.95^2} \approx 0.31\) via the Fuchs-van de Graaf inequality, meaning the reconstructed and target states remain distinguishable with probability up to ~66% under optimal measurement. A capacity-matched transformer (751k parameters) achieved only 0.87 and the CNN (749k parameters) reached just 0.30. This counterintuitive result, in which the smaller model outperforms the larger, suggests that architectural properties rather than parameter count are associated with the transformer's advantage. The precise mechanism remains to be isolated through targeted ablation studies.
 
-Contrary to initial expectations, physics-informed regularization degraded performance for both architectures when evaluated on true quantum fidelity. The physics-informed CNN achieved only 0.06 Uhlmann fidelity compared to 0.30 for its Frobenius-trained counterpart, and the physics-informed transformer dropped from 0.95 to 0.33. While the physics constraints successfully enforce structural validity (Hermiticity, unit trace, positive semidefiniteness), they do so at the expense of accurate state reconstruction. The regularization appears to push models toward generic, low-information outputs that satisfy physical axioms but fail to capture the specific structure of the target state.
+Contrary to initial expectations, physics-informed regularization degraded performance for both architectures when evaluated on Uhlmann fidelity. The physics-informed CNN achieved only 0.06 fidelity compared to 0.30 for its Frobenius-trained counterpart, and the physics-informed transformer dropped from 0.95 to 0.33. While the physics constraints encourage structural validity (Hermiticity, unit trace, positive semidefiniteness), they appear to do so at the expense of accurate state reconstruction, possibly by pushing models toward generic outputs that satisfy physical axioms but fail to capture the specific structure of the target state.
 
-These findings have practical implications for quantum error mitigation. First, transformer architectures with global attention are fundamentally better suited to density-matrix denoising than CNNs, whose local receptive fields cannot capture the nonlocal correlations inherent to quantum states. Second, soft physics constraints applied during training are counterproductive when the goal is high-fidelity reconstruction; if physical validity is required, post-hoc projection onto the valid state manifold may be preferable to regularization. Third, evaluation on training-aligned metrics can be misleading, and neutral measures like Uhlmann fidelity should be reported alongside proxy losses.
+These findings have practical implications for quantum error mitigation. First, transformer architectures outperform CNNs on this density-matrix denoising task, possibly due to their ability to model correlations across the full matrix in each layer. Second, soft physics constraints applied during training can be counterproductive when the goal is high-fidelity reconstruction; if physical validity is required, post-hoc projection onto the valid state manifold may be preferable to regularization. Third, evaluation on training-aligned metrics can be misleading, and neutral measures like Uhlmann fidelity should be reported alongside proxy losses.
+
+** Limitations
+
+Several limitations constrain the interpretation of these results. First, our causal claims about attention mechanisms are correlational: we have not performed ablation studies removing attention or comparing with other global-context architectures (e.g., MLPs on flattened inputs). Second, the noise channels studied are synthetic and may not reflect the noise characteristics of specific quantum hardware. Third, we study only 5-qubit systems (32×32 density matrices); scaling behavior to larger systems is unknown. Finally, the claim that CNNs "cannot" capture nonlocal correlations is imprecise; sufficiently deep CNNs can achieve arbitrarily large receptive fields, though they may do so less efficiently than attention mechanisms.
 
 Improving classical denoisers directly increases the effective reliability of near-term quantum experiments. The transformer architecture identified here offers a practical path toward extracting higher-quality results from noisy intermediate-scale quantum hardware, reducing the measurement overhead required for useful computation while fault-tolerant systems remain out of reach.
 * References
