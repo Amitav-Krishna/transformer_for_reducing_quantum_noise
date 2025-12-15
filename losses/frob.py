@@ -7,8 +7,9 @@ class FrobeniusFidelityLoss(nn.Module):
         self.eps = eps
 
     def forward(self, pred, target):
-        a = pred[..., 0] + 1j * pred[..., 1]
-        b = target[..., 0] + 1j * target[..., 1]
+        # pred/target shape: (B, 2, 32, 32) where dim 1 is [real, imag]
+        a = pred[:, 0] + 1j * pred[:, 1]
+        b = target[:, 0] + 1j * target[:, 1]
 
         num = torch.real(torch.sum(a.conj() * b, dim=(-1, -2)))
         denom = torch.sqrt(torch.sum(torch.abs(a)**2, dim=(-1,-2)) *
