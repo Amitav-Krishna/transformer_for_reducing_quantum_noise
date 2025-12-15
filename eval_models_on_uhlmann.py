@@ -7,11 +7,17 @@ from training_loop.dataset.split_chunks import split_chunks
 
 from models.cnn import CNNAutoencoder
 from models.transformer import TransformerAutoencoder
+from models.transformer_matched_params import TransformerAutoencoderMatched
+from models.mlp import MLPAutoencoder
 from losses.frob import FrobeniusFidelityLoss
 from losses.total_physics_loss import CompositePhysicsTotalLoss
 
 
 EXPERIMENTS = {
+    "mlp_frob": {
+        "arch": "mlp",
+        "create_model": lambda: MLPAutoencoder(loss_fn=FrobeniusFidelityLoss())
+    },
     "cnn_frob": {
         "arch": "cnn",
         "create_model": lambda: CNNAutoencoder(loss_fn=FrobeniusFidelityLoss())
@@ -27,6 +33,14 @@ EXPERIMENTS = {
     "transformer_physics": {
         "arch": "transformer",
         "create_model": lambda: TransformerAutoencoder(loss_fn=CompositePhysicsTotalLoss())
+    },
+    "transformer_matched_frob": {
+        "arch": "transformer",
+        "create_model": lambda: TransformerAutoencoderMatched(loss_fn=FrobeniusFidelityLoss())
+    },
+    "transformer_matched_physics": {
+        "arch": "transformer",
+        "create_model": lambda: TransformerAutoencoderMatched(loss_fn=CompositePhysicsTotalLoss())
     },
 }
 
@@ -143,7 +157,12 @@ def main():
             print(f"  [SKIP] Checkpoint not found: {ckpt_path}")
             continue
 
-        batch_size = 32 if arch == "cnn" else 8
+        if arch == "cnn":
+            batch_size = 32
+        elif arch == "mlp":
+            batch_size = 64
+        else:
+            batch_size = 8
 
         # Evaluate Uhlmann fidelity
         mean_fid, std_fid = evaluate_uhlmann_on_chunks(

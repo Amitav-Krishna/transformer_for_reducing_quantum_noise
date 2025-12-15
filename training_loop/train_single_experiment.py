@@ -21,16 +21,22 @@ def train_single_experiment(name, config, train_chunks, val_chunks, device):
 
     # Model + optimizer
     model = config["create_model"]().to(device)
-    optimizer = torch.optim.Adam(model.parameters(), lr=3e-4)
+    lr = config.get("lr", 3e-4)
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
     # Hyperparameters
     EPOCHS = 100
-    BATCH = 32 if arch == "cnn" else 8
+    if arch == "cnn":
+        BATCH = 32
+    elif arch == "mlp":
+        BATCH = 64  # MLP is memory-efficient
+    else:
+        BATCH = 8   # Transformer needs smaller batches
 
     print(f"\n==============================")
     print(f"Training {name}")
     print(f"Architecture: {arch} | Loss: {loss}")
-    print(f"Batch size: {BATCH}")
+    print(f"Batch size: {BATCH} | LR: {lr}")
     print(f"==============================\n")
 
     best_val = float("inf")

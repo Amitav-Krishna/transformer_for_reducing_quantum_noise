@@ -18,6 +18,8 @@ from training_loop.dataset.ChunkDataset import ChunkDataset
 
 from models.cnn import CNNAutoencoder
 from models.transformer import TransformerAutoencoder
+from models.transformer_matched_params import TransformerAutoencoderMatched
+from models.mlp import MLPAutoencoder
 from losses.frob import FrobeniusFidelityLoss
 from losses.physics import DensityMatrixPhysicsLoss
 from losses.total_physics_loss import CompositePhysicsTotalLoss
@@ -36,11 +38,17 @@ from training_loop.dataset.load_chunks import load_chunks
 ###############################################################################
 
 EXPERIMENTS = {
-        "cnn_frob": {
-            "arch": "cnn",
-            "loss": "frob",
-            "create_model": lambda: CNNAutoencoder(loss_fn=FrobeniusFidelityLoss())
-        },
+    "mlp_frob": {
+        "arch": "mlp",
+        "loss": "frob",
+        "create_model": lambda: MLPAutoencoder(loss_fn=FrobeniusFidelityLoss())
+    },
+
+    "cnn_frob": {
+        "arch": "cnn",
+        "loss": "frob",
+        "create_model": lambda: CNNAutoencoder(loss_fn=FrobeniusFidelityLoss())
+    },
 
     "cnn_physics": {
         "arch": "cnn",
@@ -58,8 +66,20 @@ EXPERIMENTS = {
         "arch": "transformer",
         "loss": "physics",
         "create_model": lambda: TransformerAutoencoder(loss_fn=CompositePhysicsTotalLoss())
-    }
-    }
+    },
+
+    "transformer_matched_frob": {
+        "arch": "transformer",
+        "loss": "frob",
+        "create_model": lambda: TransformerAutoencoderMatched(loss_fn=FrobeniusFidelityLoss())
+    },
+
+    "transformer_matched_physics": {
+        "arch": "transformer",
+        "loss": "physics",
+        "create_model": lambda: TransformerAutoencoderMatched(loss_fn=CompositePhysicsTotalLoss())
+    },
+}
 
 
 # Train / val / split

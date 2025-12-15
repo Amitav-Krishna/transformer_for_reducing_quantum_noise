@@ -108,7 +108,12 @@ def main():
         print(f"\n===== Evaluating model: {model_name} =====")
 
         arch = cfg["arch"]
-        batch = 32 if arch == "cnn" else 8
+        if arch == "cnn":
+            batch = 32
+        elif arch == "mlp":
+            batch = 64
+        else:
+            batch = 8
 
         # load model
         model = cfg["create_model"]().to(device)
