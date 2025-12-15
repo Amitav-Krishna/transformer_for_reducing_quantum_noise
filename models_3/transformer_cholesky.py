@@ -14,9 +14,16 @@ class TransformerCholeskyAutoencoder(nn.Module):
     """
     Transformer autoencoder with Cholesky output layer.
 
-    Architecture matches the original small transformer (~119k params)
-    but outputs Cholesky parameters instead of raw density matrix values.
+    Uses ROW-BASED TOKENIZATION: 32 tokens of 64 real values each.
+    Each token represents one row of the density matrix (32 complex values).
 
+    This captures physical structure:
+    - Rows align with partial trace / computational basis structure
+    - Attention between rows learns inter-row correlations (entanglement)
+    - FFN handles within-row processing
+    - 1000x fewer attention computations than element-wise tokenization
+
+    ~411k parameters to match MLP.
     Output is guaranteed to be a valid density matrix.
     """
 
@@ -24,15 +31,16 @@ class TransformerCholeskyAutoencoder(nn.Module):
         super().__init__()
         self.loss_fn = loss_fn
 
-        self.seq_len = 1024
-        self.input_dim = 2
-        self.embed_dim = 32
-        self.ffn_dim = 64
+        # Row-based tokenization: 32 tokens, each is a row (32 complex = 64 real)
+        self.seq_len = 32
+        self.input_dim = 64  # 32 complex values = 64 real per row
+        self.embed_dim = 64
+        self.ffn_dim = 128
         self.num_heads = 4
-        self.layers = 4
+        self.layers = 5  # Balanced depth for ~411k params
         self.cholesky_params = count_cholesky_params(32)  # 1024
 
-        self.input_proj = nn.Linear(2, self.embed_dim)
+        self.input_proj = nn.Linear(self.input_dim, self.embed_dim)
         self.pos_embedding = nn.Parameter(
             torch.zeros(1, self.seq_len, self.embed_dim)
         )
@@ -47,8 +55,8 @@ class TransformerCholeskyAutoencoder(nn.Module):
         )
         self.encoder = nn.TransformerEncoder(enc_layer, num_layers=self.layers)
 
-        self.down = nn.Linear(self.embed_dim, 16)
-        self.up = nn.Linear(16, self.embed_dim)
+        self.down = nn.Linear(self.embed_dim, 32)
+        self.up = nn.Linear(32, self.embed_dim)
 
         dec_layer = nn.TransformerDecoderLayer(
             d_model=self.embed_dim,
@@ -60,22 +68,28 @@ class TransformerCholeskyAutoencoder(nn.Module):
         )
         self.decoder = nn.TransformerDecoder(dec_layer, num_layers=self.layers)
 
-        # Output: project each token to 1 value, giving 1024 Cholesky params
-        self.output_proj = nn.Linear(self.embed_dim, 1)
+        # Output: each of 32 tokens produces 32 values -> 1024 Cholesky params
+        self.output_proj = nn.Linear(self.embed_dim, 32)
 
         # Cholesky layer converts to valid density matrix
         self.cholesky = CholeskyDensityMatrix(32)
 
     def forward(self, x):
         B = x.shape[0]
-        x = x.permute(0, 2, 3, 1).reshape(B, 1024, 2)  # (B, 1024, 2)
-        x = self.input_proj(x) + self.pos_embedding
+        # x: (B, 2, 32, 32) -> row tokenization: (B, 32, 64)
+        # Each row becomes a token: [real_row, imag_row] concatenated
+        real_part = x[:, 0, :, :]  # (B, 32, 32)
+        imag_part = x[:, 1, :, :]  # (B, 32, 32)
+        x = torch.cat([real_part, imag_part], dim=-1)  # (B, 32, 64)
+
+        x = self.input_proj(x) + self.pos_embedding  # (B, 32, embed_dim)
         enc = self.encoder(x)
         z = self.up(self.down(enc))
         dec = self.decoder(z, enc)
 
-        # Project each token to 1 value -> 1024 Cholesky parameters
-        chol_params = self.output_proj(dec).squeeze(-1)  # (B, 1024)
+        # Each of 32 tokens outputs 32 values -> 1024 Cholesky params
+        chol_params = self.output_proj(dec)  # (B, 32, 32)
+        chol_params = chol_params.reshape(B, -1)  # (B, 1024)
 
         # Convert to valid density matrix
         rho = self.cholesky(chol_params)

@@ -15,9 +15,10 @@ class MLPCholeskyAutoencoder(nn.Module):
     MLP autoencoder with Cholesky output layer.
 
     Architecture:
-        2048 -> 38 -> 38 -> 1024 -> Cholesky -> (2, 32, 32)
+        2048 -> 128 -> 128 -> 1024 -> Cholesky -> (2, 32, 32)
 
-    ~119k parameters to match the transformer.
+    ~411k parameters. Hidden=128 follows Morgillo et al. and provides
+    sufficient capacity to represent spectral structure of 5-qubit states.
     Output is guaranteed to be a valid density matrix.
     """
 
@@ -29,13 +30,13 @@ class MLPCholeskyAutoencoder(nn.Module):
         self.cholesky_params = count_cholesky_params(32)  # 1024
 
         # Encoder-decoder network
-        # Hidden size 38 gives ~119k params to match transformer
+        # Hidden size 128 provides capacity for 5-qubit spectral structure
         self.network = nn.Sequential(
-            nn.Linear(self.input_dim, 38),
+            nn.Linear(self.input_dim, 128),
             nn.ReLU(),
-            nn.Linear(38, 38),
+            nn.Linear(128, 128),
             nn.ReLU(),
-            nn.Linear(38, self.cholesky_params),  # Output 1024 params for Cholesky
+            nn.Linear(128, self.cholesky_params),  # Output 1024 params for Cholesky
         )
 
         # Cholesky layer converts to valid density matrix
