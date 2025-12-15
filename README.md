@@ -37,9 +37,19 @@ This project compares CNN and Transformer autoencoders for density-matrix denois
 
 | Script | Description |
 |--------|-------------|
-| `train_models.py` | Main entry point. Trains all 4 model configurations (CNN/Transformer x Frobenius/Physics loss) |
+| `train_models.py` | Main entry point. Trains original 4 model configurations (CNN/Transformer x Frobenius/Physics loss) |
+| `train_transformer_matched_params.py` | Trains capacity-matched Transformer v1 (~751k params) - **has bottleneck bug, see Appendix** |
+| `train_transformer_matched_v2.py` | Trains capacity-matched Transformer v2 (~757k params) - **still has issues, see v3** |
+| `train_transformer_matched_v3.py` | Trains capacity-matched Transformer v3 (~741k params) with proper FFN ratio and lower LR |
+| `train_transformer_matched_v4.py` | Trains capacity-matched Transformer v4 (~752k params) with warmup, gradient clipping, Pre-LN |
 | `eval_models_on_uhlmann.py` | Evaluates trained models using Uhlmann fidelity on test set |
 | `eval_per_noise_cell.py` | Evaluates models broken down by noise type and noise level |
+| `eval_transformer_matched_v2_uhlmann.py` | Evaluates v2 transformer on Uhlmann fidelity |
+| `eval_transformer_matched_v2_per_noise_cell.py` | Evaluates v2 transformer per noise type/level |
+| `eval_transformer_matched_v3_uhlmann.py` | Evaluates v3 transformer on Uhlmann fidelity |
+| `eval_transformer_matched_v3_per_noise_cell.py` | Evaluates v3 transformer per noise type/level |
+| `eval_transformer_matched_v4_uhlmann.py` | Evaluates v4 transformer on Uhlmann fidelity |
+| `eval_transformer_matched_v4_per_noise_cell.py` | Evaluates v4 transformer per noise type/level |
 | `eval_models.py` | General evaluation utilities |
 | `ground_truth_fidelity.py` | Computes baseline Uhlmann fidelity (noisy vs clean) - **source of the 0.11 baseline** |
 | `generate_dataset.py` | Generates synthetic quantum circuits with noise using Cirq |
@@ -58,8 +68,20 @@ This project compares CNN and Transformer autoencoders for density-matrix denois
 
 | File | Description |
 |------|-------------|
-| `cnn.py` | CNN Autoencoder - treats density matrix as 2-channel (real/imag) image |
-| `transformer.py` | Transformer Autoencoder - treats density matrix as 1024 tokens |
+| `cnn.py` | CNN Autoencoder (748,898 params) - treats density matrix as 2-channel (real/imag) image |
+| `transformer.py` | Transformer Autoencoder (119,506 params) - treats density matrix as 1024 tokens |
+| `transformer_matched_params.py` | Capacity-matched Transformer v1 (751,186 params) - **broken bottleneck 96→16→96** |
+| `transformer_matched_v2.py` | Capacity-matched Transformer v2 (757,362 params) - fixed bottleneck but wrong FFN ratio |
+| `transformer_matched_v3.py` | Capacity-matched Transformer v3 (740,736 params) - proper 4x FFN ratio, 50% bottleneck |
+| `transformer_matched_v4.py` | Capacity-matched Transformer v4 (~752k params) - Pre-LN, depth-scaled init, 2x FFN, warmup |
+
+---
+
+## Utility Scripts (`scripts/`)
+
+| File | Description |
+|------|-------------|
+| `count_params.py` | Counts and compares parameters across all model architectures |
 
 ---
 
@@ -106,6 +128,8 @@ This project compares CNN and Transformer autoencoders for density-matrix denois
 | `checkpoints_2/cnn_physics/` | CNN + Physics loss (100 epochs + `best.pt`) |
 | `checkpoints_2/transformer_frob/` | Transformer + Frobenius loss (100 epochs + `best.pt`) |
 | `checkpoints_2/transformer_physics/` | Transformer + Physics loss (100 epochs + `best.pt`) |
+| `checkpoints_2/transformer_matched_frob/` | Capacity-matched Transformer (~751k params) + Frobenius loss |
+| `checkpoints_2/transformer_matched_physics/` | Capacity-matched Transformer (~751k params) + Physics loss |
 | `checkpoints/` | Legacy checkpoints from earlier experiments |
 | `legacy_models_checkpoints/` | Older model checkpoints |
 
@@ -121,6 +145,8 @@ This project compares CNN and Transformer autoencoders for density-matrix denois
 | `cnn_physics.csv` | CNN Physics training log |
 | `transformer_frob.csv` | Transformer Frobenius training log |
 | `transformer_physics.csv` | Transformer Physics training log |
+| `transformer_matched_frob.csv` | Capacity-matched Transformer + Frobenius training log |
+| `transformer_matched_physics.csv` | Capacity-matched Transformer + Physics training log |
 
 ### Test Results
 
