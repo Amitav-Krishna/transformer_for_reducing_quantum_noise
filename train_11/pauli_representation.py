@@ -83,20 +83,27 @@ def density_matrix_to_pauli_basis(rho_matrix, n_qubits=5):
     Returns:
         (4^n,) real array of Pauli expectation values
     """
-    # Handle (2, 32, 32) format: real and imag parts
+    dim = 2**n_qubits
+
+    # Convert torch tensor to numpy
     if isinstance(rho_matrix, torch.Tensor):
         rho_matrix = rho_matrix.cpu().detach().numpy()
 
-    dim = 2**n_qubits
+    # Ensure it's a numpy array
+    rho_matrix = np.asarray(rho_matrix)
 
-    # Check if format is (2, dim, dim) - real and imaginary parts
-    if len(rho_matrix.shape) == 3 and rho_matrix.shape[0] == 2 and rho_matrix.shape[1:] == (dim, dim):
-        rho = rho_matrix[0] + 1j * rho_matrix[1]
+    # Handle (2, dim, dim) format: real and imaginary parts
+    if rho_matrix.shape[0] == 2 and len(rho_matrix.shape) == 3:
+        # Format is (2, dim, dim) - real and imag parts
+        rho = rho_matrix[0].astype(np.complex128) + 1j * rho_matrix[1].astype(np.complex128)
     elif rho_matrix.shape == (dim, dim):
-        # Already a complex/float matrix
-        rho = rho_matrix
+        # Already a (dim, dim) matrix
+        rho = rho_matrix.astype(np.complex128)
     else:
         raise ValueError(f"Unexpected rho_matrix shape: {rho_matrix.shape}. Expected (2, {dim}, {dim}) or ({dim}, {dim})")
+
+    # Verify rho is (dim, dim) complex
+    assert rho.shape == (dim, dim), f"After conversion, rho has unexpected shape {rho.shape}, expected ({dim}, {dim})"
 
     pauli_coeffs = np.zeros(4**n_qubits)
 
