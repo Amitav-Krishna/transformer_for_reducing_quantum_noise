@@ -4,6 +4,8 @@
 #+LATEX_HEADER: \bibliographystyle{plainnat}
 #+cite_export: natbib
 #+OPTIONS: toc:nil
+#+TITLE: Self-Attention Captures Entanglement: Transformers for Quantum State Denoising
+#+AUTHOR: Amitav Krishna
 * Abstract
 
 Quantum state denoising—reconstructing clean density matrices from noisy measurements—is essential for extracting useful information from near-term quantum devices. While prior work has explored convolutional and feedforward architectures for this task, the effectiveness of global attention mechanisms for quantum states with non-local entanglement correlations remains underexplored. We compare multilayer perceptron (MLP) and Transformer autoencoders for density matrix denoising, using comparable parameter counts (~120k) to reduce confounding from model capacity. On a synthetic dataset of 5-qubit states corrupted by five noise types at four severity levels, both models improve upon the baseline: the MLP achieves 1.4× higher Uhlmann fidelity while the Transformer achieves 2.3×—a 1.6× advantage over the MLP. A capacity control experiment confirms this gap is architectural rather than capacity-driven: a wide MLP with 44× more parameters (5.2M) achieves no improvement over the small MLP. We attribute the Transformer's advantage to self-attention's ability to model correlations between arbitrary matrix elements—precisely the structure induced by quantum entanglement. These findings demonstrate that architectural inductive bias, not model capacity, determines denoising performance for entangled quantum states.
