@@ -10,24 +10,18 @@ wins significantly, it proves the advantage is fundamental, not just due to
 the flattened representation suiting attention.
 
 Usage:
-    python train_11/train.py mlp      # Train MLP on Pauli basis
-    python train_11/train.py transformer  # Train Transformer on Pauli basis
-    python train_11/train.py both     # Train both
+    python train_11/train.py
 """
 
 import os
 import sys
-import argparse
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import torch
 from torch.utils.data import DataLoader, TensorDataset
 
-from train_11.pauli_representation import (
-    density_matrix_to_pauli_basis,
-    PauliRepresentationDataset
-)
+from train_11.pauli_representation import density_matrix_to_pauli_basis
 from train_11.mlp_pauli import MLPPauliAutoencoder
 from train_11.transformer_pauli import TransformerPauliAutoencoder
 
@@ -35,6 +29,22 @@ from losses.frob import FrobeniusFidelityLoss
 from training_loop.dataset.load_chunks import load_chunks
 from training_loop.dataset.split_chunks import split_chunks
 from training_loop.dataset.csv_logger import CSVLogger
+
+
+EXPERIMENTS = {
+    "mlp_pauli_frob": {
+        "arch": "mlp",
+        "loss": "frob",
+        "create_model": lambda: MLPPauliAutoencoder(loss_fn=FrobeniusFidelityLoss()),
+        "batch_size": 64,
+    },
+    "transformer_pauli_frob": {
+        "arch": "transformer",
+        "loss": "frob",
+        "create_model": lambda: TransformerPauliAutoencoder(loss_fn=FrobeniusFidelityLoss()),
+        "batch_size": 8,
+    },
+}
 
 
 def count_parameters(model):
@@ -61,17 +71,12 @@ def convert_chunks_to_pauli(chunks, device):
     return pauli_chunks
 
 
-def train_model(model_type, train_chunks, val_chunks, device):
-    """Train MLP or Transformer on Pauli basis."""
+def train_single_experiment(name, config, train_chunks, val_chunks, device):
+    """Train a single model on Pauli basis representation."""
 
-    if model_type == "mlp":
-        name = "mlp_pauli_frob"
-        model = MLPPauliAutoencoder(loss_fn=FrobeniusFidelityLoss()).to(device)
-    else:  # transformer
-        name = "transformer_pauli_frob"
-        model = TransformerPauliAutoencoder(loss_fn=FrobeniusFidelityLoss()).to(device)
-
-    n_params = count_parameters(model)
+    arch = config["arch"]
+    loss = config["loss"]
+    batch_size = config["batch_size"]
 
     # Directories
     ckpt_dir = f"checkpoints_11/{name}"
@@ -80,24 +85,23 @@ def train_model(model_type, train_chunks, val_chunks, device):
     # CSV logger
     csv_logger = CSVLogger(csv_dir="csvs_11", name=name)
 
-    # Optimizer
+    # Model + optimizer
+    model = config["create_model"]().to(device)
+    n_params = count_parameters(model)
     lr = 3e-4
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
     # Hyperparameters
     EPOCHS = 100
-    BATCH = 64 if model_type == "mlp" else 8
     PATIENCE = 15
     patience_counter = 0
 
     print(f"\n{'='*70}")
-    print(f"Training {model_type.upper()} on Pauli Basis Representation (v11)")
-    print(f"{'='*70}")
-    print(f"Input representation: Pauli coefficients (1024-dim)")
+    print(f"Training {name}")
+    print(f"Architecture: {arch} | Loss: {loss}")
+    print(f"Input representation: Pauli basis (1024-dim coefficients)")
     print(f"Parameters: {n_params:,}")
-    print(f"Batch size: {BATCH} | LR: {lr} | Patience: {PATIENCE} epochs")
-    print(f"Checkpoints: checkpoints_11/{name}/")
-    print(f"Logs: csvs_11/{name}.csv")
+    print(f"Batch size: {batch_size} | LR: {lr} | Patience: {PATIENCE} epochs")
     print(f"{'='*70}\n")
 
     best_val = float("inf")
@@ -108,9 +112,8 @@ def train_model(model_type, train_chunks, val_chunks, device):
         # Training over all chunks
         model.train()
         for c_idx, (X_pauli, Y_pauli) in enumerate(train_chunks):
-            # Create DataLoader
             dataset = TensorDataset(X_pauli, Y_pauli)
-            loader = DataLoader(dataset, batch_size=BATCH, shuffle=True)
+            loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
             for b_idx, (x, y) in enumerate(loader):
                 x, y = x.to(device), y.to(device)
@@ -134,7 +137,7 @@ def train_model(model_type, train_chunks, val_chunks, device):
         with torch.no_grad():
             for X_pauli, Y_pauli in val_chunks:
                 dataset = TensorDataset(X_pauli, Y_pauli)
-                loader = DataLoader(dataset, batch_size=BATCH, shuffle=False)
+                loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
 
                 for x, y in loader:
                     x, y = x.to(device), y.to(device)
@@ -163,22 +166,12 @@ def train_model(model_type, train_chunks, val_chunks, device):
             print(f"\nEarly stopping at epoch {epoch}")
             break
 
-    print(f"\n{'='*70}")
-    print(f"Training complete!")
-    print(f"Best checkpoint: {ckpt_dir}/best.pt")
-    print(f"Training logs: csvs_11/{name}.csv")
-    print(f"{'='*70}\n")
+    print(f"\nTraining complete!")
+    print(f"Checkpoint saved to: checkpoints_11/{name}/best.pt")
+    print(f"Training log saved to: csvs_11/{name}.csv")
 
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "model",
-        choices=["mlp", "transformer", "both"],
-        help="Which model to train"
-    )
-    args = parser.parse_args()
-
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
 
@@ -192,16 +185,21 @@ def main():
     print(f"Test chunks: {len(test_chunks)}")
 
     # Convert to Pauli basis
-    print("\nConverting to Pauli basis representation...")
+    print("\nConverting dataset to Pauli basis representation...")
     train_chunks_pauli = convert_chunks_to_pauli(train_chunks, device)
     val_chunks_pauli = convert_chunks_to_pauli(val_chunks, device)
 
-    # Train requested model(s)
-    if args.model in ["mlp", "both"]:
-        train_model("mlp", train_chunks_pauli, val_chunks_pauli, device)
+    # Train all experiments sequentially
+    for name, config in EXPERIMENTS.items():
+        train_single_experiment(name, config, train_chunks_pauli, val_chunks_pauli, device)
 
-    if args.model in ["transformer", "both"]:
-        train_model("transformer", train_chunks_pauli, val_chunks_pauli, device)
+    print("\n" + "="*70)
+    print("All training complete!")
+    print("="*70)
+    print("Checkpoints: checkpoints_11/mlp_pauli_frob/best.pt")
+    print("             checkpoints_11/transformer_pauli_frob/best.pt")
+    print("Logs: csvs_11/mlp_pauli_frob.csv")
+    print("      csvs_11/transformer_pauli_frob.csv")
 
 
 if __name__ == "__main__":
