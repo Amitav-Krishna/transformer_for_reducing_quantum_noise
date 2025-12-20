@@ -95,22 +95,36 @@ def density_matrix_to_pauli_basis(rho_matrix, n_qubits=5):
     # Handle (2, dim, dim) format: real and imaginary parts
     if rho_matrix.shape[0] == 2 and len(rho_matrix.shape) == 3:
         # Format is (2, dim, dim) - real and imag parts
-        rho = rho_matrix[0].astype(np.complex128) + 1j * rho_matrix[1].astype(np.complex128)
+        rho = np.ascontiguousarray(
+            rho_matrix[0].astype(np.complex128) + 1j * rho_matrix[1].astype(np.complex128)
+        )
     elif rho_matrix.shape == (dim, dim):
         # Already a (dim, dim) matrix
-        rho = rho_matrix.astype(np.complex128)
+        rho = np.ascontiguousarray(rho_matrix.astype(np.complex128))
     else:
         raise ValueError(f"Unexpected rho_matrix shape: {rho_matrix.shape}. Expected (2, {dim}, {dim}) or ({dim}, {dim})")
 
     # Verify rho is (dim, dim) complex
-    assert rho.shape == (dim, dim), f"After conversion, rho has unexpected shape {rho.shape}, expected ({dim}, {dim})"
+    if rho.shape != (dim, dim):
+        raise ValueError(f"After conversion, rho has shape {rho.shape}, expected ({dim}, {dim})")
 
     pauli_coeffs = np.zeros(4**n_qubits)
 
     for i in range(4**n_qubits):
         pauli_string = get_pauli_string(i, n_qubits)
         P_i = pauli_string_matrix(pauli_string)
-        c_i = np.real(np.trace(rho @ P_i))  # Tr(ρ P_i)
+
+        # Diagnostic check before matmul
+        if P_i.shape != (dim, dim):
+            raise ValueError(f"Iteration {i}: P_i has shape {P_i.shape}, expected ({dim}, {dim})")
+
+        try:
+            c_i = np.real(np.trace(rho @ P_i))  # Tr(ρ P_i)
+        except Exception as e:
+            raise ValueError(
+                f"Iteration {i}: Matmul failed. rho.shape={rho.shape}, rho.dtype={rho.dtype}, "
+                f"P_i.shape={P_i.shape}, P_i.dtype={P_i.dtype}. Original error: {e}"
+            )
         pauli_coeffs[i] = c_i
 
     return pauli_coeffs
