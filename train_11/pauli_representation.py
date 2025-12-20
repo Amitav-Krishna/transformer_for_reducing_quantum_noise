@@ -85,14 +85,19 @@ def density_matrix_to_pauli_basis(rho_matrix, n_qubits=5):
     """
     # Handle (2, 32, 32) format: real and imag parts
     if isinstance(rho_matrix, torch.Tensor):
-        rho_matrix = rho_matrix.cpu().numpy()
-
-    if rho_matrix.shape == (2, 2**n_qubits, 2**n_qubits):
-        rho = rho_matrix[0] + 1j * rho_matrix[1]
-    else:
-        rho = rho_matrix
+        rho_matrix = rho_matrix.cpu().detach().numpy()
 
     dim = 2**n_qubits
+
+    # Check if format is (2, dim, dim) - real and imaginary parts
+    if len(rho_matrix.shape) == 3 and rho_matrix.shape[0] == 2 and rho_matrix.shape[1:] == (dim, dim):
+        rho = rho_matrix[0] + 1j * rho_matrix[1]
+    elif rho_matrix.shape == (dim, dim):
+        # Already a complex/float matrix
+        rho = rho_matrix
+    else:
+        raise ValueError(f"Unexpected rho_matrix shape: {rho_matrix.shape}. Expected (2, {dim}, {dim}) or ({dim}, {dim})")
+
     pauli_coeffs = np.zeros(4**n_qubits)
 
     for i in range(4**n_qubits):
