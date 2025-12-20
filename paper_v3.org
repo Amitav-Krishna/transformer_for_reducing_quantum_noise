@@ -1,5 +1,8 @@
 #+BIBLIOGRAPHY:references.bib
 #+LATEX_HEADER: \usepackage{subcaption}
+#+LATEX_HEADER: \usepackage[round,authoryear]{natbib}
+#+LATEX_HEADER: \bibliographystyle{plainnat}
+#+cite_export: natbib
 #+OPTIONS: toc:nil
 * Abstract
 
@@ -415,7 +418,7 @@ These findings suggest that attention-based architectures may be particularly we
 
 The primary limitation of this work is scale: our experiments use 5-qubit systems (32×32 density matrices, 1024 tokens). The element-wise tokenization incurs \(O(n^4)\) attention complexity in qubit count (since matrix dimension scales as \(2^n\)), making naive scaling to 10+ qubits prohibitive. Future work could explore sparse attention patterns inspired by quantum locality constraints, hierarchical tokenization schemes, or hybrid architectures that maintain the benefits of self-attention while improving efficiency. Additionally, extending these methods to mixed states arising from realistic hardware noise characterization—including correlated errors and non-Markovian dynamics—could enable practical quantum error mitigation applications.
 * References
-#+print_bibliography:references.bib
+#+print_bibliography:
 
 * Footnotes
 * Appendix
