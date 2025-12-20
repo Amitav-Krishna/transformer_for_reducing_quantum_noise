@@ -48,7 +48,7 @@ Noise is injected by applying a stochastic noise channel after every moment of t
 
 The dataset was originally generated with one million (\(\rho_{clean}, \rho_{noisy}\)) pairs (50,000 samples for each of the 20 noise-type / noise-level combinations). For computational efficiency, we use a uniformly subsampled subset of 100,000 examples in all experiments. The subsampling is stratified across noise types and noise levels, preserving the exact per-cell distribution of the original dataset. Each density matrix is stored in a two-channel real/imaginary representation suitable for neural-network processing.
 
-The noise channels follow their standard Kraus-operator definitions. For depolarizing noise,
+The noise channels follow their standard Kraus-operator definitions [cite:@nielsen_chuang_2010]. For depolarizing noise,
 
 $$
 \mathcal{E}_{dep}(\rho) = (1-p)\rho + \frac{p}{3}(X \rho X + Y \rho Y + Z \rho Z)
@@ -86,8 +86,9 @@ $$
 \mathcal{E}_{bf}(\rho) = (1-p)\rho + p X \rho X.
 $$
 
-The mixed channel applies these four channels sequentially, each with strength /p/ /4. This mixed channel is not intended to correspond to a single effective noise process, but to expose models to heterogeneous error mechanisms within a single circuit.
+The mixed channel applies these four channels sequentially, each with strength /p/ /4. Each constituent channel remains Markovian; the sequential composition does not induce non-Markovian dynamics. This mixed channel is not intended to correspond to a single effective noise process, but to expose models to heterogeneous error mechanisms within a single circuit and test whether they can handle interacting noise sources.
 
+#+LATEX:\newpage
 ** Post-hoc Projection
 
 Both models produce unconstrained outputs which are then projected to the space of valid density matrices. Given a raw network output \(\hat{\rho}\), we apply the following projection:
@@ -115,6 +116,16 @@ The Transformer autoencoder uses element-wise tokenization: each of the 1024 ele
 The encoder consists of 4 transformer layers with 4 attention heads, embedding dimension 32, and feed-forward dimension 64. A per-token bottleneck compresses representations (32→16→32) before the decoder, which mirrors the encoder structure and uses cross-attention to the encoder output. Each token independently predicts its corresponding matrix element through a linear projection (32→2).
 
 Element-wise tokenization incurs \(O(1024^2)\) attention complexity, but enables the transformer to capture arbitrary pairwise correlations—precisely the structure present in entangled quantum states.
+#+LATEX:\newpage
+
+#+BEGIN_EXPORT latex
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.8\linewidth]{./figures/uhlmann_vs_frobenius_scatter.pdf}
+\caption{Relationship between normalized Frobenius similarity and Uhlmann fidelity for noisy input states.}
+\label{fig:frob-uhlmann}
+\end{figure}
+#+END_EXPORT
 
 ** Normalized Frobenius Similarity Loss
 
@@ -126,12 +137,15 @@ $$
 
 where \(\langle \hat{\rho}, \rho \rangle_F = \mathrm{Tr}(\hat{\rho}^\dagger \rho)\) is the Frobenius inner product. This formulation is analogous to cosine similarity for complex matrices: it measures alignment while normalizing for magnitude differences.
 
+While Uhlmann fidelity is the correct operational measure of quantum state similarity, its reliance on eigendecomposition (\(O(n^3)\) for \(n \times n\) matrices) makes it substantially more expensive than the Frobenius inner product (\(O(n^2)\)). To validate Frobenius similarity as a training proxy, we computed both metrics on noisy–clean state pairs across all noise types and strengths. Although the relationship is strongly nonlinear (Figure \ref{fig:frob-uhlmann}), the two metrics exhibit a very strong monotonic association (Spearman's \(\rho = 0.95\), \(p \ll 10^{-10}\)), indicating that improvements under the Frobenius objective consistently correspond to improvements in Uhlmann fidelity. We note that the correlation appears weaker at low fidelity values where heavily corrupted states reside; however, both models successfully escape this regime during training, so the gradient signal remains informative where it matters.
+
+#+LATEX:\newpage
 * Experimental Design
-We evaluate two denoising architectures—MLP and Transformer autoencoders—with comparable parameter counts (~120k each). While the architectures differ in activation functions (ReLU vs. GELU) and connectivity patterns (the MLP uses residual connections; the Transformer does not), the similar capacity allows us to assess the relative importance of self-attention for this task. The Transformer can exploit global structure through self-attention while the MLP processes inputs as unstructured vectors with a residual bypass.
+We evaluate two denoising architectures—MLP and Transformer autoencoders—with comparable parameter counts (~120k each). The architectures differ in activation functions (ReLU vs. GELU) and connectivity patterns: the MLP uses residual connections while the Transformer does not. We chose not to add residual connections to the Transformer because its encoder-decoder structure with cross-attention already preserves input information through the attention pathway, making an explicit skip connection less critical than for the MLP's severe bottleneck. Despite these differences, the similar capacity allows us to assess the relative importance of self-attention for this task. The Transformer can exploit global structure through self-attention while the MLP processes inputs as unstructured vectors with a residual bypass.
 
 All models are trained to map noisy density matrices to their clean counterparts using unconstrained outputs with post-hoc projection to valid density matrices. Training uses the AdamW optimizer with a learning rate of 3×10⁻⁴ and light L2 regularization (weight decay 10⁻⁵). We employ early stopping with patience of 15 epochs based on validation loss, with a maximum budget of 100 epochs.
 
-Evaluation uses Uhlmann fidelity \(F(\rho, \sigma) = (\mathrm{Tr}[\sqrt{\sqrt{\rho}\sigma\sqrt{\rho}}])^2\) between the reconstructed and target states, computed after projecting outputs to valid density matrices. Uhlmann fidelity is the standard measure of quantum state overlap, ranging from 0 (orthogonal) to 1 (identical).
+Evaluation uses Uhlmann fidelity \(F(\rho, \sigma) = (\mathrm{Tr}[\sqrt{\sqrt{\rho}\sigma\sqrt{\rho}}])^2\) between the reconstructed and target states, computed after projecting outputs to valid density matrices. Uhlmann fidelity is the standard measure of quantum state overlap, ranging from 0 (orthogonal) to 1 (identical). Computing Uhlmann fidelity requires two matrix square roots via eigendecomposition, making it expensive for training; we use Frobenius similarity as the training loss and reserve Uhlmann fidelity for evaluation.
 ** Hyperparameters
 *** Shared Hyperparameters
 
@@ -168,8 +182,10 @@ The MLP uses a residual architecture where the network learns corrections to the
 
 The smaller batch size for the Transformer accommodates the \(O(1024^2)\) attention complexity over element tokens.
 
+We note that the two architectures differ substantially in effective latent dimensionality: the MLP compresses to 28 dimensions, while the Transformer maintains 1024 tokens with 16-dimensional per-token representations (16,384 total). This disparity is a direct consequence of architectural constraints rather than an oversight. Widening the MLP bottleneck to match the Transformer's latent capacity would increase its parameter count to over 1 million, breaking the capacity-matched comparison. Conversely, forcing the Transformer to compress through a 28-dimensional global bottleneck would defeat its core architectural advantage. The Transformer achieves higher effective dimensionality through weight-sharing: identical attention weights process all 1024 tokens, amortizing parameters across the sequence. This efficiency /is/ the architectural advantage we aim to study—given a fixed parameter budget, the Transformer maintains richer intermediate representations suited to the problem's non-local structure.
+
 ** Compute Resources
-All experiments were conducted on a RunPod instance with an NVIDIA GPU. Both models fit entirely on a single GPU without gradient checkpointing or model parallelism. Training typically completed in under 100 epochs due to early stopping.
+All experiments were conducted on a RunPod cloud instance equipped with a single NVIDIA RTX A4000 GPU (16 GB VRAM), 16 vCPUs, and 62 GB system memory. Both models fit entirely on a single GPU without gradient checkpointing or model parallelism. Training typically completed in under 100 epochs due to early stopping.
 
 * Results
 *** Figure Generation :noexport:
@@ -337,7 +353,7 @@ Our experiments also suggest that the method of enforcing physical validity matt
 
 These findings suggest that attention-based architectures may be particularly well-suited for quantum information processing tasks where non-local correlations are fundamental. The element-wise tokenization strategy—treating each density matrix element as a token—provides a natural interface between the quantum state structure and the self-attention mechanism.
 
-Future work could explore scaling to larger qubit systems, where the quadratic attention complexity becomes a limiting factor, and investigate whether sparse attention patterns inspired by quantum locality constraints can maintain performance while improving efficiency. Additionally, extending these methods to mixed states arising from realistic hardware noise characterization could enable practical quantum error mitigation applications.
+The primary limitation of this work is scale: our experiments use 5-qubit systems (32×32 density matrices, 1024 tokens). The element-wise tokenization incurs \(O(n^4)\) attention complexity in qubit count (since matrix dimension scales as \(2^n\)), making naive scaling to 10+ qubits prohibitive. Future work could explore sparse attention patterns inspired by quantum locality constraints, hierarchical tokenization schemes, or hybrid architectures that maintain the benefits of self-attention while improving efficiency. Additionally, extending these methods to mixed states arising from realistic hardware noise characterization—including correlated errors and non-Markovian dynamics—could enable practical quantum error mitigation applications.
 * References
 #+print_bibliography:references.bib
 
