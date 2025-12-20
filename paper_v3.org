@@ -119,7 +119,7 @@ This residual formulation preserves input information through the skip connectio
 
 The Transformer autoencoder uses element-wise tokenization: each of the 1024 elements of the \(32 \times 32\) density matrix becomes a token with 2 values (real and imaginary parts). Each element \(\rho_{ij}\) represents the quantum coherence between computational basis states \(|i\rangle\) and \(|j\rangle\); diagonal elements give occupation probabilities while off-diagonal elements encode phase relationships and entanglement. For entangled states, correlations exist between elements that are distant in the matrix layout but coupled through the underlying quantum state—for instance, Bell-state correlations couple elements \(\rho_{00,00}\) and \(\rho_{11,11}\) despite their separation [cite:@nielsen_chuang_2010]. This fine-grained tokenization allows the self-attention mechanism to directly model such correlations between any pair of matrix elements.
 
-The encoder consists of 4 transformer layers with 4 attention heads, embedding dimension 32, and feed-forward dimension 64. A per-token bottleneck compresses representations (32→16→32) before the decoder, which mirrors the encoder structure and uses cross-attention to the encoder output. Each token independently predicts its corresponding matrix element through a linear projection (32→2).
+The encoder consists of 4 transformer layers with 4 attention heads, embedding dimension 32, and feed-forward dimension 64. A per-token bottleneck compresses representations (32→16→32) before the decoder, which mirrors the encoder structure and uses cross-attention to the encoder output. Each token independently predicts its corresponding matrix element through a linear projection (32→2). Explicit residual connections are omitted because the encoder-decoder cross-attention mechanism already provides information preservation pathways—the attention directly attends to encoder representations, creating an effective skip connection that prevents information collapse through the bottleneck.
 
 Element-wise tokenization incurs \(O(1024^2)\) attention complexity, but enables the transformer to capture arbitrary pairwise correlations—precisely the structure present in entangled quantum states.
 #+LATEX:\newpage
@@ -143,15 +143,17 @@ $$
 
 where \(\langle \hat{\rho}, \rho \rangle_F = \mathrm{Tr}(\hat{\rho}^\dagger \rho)\) is the Frobenius inner product. This formulation is analogous to cosine similarity for complex matrices: it measures alignment while normalizing for magnitude differences.
 
-While Uhlmann fidelity is the correct operational measure of quantum state similarity, its reliance on eigendecomposition (\(O(n^3)\) for \(n \times n\) matrices) makes it substantially more expensive than the Frobenius inner product (\(O(n^2)\)). To validate Frobenius similarity as a training proxy, we computed both metrics on noisy–clean state pairs across all noise types and strengths. Although the relationship is strongly nonlinear (Figure \ref{fig:frob-uhlmann}), the two metrics exhibit a very strong monotonic association (Spearman's \(\rho = 0.95\), \(p \ll 10^{-10}\)), indicating that improvements under the Frobenius objective consistently correspond to improvements in Uhlmann fidelity. We note that the correlation appears weaker at low fidelity values where heavily corrupted states reside; however, both models successfully escape this regime during training, so the gradient signal remains informative where it matters.
+While Uhlmann fidelity is the correct operational measure of quantum state similarity, its reliance on eigendecomposition (\(O(n^3)\) for \(n \times n\) matrices) makes it substantially more expensive than the Frobenius inner product (\(O(n^2)\)). To validate Frobenius similarity as a training proxy, we computed both metrics on noisy–clean state pairs across all noise types and strengths. Although the relationship is strongly nonlinear (Figure \ref{fig:frob-uhlmann}), the two metrics exhibit a very strong monotonic association (Spearman's \(\rho = 0.95\), \(p \ll 10^{-10}\)), indicating that improvements under the Frobenius objective reliably translate into higher Uhlmann fidelity in the regime reached during training. We note that the correlation appears weaker at low fidelity values where heavily corrupted states reside; however, both models successfully escape this regime during training, so the gradient signal remains informative where it matters.
 
 #+LATEX:\newpage
 * Experimental Design
-We evaluate two denoising architectures—MLP and Transformer autoencoders—with comparable parameter counts (~120k each). The architectures differ in activation functions (ReLU vs. GELU) and connectivity patterns: the MLP uses residual connections while the Transformer does not. We chose not to add residual connections to the Transformer because its encoder-decoder structure with cross-attention already preserves input information through the attention pathway, making an explicit skip connection less critical than for the MLP's severe bottleneck. Despite these differences, the similar capacity allows us to assess the relative importance of self-attention for this task. The Transformer can exploit global structure through self-attention while the MLP processes inputs as unstructured vectors with a residual bypass.
+We evaluate two denoising architectures—MLP and Transformer autoencoders—with comparable parameter counts (~120k each). The architectures differ in activation functions (ReLU vs. GELU) and connectivity patterns: the MLP uses residual connections while the Transformer does not. We intentionally chose a severe bottleneck (2048→28) for the MLP to test whether unstructured feedforward processing can learn to extract entanglement-relevant structure from density matrices; Section 5.5 shows that relaxing this bottleneck by 36× does not improve performance, indicating the limitation is architectural rather than capacity-driven. We chose not to add residual connections to the Transformer because its encoder-decoder structure with cross-attention already preserves input information through the attention pathway, making an explicit skip connection less critical than for the MLP's severe bottleneck. Despite these differences, the similar capacity allows us to assess the relative importance of self-attention for this task. The Transformer can exploit global structure through self-attention while the MLP processes inputs as unstructured vectors with a residual bypass.
 
 All models are trained to map noisy density matrices to their clean counterparts using unconstrained outputs with post-hoc projection to valid density matrices. Training uses the AdamW optimizer with a learning rate of 3×10⁻⁴ and light L2 regularization (weight decay 10⁻⁵). We employ early stopping with patience of 15 epochs based on validation loss, with a maximum budget of 100 epochs.
 
 Evaluation uses Uhlmann fidelity \(F(\rho, \sigma) = (\mathrm{Tr}[\sqrt{\sqrt{\rho}\sigma\sqrt{\rho}}])^2\) between the reconstructed and target states, computed after projecting outputs to valid density matrices. Uhlmann fidelity is the standard measure of quantum state overlap, ranging from 0 (orthogonal) to 1 (identical). Computing Uhlmann fidelity requires two matrix square roots via eigendecomposition, making it expensive for training; we use Frobenius similarity as the training loss and reserve Uhlmann fidelity for evaluation.
+
+The smaller batch size for the Transformer accommodates the \(O(1024^2)\) attention complexity over element tokens.
 ** Hyperparameters
 *** Shared Hyperparameters
 
@@ -186,7 +188,7 @@ Evaluation uses Uhlmann fidelity \(F(\rho, \sigma) = (\mathrm{Tr}[\sqrt{\sqrt{\r
 
 The MLP uses a residual architecture where the network learns corrections to the input through a 28-dimensional bottleneck, with the output layer initialized to zero so the model starts by outputting the input unchanged. The Transformer uses element-wise tokenization where each matrix element becomes a token, enabling self-attention to capture arbitrary pairwise correlations between elements—matching the non-local structure of entangled quantum states.
 
-The smaller batch size for the Transformer accommodates the \(O(1024^2)\) attention complexity over element tokens.
+
 
 We note that the two architectures differ substantially in effective latent dimensionality: the MLP compresses to 28 dimensions, while the Transformer maintains 1024 tokens with 16-dimensional per-token representations (16,384 total). This disparity is a direct consequence of architectural constraints rather than an oversight. Widening the MLP bottleneck to match the Transformer's latent capacity would increase its parameter count substantially, breaking the capacity-matched comparison. Conversely, forcing the Transformer to compress through a 28-dimensional global bottleneck would defeat its core architectural advantage. The Transformer achieves higher effective dimensionality through weight-sharing: identical attention weights process all 1024 tokens, amortizing parameters across the sequence. To rule out latent capacity as the driver of performance differences, we conduct a control experiment (Section 5.5) training a wide MLP with a 1024-dimensional bottleneck (5.2M parameters)—the results confirm that capacity alone cannot explain the Transformer's advantage.
 
@@ -362,7 +364,23 @@ A natural objection is that the Transformer's advantage stems from its higher ef
 
 The results are striking: despite having 44× more parameters than the Transformer, the wide MLP plateaus at the same validation loss as the small MLP (0.587–0.589). The weight decay grid search confirms this is not an optimization failure—both regularization strengths converge to nearly identical performance, indicating the architecture has reached its fundamental limit rather than overfitting.
 
-This experiment provides strong evidence that the MLP architecture, regardless of scale, lacks the inductive bias necessary to efficiently model the non-local correlations inherent in entangled quantum states. The efficiency gap is stark: the Transformer achieves 22% lower validation loss (0.457 vs 0.587) with 44× fewer parameters. Self-attention can directly capture element-to-element dependencies that the MLP must approximate through unstructured matrix multiplication. The MLP, even when given massive capacity, essentially "doesn't know where to look" in the density matrix—attention is not merely helpful but a functional necessity for this task.
+This experiment provides strong evidence that the MLP architecture, regardless of scale, lacks the inductive bias necessary to efficiently model the non-local correlations inherent in entangled quantum states. The efficiency gap is stark: the Transformer achieves 22% lower validation loss (0.457 vs 0.587) with 44× fewer parameters. Self-attention can directly capture element-to-element dependencies that the MLP must approximate through unstructured matrix multiplication. The MLP, even when given massive capacity, essentially "doesn't know where to look" in the density matrix—attention appears necessary in this regime for effectively exploiting the non-local structure of entangled states.
+
+** Depth Control: Ruling Out Insufficient Layers
+
+A natural follow-up question: is the shallow MLP's underperformance due to insufficient depth rather than architectural unsuitability? To definitively test this, we trained a deep residual MLP with identical parameter count (~121.6k) but 8 nonlinear transformations (vs 2 for shallow), per-layer residual connections, long skip connections, and GELU activation (smoother than ReLU for regression).
+
+#+NAME: tab:depth-control
+#+CAPTION: Depth control experiment. A deep residual MLP with 8 nonlinear transformations and equivalent parameter count to the shallow MLP achieves worse validation loss, ruling out insufficient depth as the limiting factor.
+| Model                          | Parameters | Nonlinear Transforms | Val Loss |
+|--------------------------------+------------+----------------------+----------|
+| Transformer                    |       119k |                    6 |    0.457 |
+| MLP (shallow, 2 layers)        |       118k |                    2 |    0.587 |
+| MLP (deep residual, 8 layers)  |     121.6k |                    8 |    0.765 |
+
+Surprisingly, the deep residual MLP performs *worse* than the shallow baseline (0.765 vs 0.587). Despite architectural improvements—per-layer residuals for gradient flow, long skip connections, smoother GELU activation, and 4× more transformations—the deep MLP converges to a suboptimal solution. This indicates that stacking narrow (28-dimensional) feedforward layers does not help the network learn entanglement-relevant structure.
+
+The core limitation is not depth or parameter count, but the representational capacity of the 2048→28→2048 pathway itself. The Transformer avoids this by maintaining 1024-dimensional token representations and using attention to route information—a qualitatively different capacity mechanism than mere parameter count.
 
 ** Hard Constraints Cause Optimization Failure
 
@@ -412,13 +430,26 @@ Figure \ref{fig:noise-heatmaps} breaks down fidelity across all 20 noise conditi
 
 #+LATEX:\newpage
 * Conclusion
-We have demonstrated that architectural inductive bias—not model capacity—determines neural network performance for quantum state denoising. With comparable parameter counts (~120k), the Transformer autoencoder achieves 2.3× higher Uhlmann fidelity than the noisy baseline, compared to 1.4× for the MLP—a 1.6× advantage attributable to the self-attention mechanism's ability to model correlations between arbitrary matrix elements. A capacity control experiment reinforces this conclusion: a wide MLP with 5.2 million parameters (44× the Transformer's count) achieves no improvement over the small MLP, demonstrating that the feedforward architecture fundamentally cannot exploit the non-local structure of entangled quantum states regardless of scale.
+We have demonstrated that architectural inductive bias—not model capacity or depth—determines neural network performance for quantum state denoising. With comparable parameter counts (~120k), the Transformer autoencoder achieves 2.3× higher Uhlmann fidelity than the noisy baseline, compared to 1.4× for the MLP—a 1.6× advantage attributable to the self-attention mechanism's ability to model correlations between arbitrary matrix elements. Two control experiments reinforce this conclusion:
+
+1. *Capacity control* (Section 5.5): A wide MLP with 5.2 million parameters (44× the Transformer's count) achieves no improvement over the small MLP (0.587 validation loss), demonstrating that parameter count alone cannot explain the Transformer's advantage.
+
+2. *Depth control* (Section 5.6): A deep residual MLP with 8 nonlinear transformations (vs 2 for shallow), per-layer residuals, long skip connections, and GELU activation actually performs *worse* (0.765 vs 0.587 validation loss) than the shallow baseline, ruling out insufficient depth as the limiting factor.
+
+These results collectively demonstrate that the feedforward architecture fundamentally lacks the inductive bias needed to exploit the non-local structure of entangled quantum states. The Transformer succeeds not through greater capacity, but through a qualitatively different mechanism—attention routing that maintains token-level dimensionality (1024 dimensions) rather than compressing to a narrow bottleneck.
 
 Our experiments also suggest that the method of enforcing physical validity matters: unconstrained outputs with post-hoc projection to the space of valid density matrices enabled effective optimization in our setup, while hard constraints (Cholesky parameterization) led to optimization difficulties and model collapse. Whether this reflects fundamental limitations of the Cholesky approach or configuration-specific issues remains an open question.
 
 These findings suggest that attention-based architectures may be particularly well-suited for quantum information processing tasks where non-local correlations are fundamental. The element-wise tokenization strategy—treating each density matrix element as a token—provides a natural interface between the quantum state structure and the self-attention mechanism.
 
-The primary limitation of this work is scale: our experiments use 5-qubit systems (32×32 density matrices, 1024 tokens). The element-wise tokenization incurs \(O(n^4)\) attention complexity in qubit count (since matrix dimension scales as \(2^n\)), making naive scaling to 10+ qubits prohibitive. Future work could explore sparse attention patterns inspired by quantum locality constraints, hierarchical tokenization schemes, or hybrid architectures that maintain the benefits of self-attention while improving efficiency. Additionally, extending these methods to mixed states arising from realistic hardware noise characterization—including correlated errors and non-Markovian dynamics—could enable practical quantum error mitigation applications.
+The primary limitation of this work is scale: our experiments use 5-qubit systems (32×32 density matrices, 1024 tokens). The element-wise tokenization incurs \(O(n^4)\) attention complexity in qubit count (since matrix dimension scales as \(2^n\)), making naive scaling to 10+ qubits prohibitive. Future work could mitigate this through several concrete approaches:
+
+- *Block-sparse attention* respecting tensor-product structure and entanglement constraints
+- *Low-rank attention approximations* that leverage Hermiticity and density matrix structure
+- *Hierarchical tokenization* grouping correlated matrix elements to reduce sequence length
+- *Hybrid architectures* combining structured local convolutions with global attention over reduced representations
+
+Additionally, extending these methods to mixed states arising from realistic hardware noise characterization—including correlated errors and non-Markovian dynamics—could enable practical quantum error mitigation applications.
 * References
 #+print_bibliography:
 
