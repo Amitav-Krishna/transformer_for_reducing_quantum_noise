@@ -2,7 +2,7 @@
 #+LATEX_HEADER: \usepackage{subcaption}
 * Abstract
 
-Quantum state denoising—reconstructing clean density matrices from noisy measurements—is essential for extracting useful information from near-term quantum devices. While prior work has explored convolutional and feedforward architectures for this task, the effectiveness of global attention mechanisms for quantum states with non-local entanglement correlations remains underexplored. We compare multilayer perceptron (MLP) and Transformer autoencoders for density matrix denoising, using comparable parameter counts (~120k) to reduce confounding from model capacity. On a synthetic dataset of 5-qubit states corrupted by five noise types at four severity levels, both models improve upon the baseline: the MLP achieves [TBD]× higher Uhlmann fidelity while the Transformer achieves [TBD]×—a [TBD]× advantage over the MLP. We attribute this gap to the self-attention mechanism's ability to model correlations between arbitrary matrix elements. Our experiments also demonstrate that unconstrained outputs with post-hoc projection to valid density matrices enable effective optimization, whereas hard constraints (Cholesky parameterization) presented significant optimization difficulties in our configuration. These findings suggest that architectural choice—not merely model capacity—influences denoising performance for entangled quantum states.
+Quantum state denoising—reconstructing clean density matrices from noisy measurements—is essential for extracting useful information from near-term quantum devices. While prior work has explored convolutional and feedforward architectures for this task, the effectiveness of global attention mechanisms for quantum states with non-local entanglement correlations remains underexplored. We compare multilayer perceptron (MLP) and Transformer autoencoders for density matrix denoising, using comparable parameter counts (~120k) to reduce confounding from model capacity. On a synthetic dataset of 5-qubit states corrupted by five noise types at four severity levels, both models improve upon the baseline: the MLP achieves 1.4× higher Uhlmann fidelity while the Transformer achieves 2.3×—a 1.6× advantage over the MLP. We attribute this gap to the self-attention mechanism's ability to model correlations between arbitrary matrix elements. Our experiments also demonstrate that unconstrained outputs with post-hoc projection to valid density matrices enable effective optimization, whereas hard constraints (Cholesky parameterization) presented significant optimization difficulties in our configuration. These findings suggest that architectural choice—not merely model capacity—influences denoising performance for entangled quantum states.
 
 * Introduction
 Prior work has explored convolutional architectures for quantum state denoising, leveraging locally structured patterns induced by density-matrix representations to mitigate the effects of decoherence without assuming explicit knowledge of the underlying hardware noise channel [cite:@kendre2025machinelearningquantumnoise]. Earlier approaches employ feedforward neural networks to reconstruct states corrupted by unknown dynamics, demonstrating that supervised neural models can learn effective, data-driven mappings from noisy to cleaner quantum states [cite:@Morgillo_2024]. However, these architectures process density matrices as flat vectors or local patches, potentially failing to capture the non-local correlations induced by quantum entanglement—a limitation that motivates exploring attention-based alternatives.
@@ -311,11 +311,11 @@ Table [[tab:main-results]] summarizes the reconstruction fidelity of both archit
 #+CAPTION: Uhlmann fidelity on the held-out test set. Higher is better. Baseline represents the fidelity between noisy and clean states without any denoising.
 | Model                   | Uhlmann Fidelity | Improvement |
 |-------------------------+------------------+-------------|
-| Baseline (no denoising) | [TBD] ± [TBD]    | —           |
-| MLP (residual)          | [TBD] ± [TBD]    | [TBD]×      |
-| Transformer             | [TBD] ± [TBD]    | [TBD]×      |
+| Baseline (no denoising) | 0.12 ± 0.13      | —           |
+| MLP (residual)          | 0.17 ± 0.17      | 1.4×        |
+| Transformer             | 0.28 ± 0.23      | 2.3×        |
 
-Both architectures improve upon the baseline, but the Transformer achieves substantially higher fidelity—[TBD]× better than the MLP despite having comparable parameter counts. This performance gap demonstrates that the self-attention mechanism provides a meaningful advantage for quantum state denoising, successfully exploiting the non-local correlations present in entangled states.
+Both architectures improve upon the baseline, but the Transformer achieves substantially higher fidelity—1.6× better than the MLP despite having comparable parameter counts. This performance gap demonstrates that the self-attention mechanism provides a meaningful advantage for quantum state denoising, successfully exploiting the non-local correlations present in entangled states.
 
 ** Analysis
 The Transformer's advantage stems from its architectural match to the problem structure. Quantum entanglement induces correlations between arbitrary pairs of density matrix elements—precisely the kind of non-local dependency that self-attention is designed to capture. The element-wise tokenization strategy allows each matrix element to attend to every other element, enabling the model to learn which correlations are informative for denoising.
@@ -323,31 +323,56 @@ The Transformer's advantage stems from its architectural match to the problem st
 The MLP's residual architecture—learning corrections rather than full reconstruction—proves essential for feedforward denoising. Early experiments with a non-residual MLP achieved fidelity *worse* than the noisy baseline. The severe bottleneck (2048→28 dimensions) destroyed information faster than the network could learn to denoise. The residual formulation preserves input information through the skip connection, allowing the network to focus on learning corrections rather than memorizing the full state representation.
 
 The relatively high variance in fidelity scores reflects the heterogeneity of the test set, which spans five noise types at four severity levels. Performance varies across noise conditions, with some noise types being inherently easier to correct than others.
-
+#+LATEX:\newpage
 ** Performance by Noise Type
+
+Figure \ref{fig:noise-heatmaps} breaks down fidelity across all 20 noise conditions. Phase damping is easiest to correct—the Transformer reaches 0.71 at p=0.05, since phase damping only destroys off-diagonal coherence. Depolarizing and bit-flip noise at high levels (p=0.20) are hardest, driving states toward maximally mixed where little signal remains. The Transformer outperforms the MLP in every cell, with the largest gaps on amplitude damping and mixed noise at moderate levels.
 
 #+BEGIN_EXPORT latex
 \begin{figure}[h!]
 \centering
-\begin{subfigure}[b]{0.32\linewidth}
+\begin{subfigure}[b]{0.49\linewidth}
 \includegraphics[width=\linewidth]{./figures/baseline_noise_cells_heatmap.pdf}
-\caption{Baseline}
+\caption{Baseline (noisy input)}
 \end{subfigure}
-\begin{subfigure}[b]{0.32\linewidth}
+\hfill
+\begin{subfigure}[b]{0.49\linewidth}
 \includegraphics[width=\linewidth]{./figures/mlp_noise_cells_heatmap.pdf}
 \caption{MLP (residual)}
 \end{subfigure}
-\begin{subfigure}[b]{0.32\linewidth}
+
+\vspace{0.3em}
+
+\begin{subfigure}[b]{0.49\linewidth}
+\centering
 \includegraphics[width=\linewidth]{./figures/transformer_noise_cells_heatmap.pdf}
 \caption{Transformer}
 \end{subfigure}
-\caption{Uhlmann fidelity by noise type and level. The Transformer achieves higher fidelity across all conditions, with the largest improvements on amplitude damping and mixed noise.}
+\caption{Uhlmann fidelity by noise type and level. Rows: noise channels; columns: noise strength $p \in \{0.05, 0.10, 0.15, 0.20\}$.}
 \label{fig:noise-heatmaps}
 \end{figure}
 #+END_EXPORT
 
+** Attention on Entangled States
+
+To understand /why/ the Transformer outperforms the MLP, we visualize what the self-attention mechanism learns. We test on a GHZ state—a standard benchmark for entanglement where all 5 qubits are correlated: measuring any one qubit instantly determines all the others. Its density matrix is nearly empty (only 4 non-zero elements out of 1024), making attention patterns easy to interpret.
+
+Figure \ref{fig:attention} shows which tokens attend most strongly to token 0 (the \(\rho_{00,00}\) element) when processing a noisy GHZ state. Each bar represents one of the 1024 matrix elements, with height indicating attention weight.
+
+#+BEGIN_EXPORT latex
+\begin{figure}[h!]
+\centering
+\includegraphics[width=1\linewidth]{./figures/attention_from_queries_to_key0.pdf}
+\caption{Attention to token 0 (the $\rho_{00,00}$ matrix element) from all 1024 tokens. The four tall red bars at positions 0, 31, 992, and 1023 correspond exactly to the GHZ state's non-zero elements—the model learns that these specific elements should attend strongly to each other (attention weight 0.5, versus mean 0.01 for other elements).}
+\label{fig:attention}
+\end{figure}
+#+END_EXPORT
+
+The pattern is striking: the four matrix elements that are non-zero in the pure GHZ state (positions 0, 31, 992, 1023) attend to token 0 with weight 0.5—50× stronger than other elements. These correspond to the density matrix corners: \(\rho_{00,00}\), \(\rho_{00,31}\), \(\rho_{31,00}\), and \(\rho_{31,31}\). The model discovers—without explicit guidance—that these elements are correlated and should share information. This is precisely the entanglement structure: in a GHZ state, knowing one of these elements constrains the others.
+
+#+LATEX:\newpage
 * Conclusion
-We have demonstrated that architectural inductive bias significantly impacts neural network performance for quantum state denoising. With comparable parameter counts (~120k), the Transformer autoencoder achieves [TBD]× higher Uhlmann fidelity than the noisy baseline, compared to [TBD]× for the MLP—a [TBD]× advantage attributable to the self-attention mechanism's ability to model correlations between arbitrary matrix elements.
+We have demonstrated that architectural inductive bias significantly impacts neural network performance for quantum state denoising. With comparable parameter counts (~120k), the Transformer autoencoder achieves 2.3× higher Uhlmann fidelity than the noisy baseline, compared to 1.4× for the MLP—a 1.6× advantage attributable to the self-attention mechanism's ability to model correlations between arbitrary matrix elements.
 
 Our experiments also suggest that the method of enforcing physical validity matters: unconstrained outputs with post-hoc projection to the space of valid density matrices enabled effective optimization in our setup, while hard constraints (Cholesky parameterization) led to optimization difficulties and model collapse. Whether this reflects fundamental limitations of the Cholesky approach or configuration-specific issues remains an open question.
 

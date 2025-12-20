@@ -452,15 +452,11 @@ def main():
     for i, attn_map in enumerate(encoder_maps):
         ax = axes[i]
         attn = attn_map['weights'][0].mean(dim=0).cpu().numpy()  # Average across heads
-        attn = np.clip(attn, 1e-6, 1.0)
 
-        im = ax.imshow(attn, cmap='viridis', aspect='equal',
-                       norm=LogNorm(vmin=1e-4, vmax=1.0))
-
-        # Highlight GHZ indices
-        for idx in ghz_indices:
-            ax.axhline(y=idx, color='red', linewidth=0.3, alpha=0.5)
-            ax.axvline(x=idx, color='red', linewidth=0.3, alpha=0.5)
+        # Higher contrast: use tighter log scale and plasma colormap
+        attn = np.clip(attn, 1e-5, 1.0)
+        im = ax.imshow(attn, cmap='plasma', aspect='equal',
+                       norm=LogNorm(vmin=1e-3, vmax=0.5))
 
         ax.set_title(f'Encoder Layer {i+1}', fontsize=12)
         ax.set_xlabel('Key')
@@ -474,7 +470,9 @@ def main():
         print(f"  Layer {i+1}: GHZ/mean ratio = {ratio:.2f}x")
 
     plt.suptitle('Encoder Self-Attention Across Layers (GHZ State)', fontsize=14)
-    plt.tight_layout()
+    fig.subplots_adjust(right=0.85, hspace=0.25, wspace=0.2)
+    cbar_ax = fig.add_axes([0.88, 0.15, 0.03, 0.7])
+    fig.colorbar(im, cax=cbar_ax, label='Attention Weight')
     plt.savefig(f"{out_dir}/ghz_all_encoder_layers.pdf")
     plt.savefig(f"{out_dir}/ghz_all_encoder_layers.png")
     plt.close()

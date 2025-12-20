@@ -8,7 +8,8 @@ This project compares neural network autoencoders for density-matrix denoising a
 - v3/v4: Cholesky-constrained outputs → **FAILED** (collapsed to maximally mixed state)
 - v5: Row-based tokenization → **FAILED** (stuck at 0.968 val loss)
 - v6: Element-wise tokenization (~120k params each) → MLP destroyed info (0.038 fidelity < baseline)
-- v7: Residual MLP → **SUCCESS** (Baseline: 0.068, MLP: 0.101, Transformer: 0.172)
+- v7: Residual MLP → **SUCCESS** (intermediate results)
+- v8: Final training on complete dataset → **Baseline: 0.12, MLP: 0.17 (1.4×), Transformer: 0.28 (2.3×)**
 
 ## Project Structure
 
@@ -366,11 +367,11 @@ After Cholesky failed, we tried several unconstrained architectures:
 | `train_v6/csvs_6/` | Training logs |
 | `train_v6/checkpoints_6/` | Model checkpoints |
 
-### v7: Residual MLP - **FINAL** (`train_v7/`)
+### v7: Residual MLP (`train_v7/`)
 
 - **MLP**: Residual architecture: `output = input + correction(input)`, 2048→28→28→2048 (~117k params)
 - **Key fix**: Skip connection preserves input information; output layer initialized to zero
-- **Result**: MLP Uhlmann fidelity **0.101** (1.5× baseline), Transformer **0.172** (2.5× baseline)
+- **Result**: Intermediate results, superseded by v8
 
 | File | Description |
 |------|-------------|
@@ -378,8 +379,29 @@ After Cholesky failed, we tried several unconstrained architectures:
 | `train_v7/train.py` | Training script (MLP only) |
 | `train_v7/eval.py` | Uhlmann fidelity evaluation |
 | `train_v7/eval_per_noise_cell.py` | Per noise-type/level evaluation for heatmaps |
+| `train_v7/generate_val_loss_figure.py` | Standalone validation loss figure script |
+| `train_v7/generate_heatmaps.py` | Standalone heatmap generation script |
 | `train_v7/csvs_7/` | Training logs |
 | `train_v7/checkpoints_7/` | Model checkpoints |
+
+### v8: Final Models - **CURRENT** (`train_v8/`)
+
+- **MLP**: Residual architecture from v7 (~117k params)
+- **Transformer**: Element-wise tokenization from v6 (~119k params)
+- **Dataset**: Complete dataset with all 5 noise types including phase_damping
+- **Result**: Baseline 0.12, MLP **0.17** (1.4×), Transformer **0.28** (2.3×)
+
+| File | Description |
+|------|-------------|
+| `train_v8/mlp.py` | Residual MLP (~117k params) |
+| `train_v8/transformer.py` | Element-wise Transformer (~119k params) |
+| `train_v8/train.py` | Training script for both models |
+| `train_v8/eval_per_noise_cell.py` | Per noise-type/level Uhlmann fidelity evaluation |
+| `train_v8/generate_val_loss_figure.py` | Validation loss overlay figure |
+| `train_v8/generate_heatmaps.py` | Per-noise-cell heatmap generation |
+| `train_v8/csvs_8/` | Training logs |
+| `train_v8/csvs_8/noise_cells/` | Per-noise-cell Uhlmann fidelity CSVs |
+| `train_v8/checkpoints_8/` | Model checkpoints (`best.pt` for each) |
 
 ---
 
@@ -424,6 +446,17 @@ After Cholesky failed, we tried several unconstrained architectures:
 | File | Description |
 |------|-------------|
 | `transformer_architecture.pdf` | Transformer autoencoder architecture |
+
+### Attention Analysis
+
+| File | Description |
+|------|-------------|
+| `attention_maps.py` | Attention map visualization for entangled states (GHZ) |
+| `attention_maps_simple.py` | Simplified bar chart attention visualization |
+| `check_attention_values.py` | Script to compute attention statistics |
+| `attention_from_queries_to_key0.pdf` | **Paper figure**: Which tokens attend to token 0 |
+| `attention_to_keys.pdf` | Which keys receive most attention overall |
+| `attention_maps/` | Directory with additional attention visualizations |
 
 ---
 
@@ -482,20 +515,20 @@ python figures/transformer_architecture.py
 | Transformer Frobenius | 0.95 ± 0.12 | +0.84 |
 | Transformer Physics | 0.33 ± 0.33 | +0.22 |
 
-### Paper v3: MLP vs Transformer (Final - v7)
+### Paper v3: MLP vs Transformer (Final - v8)
 
 | Model | Uhlmann Fidelity | Improvement |
 |-------|------------------|-------------|
-| Baseline (noisy input) | 0.068 ± 0.063 | — |
-| MLP v6 (non-residual) | 0.038 ± 0.009 | **-0.03** (destroys info) |
-| MLP v7 (residual) | **0.101 ± 0.100** | **1.5×** |
-| Transformer v6 | **0.172 ± 0.159** | **2.5×** |
+| Baseline (noisy input) | 0.12 ± 0.13 | — |
+| MLP (residual) | **0.17 ± 0.17** | **1.4×** |
+| Transformer | **0.28 ± 0.23** | **2.3×** |
 
 **Key findings:**
-- Transformer achieves 1.7× better fidelity than MLP despite similar parameter count (~120k)
+- Transformer achieves 1.6× better fidelity than MLP despite similar parameter count (~120k)
 - Residual architecture essential for MLP (non-residual destroyed information)
 - Cholesky-constrained outputs and row-based tokenization both failed
 - Element-wise tokenization allows modeling arbitrary pairwise correlations
+- Attention analysis shows transformer learns to focus on entanglement-correlated elements
 
 ---
 
