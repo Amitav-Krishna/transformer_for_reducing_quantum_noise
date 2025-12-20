@@ -1,39 +1,118 @@
 # Comparing Machine Learning Strategies for Quantum Noise Reduction
 
-This project compares CNN and Transformer autoencoders for density-matrix denoising across multiple quantum noise channels.
+This project compares neural network autoencoders for density-matrix denoising across multiple quantum noise channels.
+
+**Paper v2 (completed):** CNN vs Transformer comparison → Transformer wins (0.95 vs 0.30 fidelity)
+
+**Paper v3 (completed):** MLP vs Transformer comparison
+- v3/v4: Cholesky-constrained outputs → **FAILED** (collapsed to maximally mixed state)
+- v5: Row-based tokenization → **FAILED** (stuck at 0.968 val loss)
+- v6: Element-wise tokenization (~120k params each) → MLP destroyed info (0.038 fidelity < baseline)
+- v7: Residual MLP → **SUCCESS** (Baseline: 0.068, MLP: 0.101, Transformer: 0.172)
 
 ## Project Structure
 
 ```
 .
-├── paper_v2.org            # Main paper (Org-mode source)
-├── paper_v2.pdf            # Compiled paper
+├── paper_v2.org            # Paper v2 (Org-mode source) - CNN vs Transformer
+├── paper_v3.org            # Paper v3 (Org-mode source) - MLP vs Transformer (final: residual MLP)
+├── paper_v3.pdf            # Paper v3 compiled PDF
 ├── references.bib          # Bibliography
 │
 ├── dataset_smaller/        # Chunked training dataset (100k samples)
 ├── dataset.pt              # Original full dataset (1M samples)
 │
-├── models/                 # Model architectures
+├── models/                 # Original model architectures (CNN, Transformer)
+├── models_3/               # Cholesky-output models (MLP, Transformer) - FAILED
+├── models_4/               # Unconstrained MLP/Transformer (global CLS) - FAILED
+├── models_5/               # Row-based tokenization - FAILED
+├── train_v6/               # Element-wise tokenization (~120k params) - Transformer works, MLP destroys info
+├── train_v7/               # **FINAL**: Residual MLP (~117k params) - fixes MLP info destruction
 ├── losses/                 # Loss functions
 ├── training_loop/          # Training infrastructure
 │
-├── checkpoints_2/          # Current model checkpoints (used in paper)
-├── csvs_2/                 # Current experiment results (used in paper)
+├── checkpoints_2/          # Paper v2 checkpoints (CNN/Transformer)
+├── checkpoints_3/          # Paper v3 checkpoints (MLP/Transformer Cholesky)
+├── csvs_2/                 # Paper v2 experiment results
+├── csvs_3/                 # Paper v3 experiment results (CANONICAL - synced from runpod)
+├── csvs_3_new/             # Backup copy of csvs_3 (nested structure, same data)
+├── csvs_3_old/             # Older training run (53/40 epochs) - superseded
 ├── figures/                # Generated figures for paper
 │
-├── train_models.py         # Main training script
-├── generate_dataset.py     # Dataset generation script
-├── ground_truth_fidelity.py # Baseline fidelity computation
-├── eval_models_on_uhlmann.py # Uhlmann fidelity evaluation
-├── eval_per_noise_cell.py  # Per-noise-type/level evaluation
-└── eval_models.py          # General model evaluation
+├── train_models.py         # Train CNN/Transformer (paper v2)
+├── train_cholesky.py       # Train MLP/Transformer Cholesky (paper v3)
+├── train_transformer_cholesky_v2.py  # NEW: Train FIXED transformer only
+└── eval_*.py               # Various evaluation scripts
 ```
 
 ---
 
-## Scripts
+## Paper v3: Cholesky Models (NEW)
 
-### Training & Evaluation
+### Why Cholesky?
+
+Paper v2 showed CNNs fail at density matrix denoising. But CNNs are a poor baseline - they're designed for images, not quantum states. Paper v3 uses MLPs as a fairer comparison since they don't impose spatial locality bias.
+
+Both models use **Cholesky output layers** that guarantee valid density matrices (Hermitian, trace=1, PSD) by construction.
+
+### Models (`models_3/`)
+
+| File | Description |
+|------|-------------|
+| `cholesky_output.py` | Cholesky decomposition layer: params → L → ρ = LL†/Tr(LL†) |
+| `mlp_cholesky.py` | MLP with Cholesky output (~427k params) |
+| `transformer_cholesky.py` | Transformer with Cholesky output (~492k params) - **FIXED VERSION** |
+
+### Training Scripts
+
+| Script | Description |
+|--------|-------------|
+| `train_cholesky.py` | Trains both MLP and Transformer Cholesky models |
+| `train_transformer_cholesky_v2.py` | **NEW:** Trains only the FIXED transformer (after collapse diagnosis) |
+
+### Evaluation Scripts
+
+| Script | Description |
+|--------|-------------|
+| `eval_cholesky_uhlmann.py` | Evaluate Cholesky models on Uhlmann fidelity |
+| `eval_cholesky_per_noise_cell.py` | Evaluate by noise type/level |
+| `test_cholesky_models.py` | Verify outputs are valid density matrices |
+
+### Results Status
+
+**MLP Cholesky:** 96 epochs (early stopped), val loss 0.799, fidelity 0.03-0.07 (learning but poor)
+
+**Transformer Cholesky v1:** 24 epochs, val loss 0.823, fidelity **0.031 constant** - **COLLAPSED!**
+- Diagnosed: degenerate decoder + per-row projection prevented global Cholesky coordination
+- Output was maximally mixed state (I/32)
+
+**Transformer Cholesky v2:** Training pending (fixed architecture)
+
+### The CSV Mess Explained
+
+Multiple training runs created confusing directory structure:
+
+| Directory | Contents | Status |
+|-----------|----------|--------|
+| `csvs_3/` | **CANONICAL** - Latest run (MLP 96 epochs, Transformer 24 epochs) | Use this |
+| `csvs_3_new/csvs_3/` | Same data as csvs_3/ (nested copy from rsync) | Backup |
+| `csvs_3_old/` | Older run (MLP 53 epochs, Transformer 40 epochs) | Superseded |
+
+### Debugging Materials
+
+| Directory | Description |
+|-----------|-------------|
+| `debug_transformer_collapse/` | Diagnostic scripts and analysis of why transformer collapsed |
+| `debug_transformer_collapse/DIAGNOSIS.md` | Full technical analysis |
+| `debug_transformer_collapse/QUICK_SUMMARY.txt` | TL;DR of the problem |
+
+---
+
+## Paper v2: CNN vs Transformer (Original)
+
+### Scripts
+
+#### Training & Evaluation
 
 | Script | Description |
 |--------|-------------|
@@ -120,7 +199,39 @@ This project compares CNN and Transformer autoencoders for density-matrix denois
 
 **Dataset format**: Each sample is a 32x32 complex density matrix stored as 2 real channels (real/imag). Noise types: depolarizing, amplitude damping, phase damping, bit-flip, mixed. Noise levels: 0.05, 0.10, 0.15, 0.20.
 
+### Chunk Data Structure
+
+Each `.pt` file in `dataset_smaller/` is a dict with the following structure:
+
+```python
+blob = torch.load("dataset_smaller/bitflip_0.2_part75050.pt")
+blob.keys()  # dict_keys(['X', 'Y', 'meta'])
+
+# X: noisy density matrices, shape (N, 2, 32, 32) - real/imag channels
+# Y: clean density matrices, shape (N, 2, 32, 32) - real/imag channels
+# meta: list of N dicts, one per sample
+
+blob["meta"][0]  # {'noise_type': 'bitflip', 'noise_level': 0.2, 'depth': 7}
+```
+
+**Loading functions** (`training_loop/dataset/load_chunks.py`):
+- `load_chunks(dir)` → returns list of `(X, Y)` tuples (no metadata)
+- `load_chunks_with_metadata(dir)` → returns list of full blob dicts (with metadata)
+
+**Splitting** (`training_loop/dataset/split_chunks.py`):
+```python
+from training_loop.dataset.split_chunks import split_chunks
+
+# Returns split chunks
+train, val, test = split_chunks(chunks, 0.8, 0.1, seed=42)
+
+# Or return indices only (for use with metadata)
+train_idx, val_idx, test_idx = split_chunks(chunks, 0.8, 0.1, seed=42, return_indices=True)
+```
+
 ### Model Checkpoints
+
+#### Paper v2 Checkpoints (`checkpoints_2/`)
 
 | Path | Description |
 |------|-------------|
@@ -130,6 +241,20 @@ This project compares CNN and Transformer autoencoders for density-matrix denois
 | `checkpoints_2/transformer_physics/` | Transformer + Physics loss (100 epochs + `best.pt`) |
 | `checkpoints_2/transformer_matched_frob/` | Capacity-matched Transformer (~751k params) + Frobenius loss |
 | `checkpoints_2/transformer_matched_physics/` | Capacity-matched Transformer (~751k params) + Physics loss |
+
+#### Paper v3 Checkpoints (`checkpoints_3/`)
+
+| Path | Description |
+|------|-------------|
+| `checkpoints_3/mlp_cholesky/` | MLP Cholesky (96 epochs + `best.pt`) |
+| `checkpoints_3/transformer_cholesky/` | Transformer Cholesky v1 - **COLLAPSED** (24 epochs + `best.pt`) |
+| `checkpoints_3/transformer_cholesky_v2/` | Transformer Cholesky v2 - **PENDING** (fixed architecture) |
+
+#### Other Checkpoint Directories
+
+| Path | Description |
+|------|-------------|
+| `checkpoints_3_runpod/` | Copy of checkpoints_3/ synced from runpod (same data) |
 | `checkpoints/` | Legacy checkpoints from earlier experiments |
 | `legacy_models_checkpoints/` | Older model checkpoints |
 
@@ -175,6 +300,86 @@ This project compares CNN and Transformer autoencoders for density-matrix denois
 | `csvs_2/noise_cells/cnn_frob_noise_cells.csv` | CNN Frob achieves 0.30 fidelity |
 | `csvs_2/noise_cells/cnn_physics_noise_cells.csv` | CNN Physics achieves 0.06 fidelity |
 | `csvs_2/noise_cells/transformer_physics_noise_cells.csv` | Transformer Physics achieves 0.33 fidelity |
+
+---
+
+## Results (`csvs_3/`) - Paper v3 Cholesky Experiments
+
+### Training Logs
+
+| File | Description |
+|------|-------------|
+| `mlp_cholesky.csv` | MLP Cholesky training log (96 epochs, early stopped) |
+| `transformer_cholesky.csv` | Transformer Cholesky v1 training log (24 epochs, early stopped) - **COLLAPSED** |
+| `transformer_cholesky_v2.csv` | Transformer Cholesky v2 training log - **PENDING** |
+
+### Per-Noise-Cell Results (`csvs_3/noise_cells/`)
+
+| File | Description |
+|------|-------------|
+| `mlp_cholesky_noise_cells.csv` | MLP fidelity by noise type/level (0.03-0.07, learning) |
+| `transformer_cholesky_noise_cells.csv` | Transformer v1 fidelity - **constant 0.031** (collapsed to I/32) |
+
+### Directory Variants Explained
+
+| Directory | What It Is |
+|-----------|------------|
+| `csvs_3/` | **USE THIS** - Canonical results synced from runpod |
+| `csvs_3_new/` | Contains `csvs_3/` subdirectory - artifact of nested rsync |
+| `csvs_3_new/csvs_3/` | Same data as `csvs_3/` (redundant copy) |
+| `csvs_3_old/` | Earlier run with worse results (MLP 53ep/0.84 loss, Trans 40ep/0.86 loss) |
+
+---
+
+## Paper v3: Unconstrained Models (v4, v5, v6)
+
+After Cholesky failed, we tried several unconstrained architectures:
+
+### v4: Unconstrained with Global CLS Projection (`models_4/`)
+
+- **MLP**: 2048→512→256→512→2048 (~1.3M params)
+- **Transformer**: Row-based (32 tokens + CLS), global projection from CLS to 2048 outputs
+- **Result**: MLP val loss 0.804, Transformer stuck at 0.825 - **FAILED**
+- **Problem**: Single CLS token can't coordinate 2048 outputs
+
+### v5: Row-based Tokenization with Per-Row Output (`models_5/`)
+
+- **MLP**: Same as v4
+- **Transformer**: 32 row tokens, each outputs 64 values (per-row projection)
+- **Result**: Transformer stuck at 0.968 val loss - **FAILED**
+- **Problem**: Row-level attention can't capture element-to-element correlations
+
+### v6: Element-wise Tokenization (`train_v6/`)
+
+- **MLP**: 2048→28→14→28→2048 (~117k params)
+- **Transformer**: 1024 element tokens, each outputs 2 values (~119k params)
+- **Result**: MLP Uhlmann fidelity **0.038** (worse than 0.068 baseline!), Transformer **0.172**
+- **Problem**: MLP's severe bottleneck destroyed information faster than it could learn
+
+| File | Description |
+|------|-------------|
+| `train_v6/mlp.py` | Small MLP (~117k params) - **destroys info** |
+| `train_v6/transformer.py` | Element-wise Transformer (~119k params) |
+| `train_v6/train.py` | Training script |
+| `train_v6/eval.py` | Uhlmann fidelity evaluation |
+| `train_v6/baseline_fidelity.py` | Computes baseline (noisy vs clean) Uhlmann fidelity |
+| `train_v6/csvs_6/` | Training logs |
+| `train_v6/checkpoints_6/` | Model checkpoints |
+
+### v7: Residual MLP - **FINAL** (`train_v7/`)
+
+- **MLP**: Residual architecture: `output = input + correction(input)`, 2048→28→28→2048 (~117k params)
+- **Key fix**: Skip connection preserves input information; output layer initialized to zero
+- **Result**: MLP Uhlmann fidelity **0.101** (1.5× baseline), Transformer **0.172** (2.5× baseline)
+
+| File | Description |
+|------|-------------|
+| `train_v7/mlp.py` | Residual MLP (~117k params) |
+| `train_v7/train.py` | Training script (MLP only) |
+| `train_v7/eval.py` | Uhlmann fidelity evaluation |
+| `train_v7/eval_per_noise_cell.py` | Per noise-type/level evaluation for heatmaps |
+| `train_v7/csvs_7/` | Training logs |
+| `train_v7/checkpoints_7/` | Model checkpoints |
 
 ---
 
@@ -224,32 +429,39 @@ This project compares CNN and Transformer autoencoders for density-matrix denois
 
 ## Usage
 
-### Training
+### Training (Paper v2 - CNN/Transformer)
 
 ```bash
-# Activate virtual environment
+source venv/bin/activate
+python train_models.py
+```
+
+### Training (Paper v3 - Cholesky Models)
+
+```bash
 source venv/bin/activate
 
-# Train all models (modify train_models.py to select which to run)
-python train_models.py
+# Train both MLP and Transformer Cholesky
+python train_cholesky.py
+
+# Train only the FIXED Transformer v2
+python train_transformer_cholesky_v2.py
 ```
 
 ### Evaluation
 
 ```bash
-# Compute baseline fidelity (noisy vs clean)
-python ground_truth_fidelity.py
+# Paper v2 evaluation
+python ground_truth_fidelity.py      # Baseline fidelity
+python eval_models_on_uhlmann.py     # Uhlmann fidelity
+python eval_per_noise_cell.py        # Per noise type/level
 
-# Evaluate models on Uhlmann fidelity
-python eval_models_on_uhlmann.py
-
-# Evaluate per noise type/level
-python eval_per_noise_cell.py
+# Paper v3 evaluation (Cholesky models)
+python eval_cholesky_uhlmann.py
+python eval_cholesky_per_noise_cell.py
 ```
 
 ### Generating Figures
-
-Figures are generated via code blocks in `paper_v2.org` or standalone scripts in `figures/`:
 
 ```bash
 python figures/baseline_comparison_charts.py
@@ -260,6 +472,8 @@ python figures/transformer_architecture.py
 
 ## Key Results
 
+### Paper v2: CNN vs Transformer
+
 | Model | Uhlmann Fidelity | Improvement over Baseline |
 |-------|------------------|---------------------------|
 | Baseline (noisy input) | 0.11 ± 0.15 | — |
@@ -267,6 +481,31 @@ python figures/transformer_architecture.py
 | CNN Physics | 0.06 ± 0.05 | -0.05 (worse than baseline) |
 | Transformer Frobenius | 0.95 ± 0.12 | +0.84 |
 | Transformer Physics | 0.33 ± 0.33 | +0.22 |
+
+### Paper v3: MLP vs Transformer (Final - v7)
+
+| Model | Uhlmann Fidelity | Improvement |
+|-------|------------------|-------------|
+| Baseline (noisy input) | 0.068 ± 0.063 | — |
+| MLP v6 (non-residual) | 0.038 ± 0.009 | **-0.03** (destroys info) |
+| MLP v7 (residual) | **0.101 ± 0.100** | **1.5×** |
+| Transformer v6 | **0.172 ± 0.159** | **2.5×** |
+
+**Key findings:**
+- Transformer achieves 1.7× better fidelity than MLP despite similar parameter count (~120k)
+- Residual architecture essential for MLP (non-residual destroyed information)
+- Cholesky-constrained outputs and row-based tokenization both failed
+- Element-wise tokenization allows modeling arbitrary pairwise correlations
+
+---
+
+## Miscellaneous Files
+
+| File | Description |
+|------|-------------|
+| `emergency_notes.txt` | Quick notes about which csvs/checkpoints are canonical |
+| `nohup.out` | Training logs from runpod (23MB, contains multiple runs) |
+| `training_loop_3/` | Placeholder for paper v3 training loop (mostly empty) |
 
 ---
 
