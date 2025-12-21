@@ -26,7 +26,7 @@ class MLPPauliAutoencoder(nn.Module):
         super().__init__()
         self.loss_fn = loss_fn
 
-        self.input_dim = 4 * 32  # 1024 Pauli coefficients for 5 qubits
+        self.input_dim = 4 ** 5  # 1024 Pauli coefficients for 5 qubits
 
         # Similar bottleneck ratio to original MLP (2048 -> 28)
         # Original ratio: 28/2048 = 1.37%

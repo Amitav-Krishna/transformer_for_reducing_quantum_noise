@@ -24,8 +24,7 @@ from torch.utils.data import DataLoader, TensorDataset
 from train_11.pauli_representation import density_matrix_to_pauli_basis
 from train_11.mlp_pauli import MLPPauliAutoencoder
 from train_11.transformer_pauli import TransformerPauliAutoencoder
-
-from losses.frob import FrobeniusFidelityLoss
+from train_11.pauli_loss import PauliFrobeniusLoss
 from training_loop.dataset.load_chunks import load_chunks
 from training_loop.dataset.split_chunks import split_chunks
 from training_loop.dataset.csv_logger import CSVLogger
@@ -35,13 +34,13 @@ EXPERIMENTS = {
     "mlp_pauli_frob": {
         "arch": "mlp",
         "loss": "frob",
-        "create_model": lambda: MLPPauliAutoencoder(loss_fn=FrobeniusFidelityLoss()),
+        "create_model": lambda: MLPPauliAutoencoder(loss_fn=PauliFrobeniusLoss()),
         "batch_size": 64,
     },
     "transformer_pauli_frob": {
         "arch": "transformer",
         "loss": "frob",
-        "create_model": lambda: TransformerPauliAutoencoder(loss_fn=FrobeniusFidelityLoss()),
+        "create_model": lambda: TransformerPauliAutoencoder(loss_fn=PauliFrobeniusLoss()),
         "batch_size": 8,
     },
 }

@@ -8,7 +8,7 @@
 #+AUTHOR: Amitav Krishna
 * Abstract
 
-Quantum state denoising—reconstructing clean density matrices from noisy measurements—is essential for extracting useful information from near-term quantum devices. While prior work has explored convolutional and feedforward architectures for this task, the effectiveness of global attention mechanisms for quantum states with non-local entanglement correlations remains underexplored. We compare multilayer perceptron (MLP) and Transformer autoencoders for density matrix denoising, using comparable parameter counts (~120k) to reduce confounding from model capacity. On a synthetic dataset of 5-qubit states corrupted by five noise types at four severity levels, both models improve upon the baseline: the MLP achieves 1.4× higher Uhlmann fidelity while the Transformer achieves 2.3×—a 1.6× advantage over the MLP. A capacity control experiment confirms this gap is architectural rather than capacity-driven: a wide MLP with 44× more parameters (5.2M) achieves no improvement over the small MLP. We attribute the Transformer's advantage to self-attention's ability to model correlations between arbitrary matrix elements—precisely the structure induced by quantum entanglement. These findings demonstrate that architectural inductive bias, not model capacity, determines denoising performance for entangled quantum states.
+Quantum state denoising—reconstructing clean density matrices from noisy measurements—is essential for extracting useful information from near-term quantum devices. While prior work has explored convolutional and feedforward architectures for this task, the effectiveness of global attention mechanisms for quantum states with non-local entanglement correlations remains underexplored. We compare multilayer perceptron (MLP) and Transformer autoencoders for density matrix denoising, using comparable parameter counts (~120k) to reduce confounding from model capacity. On a synthetic dataset of 5-qubit states corrupted by five noise types at four severity levels, both models improve upon the baseline: the MLP achieves 1.4× higher Uhlmann fidelity while the Transformer achieves 2.3×—a 1.6× advantage over the MLP. Three control experiments confirm this gap is architectural rather than capacity-driven: (1) a wide MLP with 44× more parameters (5.2M) achieves no improvement over the small MLP; (2) a deep residual MLP performs worse than the shallow baseline; and (3) when inputs are transformed to the Pauli basis—removing spatial structure while preserving algebraic entanglement relationships—the Transformer improves to 2.7× while the MLP collapses to 0.45× (worse than no denoising). This final control demonstrates that the Transformer learns algebraic entanglement structure, while the MLP requires spatial scaffolding to function at all. These findings establish that architectural inductive bias, not model capacity or representation format, determines denoising performance for entangled quantum states.
 
 * Introduction
 Prior work has explored convolutional architectures for quantum state denoising, leveraging locally structured patterns induced by density-matrix representations to mitigate the effects of decoherence without assuming explicit knowledge of the underlying hardware noise channel [cite:@kendre2025machinelearningquantumnoise]. Earlier approaches employ feedforward neural networks to reconstruct states corrupted by unknown dynamics, demonstrating that supervised neural models can learn effective, data-driven mappings from noisy to cleaner quantum states [cite:@Morgillo_2024]. However, these architectures process density matrices as flat vectors or local patches, potentially failing to capture the non-local correlations induced by quantum entanglement—a limitation that motivates exploring attention-based alternatives.
@@ -382,6 +382,54 @@ Surprisingly, the deep residual MLP performs *worse* than the shallow baseline (
 
 The core limitation is not depth or parameter count, but the representational capacity of the 2048→28→2048 pathway itself. The Transformer avoids this by maintaining 1024-dimensional token representations and using attention to route information—a qualitatively different capacity mechanism than mere parameter count.
 
+** Representation Control: Pauli Basis Removes Spatial Structure
+
+A final control tests whether the Transformer exploits *spatial layout* of the density matrix or *algebraic entanglement structure*. The density matrix representation encodes quantum states as 32×32 grids where physically related elements (e.g., coherences between entangled basis states) occupy specific grid positions. An architecture might succeed by learning these spatial patterns rather than understanding entanglement itself.
+
+To disentangle these factors, we transform the density matrix to the *Pauli basis*: any n-qubit density matrix can be written as
+
+$$\rho = \frac{1}{2^n} \sum_{i=0}^{4^n-1} c_i P_i$$
+
+where $P_i$ are n-fold tensor products of Pauli matrices $\{I, X, Y, Z\}$ and $c_i = \text{Tr}(\rho P_i)$ are real coefficients. For 5 qubits, this yields 1024 real numbers—the same information content as the density matrix, but with no spatial structure. The Pauli coefficients form a flat vector where entanglement correlations manifest as algebraic relationships between coefficients rather than spatial proximity in a grid.
+
+Both Pauli-basis models use an analogous Frobenius loss: cosine similarity between predicted and target coefficient vectors, $\mathcal{L} = 1 - \frac{\mathbf{c}_{pred} \cdot \mathbf{c}_{target}}{\|\mathbf{c}_{pred}\| \|\mathbf{c}_{target}\|}$. This metric exhibits even stronger rank correlation with Uhlmann fidelity than the density-matrix Frobenius loss (Spearman $\rho = 0.99$ vs $0.95$), validating it as a training proxy. Figure \ref{fig:pauli-val-loss} shows the training dynamics: the Transformer converges rapidly to validation loss 0.39 while the MLP plateaus at 0.78 and early-stops after 38 epochs—a 2× gap in loss that translates to the dramatic Uhlmann fidelity difference.
+
+#+BEGIN_EXPORT latex
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.9\linewidth]{./figures/pauli_val_loss.pdf}
+\caption{Pauli-basis model training dynamics. The Transformer converges to validation loss 0.39 while the MLP plateaus at 0.78 and early-stops, reflecting its inability to model Pauli coefficient correlations without spatial structure.}
+\label{fig:pauli-val-loss}
+\end{figure}
+#+END_EXPORT
+
+#+NAME: tab:pauli-control
+#+CAPTION: Pauli basis representation control. The Transformer improves when spatial structure is removed, while the MLP collapses to worse-than-baseline performance.
+| Model            | Representation  | Uhlmann Fidelity | vs Baseline |
+|------------------+-----------------+------------------+-------------|
+| Baseline         | —               | 0.12 ± 0.13      | —           |
+| MLP              | Density matrix  | 0.17 ± 0.17      | 1.4×        |
+| Transformer      | Density matrix  | 0.28 ± 0.23      | 2.3×        |
+| MLP              | Pauli basis     | 0.054 ± 0.024    | 0.45×       |
+| Transformer      | Pauli basis     | 0.33 ± 0.23      | 2.7×        |
+
+The results are striking. The Transformer *improves* when spatial structure is removed (0.28 → 0.33 Uhlmann fidelity), suggesting it was partially distracted by grid-locality patterns that don't reflect true entanglement structure. In the Pauli basis, the Transformer can directly model algebraic relationships between coefficients without spatial interference.
+
+The MLP, conversely, *collapses completely*—achieving 0.45× the baseline fidelity, meaning it actively degrades quantum states rather than denoising them. Without spatial cues to exploit, the MLP cannot identify which coefficients are correlated. This is strong evidence that the MLP's modest success on density matrices (1.4× improvement) came from exploiting spatial patterns rather than learning entanglement structure.
+
+This experiment definitively establishes that the Transformer learns algebraic entanglement structure while the MLP requires spatial scaffolding to function at all.
+
+To visualize what the Pauli-basis Transformer learns, we examine its attention patterns on a noisy GHZ state. Figure \ref{fig:pauli-attention} shows which Pauli coefficients attend to the identity operator. Remarkably, 10 specific operators—all X/Y products like XXXYY and XXYXY that encode GHZ coherences—attend with 90× the mean attention weight. These are precisely the operators whose expectation values characterize entanglement in the GHZ state. The model discovers, without explicit guidance, which algebraic combinations of Pauli operators are correlated.
+
+#+BEGIN_EXPORT latex
+\begin{figure}[h!]
+\centering
+\includegraphics[width=1\linewidth]{./figures/pauli_attention_to_identity_paper.pdf}
+\caption{Pauli-basis Transformer attention on a noisy GHZ state. Red bars mark the 10 X/Y coherence operators (XXXYY, XXYXY, etc.) that encode entanglement—they attend to the identity coefficient with 90$\times$ mean attention weight.}
+\label{fig:pauli-attention}
+\end{figure}
+#+END_EXPORT
+
 ** Hard Constraints Cause Optimization Failure
 
 An alternative approach to ensuring valid density matrices is to enforce physical constraints by construction rather than post-hoc projection. We tested Cholesky-constrained output layers, where the network outputs 1024 real parameters encoding a lower-triangular matrix \(L \in \mathbb{C}^{32 \times 32}\), and the density matrix is computed as \(\rho = LL^\dagger / \mathrm{Tr}(LL^\dagger)\). This guarantees Hermiticity, positive semi-definiteness, and unit trace without projection.
@@ -430,11 +478,13 @@ Figure \ref{fig:noise-heatmaps} breaks down fidelity across all 20 noise conditi
 
 #+LATEX:\newpage
 * Conclusion
-We have demonstrated that architectural inductive bias—not model capacity or depth—determines neural network performance for quantum state denoising. With comparable parameter counts (~120k), the Transformer autoencoder achieves 2.3× higher Uhlmann fidelity than the noisy baseline, compared to 1.4× for the MLP—a 1.6× advantage attributable to the self-attention mechanism's ability to model correlations between arbitrary matrix elements. Two control experiments reinforce this conclusion:
+We have demonstrated that architectural inductive bias—not model capacity, depth, or representation format—determines neural network performance for quantum state denoising. With comparable parameter counts (~120k), the Transformer autoencoder achieves 2.3× higher Uhlmann fidelity than the noisy baseline, compared to 1.4× for the MLP—a 1.6× advantage attributable to the self-attention mechanism's ability to model correlations between arbitrary matrix elements. Three control experiments reinforce this conclusion:
 
 1. *Capacity control* (Section 5.5): A wide MLP with 5.2 million parameters (44× the Transformer's count) achieves no improvement over the small MLP (0.587 validation loss), demonstrating that parameter count alone cannot explain the Transformer's advantage.
 
 2. *Depth control* (Section 5.6): A deep residual MLP with 8 nonlinear transformations (vs 2 for shallow), per-layer residuals, long skip connections, and GELU activation actually performs *worse* (0.765 vs 0.587 validation loss) than the shallow baseline, ruling out insufficient depth as the limiting factor.
+
+3. *Representation control* (Section 5.7): When inputs are transformed to the Pauli basis—removing spatial structure while preserving algebraic entanglement relationships—the Transformer *improves* to 2.7× while the MLP collapses to 0.45× (worse than no denoising). This demonstrates that the Transformer learns algebraic entanglement structure, while the MLP requires spatial scaffolding to function at all.
 
 These results collectively demonstrate that the feedforward architecture fundamentally lacks the inductive bias needed to exploit the non-local structure of entangled quantum states. The Transformer succeeds not through greater capacity, but through a qualitatively different mechanism—attention routing that maintains token-level dimensionality (1024 dimensions) rather than compressing to a narrow bottleneck.
 
