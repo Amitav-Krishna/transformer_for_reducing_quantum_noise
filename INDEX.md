@@ -10,6 +10,8 @@ This project compares neural network autoencoders for density-matrix denoising a
 - v6: Element-wise tokenization (~120k params each) → MLP destroyed info (0.038 fidelity < baseline)
 - v7: Residual MLP → **SUCCESS** (intermediate results)
 - v8: Final training on complete dataset → **Baseline: 0.12, MLP: 0.17 (1.4×), Transformer: 0.28 (2.3×)**
+- v9: Wide MLP capacity control experiment → **1M param MLP still underperforms 119k Transformer**
+- v11: **Pauli representation** → Removes spatial structure, tests algebraic vs spatial learning. **Transformer achieves 0.33 vs MLP 0.19** (1.7× gap)
 
 ## Project Structure
 
@@ -28,7 +30,10 @@ This project compares neural network autoencoders for density-matrix denoising a
 ├── models_4/               # Unconstrained MLP/Transformer (global CLS) - FAILED
 ├── models_5/               # Row-based tokenization - FAILED
 ├── train_v6/               # Element-wise tokenization (~120k params) - Transformer works, MLP destroys info
-├── train_v7/               # **FINAL**: Residual MLP (~117k params) - fixes MLP info destruction
+├── train_v7/               # Residual MLP (~117k params) - fixes MLP info destruction
+├── train_v8/               # **FINAL**: Residual MLP + Transformer on full dataset
+├── train_v9/               # Wide MLP capacity control (~1M params)
+├── train_11/               # **PAULI**: Representation without spatial structure
 ├── losses/                 # Loss functions
 ├── training_loop/          # Training infrastructure
 │
@@ -403,6 +408,50 @@ After Cholesky failed, we tried several unconstrained architectures:
 | `train_v8/csvs_8/noise_cells/` | Per-noise-cell Uhlmann fidelity CSVs |
 | `train_v8/checkpoints_8/` | Model checkpoints (`best.pt` for each) |
 
+### v9: Wide MLP Capacity Control (`train_v9/`)
+
+Control experiment testing whether MLP underperformance is due to insufficient capacity.
+
+- **Wide MLP**: 2048→512→256→512→2048 (~1M params) - 8× more params than Transformer
+- **Transformer**: Same as v8 (~119k params)
+- **Result**: Wide MLP still only achieves ~0.19 Uhlmann fidelity vs Transformer 0.28
+- **Conclusion**: Capacity is not the bottleneck - architecture matters
+
+| File | Description |
+|------|-------------|
+| `train_v9/mlp_wide.py` | Wide MLP (~1M params) |
+| `train_v9/transformer.py` | Element-wise Transformer (~119k params) |
+| `train_v9/train.py` | Training script (wd=1e-4) |
+| `train_v9/train_1e-3.py` | Training script (wd=1e-3) |
+| `train_v9/eval_per_noise_cell.py` | Per noise-type/level evaluation |
+| `train_v9/csvs_9/` | Training logs |
+| `train_v9/mlp_wide_wd1e-03/` | Checkpoints with weight decay 1e-3 |
+| `train_v9/mlp_wide_wd1e-04/` | Checkpoints with weight decay 1e-4 |
+
+### v11: Pauli Representation (`train_11/`)
+
+Control experiment that removes spatial structure by converting density matrices to Pauli basis.
+
+- **Key idea**: 32x32 density matrix → 1024 real Pauli coefficients (flat vector)
+- **Purpose**: Test whether Transformer advantage comes from spatial attention or algebraic structure learning
+- **MLP Pauli**: Simple MLP on 1024 coefficients (~1M params)
+- **Transformer Pauli**: 1024 tokens (one per Pauli operator), learns algebraic correlations
+- **Result**: Transformer 0.33 fidelity vs MLP 0.19 (1.7× gap persists without spatial structure)
+- **Insight**: Attention heads learn to focus on physically-relevant Pauli operators (X/Y coherence operators get 90× mean attention)
+
+| File | Description |
+|------|-------------|
+| `train_11/pauli_representation.py` | Density matrix ↔ Pauli basis conversion utilities |
+| `train_11/mlp_pauli.py` | MLP on Pauli coefficients (~1M params) |
+| `train_11/transformer_pauli.py` | Transformer on Pauli tokens (~119k params) |
+| `train_11/pauli_loss.py` | Pauli Frobenius loss (cosine similarity on coefficients) |
+| `train_11/train.py` | Training script for both Pauli models |
+| `train_11/eval_uhlmann.py` | Evaluate Pauli models on Uhlmann fidelity |
+| `train_11/csvs_11/` | Training logs |
+| `train_11/checkpoints_11/` | Model checkpoints |
+| `train_11/checkpoints_11/mlp_pauli_frob/` | MLP Pauli checkpoints |
+| `train_11/checkpoints_11/transformer_pauli_frob/` | Transformer Pauli checkpoints |
+
 ---
 
 ## Figures (`figures/`)
@@ -447,7 +496,7 @@ After Cholesky failed, we tried several unconstrained architectures:
 |------|-------------|
 | `transformer_architecture.pdf` | Transformer autoencoder architecture |
 
-### Attention Analysis
+### Attention Analysis (Density Matrix Transformer)
 
 | File | Description |
 |------|-------------|
@@ -457,6 +506,23 @@ After Cholesky failed, we tried several unconstrained architectures:
 | `attention_from_queries_to_key0.pdf` | **Paper figure**: Which tokens attend to token 0 |
 | `attention_to_keys.pdf` | Which keys receive most attention overall |
 | `attention_maps/` | Directory with additional attention visualizations |
+
+### Attention Analysis (Pauli Transformer)
+
+| File | Description |
+|------|-------------|
+| `attention_maps_pauli.py` | Pauli attention visualization utilities and wrapper |
+| `attention_pauli_paper.py` | Paper-quality Pauli attention figure generation |
+| `pauli_attention_to_identity_paper.pdf` | **Paper figure**: X/Y coherence operators attend with 90× mean attention |
+| `attention_maps_pauli/` | Directory with additional Pauli attention visualizations |
+
+### Pauli Training Curves
+
+| File | Description |
+|------|-------------|
+| `pauli_val_loss_chart.py` | Generates Pauli validation loss chart and rank correlation analysis |
+| `pauli_val_loss.pdf` | **Paper figure**: MLP vs Transformer Pauli val loss (0.78 vs 0.39) |
+| `pauli_frob_vs_uhlmann.pdf` | Scatter plot: Pauli Frobenius similarity vs Uhlmann fidelity (ρ=0.99) |
 
 ---
 
@@ -494,11 +560,29 @@ python eval_cholesky_uhlmann.py
 python eval_cholesky_per_noise_cell.py
 ```
 
+### Training (Pauli Representation - train_11)
+
+```bash
+source venv/bin/activate
+python train_11/train.py
+```
+
+### Evaluation (Pauli Models)
+
+```bash
+python train_11/eval_uhlmann.py     # Uhlmann fidelity for Pauli models
+```
+
 ### Generating Figures
 
 ```bash
 python figures/baseline_comparison_charts.py
 python figures/transformer_architecture.py
+
+# Pauli figures
+python figures/pauli_val_loss_chart.py      # Val loss + rank correlation
+python figures/attention_pauli_paper.py     # Pauli attention visualization
+python figures/attention_maps_pauli.py      # Full Pauli attention analysis
 ```
 
 ---
@@ -529,6 +613,28 @@ python figures/transformer_architecture.py
 - Cholesky-constrained outputs and row-based tokenization both failed
 - Element-wise tokenization allows modeling arbitrary pairwise correlations
 - Attention analysis shows transformer learns to focus on entanglement-correlated elements
+
+### Control Experiments: Capacity and Representation
+
+#### v9: Wide MLP (Capacity Control)
+
+| Model | Params | Uhlmann Fidelity |
+|-------|--------|------------------|
+| MLP Wide (wd=1e-4) | ~1M | 0.19 |
+| MLP Wide (wd=1e-3) | ~1M | 0.19 |
+| Transformer | ~119k | 0.28 |
+
+**Conclusion**: 8× more parameters don't help MLP match Transformer. Architecture matters, not capacity.
+
+#### v11: Pauli Representation (Spatial Structure Control)
+
+| Model | Uhlmann Fidelity | Val Loss |
+|-------|------------------|----------|
+| Baseline (noisy) | 0.12 | — |
+| MLP Pauli | **0.19** | 0.78 |
+| Transformer Pauli | **0.33** | 0.39 |
+
+**Conclusion**: Transformer advantage persists even without spatial structure. Attention learns algebraic correlations between Pauli operators, not spatial patterns. X/Y coherence operators (encoding entanglement) receive 90× mean attention.
 
 ---
 
