@@ -501,13 +501,13 @@ Figure \ref{fig:noise-heatmaps} breaks down fidelity across all 20 noise conditi
 * Conclusion
 We have demonstrated that architectural inductive bias—not model capacity, depth, or representation format—determines neural network performance for quantum state denoising. With comparable parameter counts (~120k), the Transformer autoencoder achieves 2.3× higher Uhlmann fidelity than the noisy baseline, compared to 1.4× for the MLP and 0.68× for the CNN (which actively degrades states). Four control experiments reinforce this conclusion:
 
-1. *CNN baseline* (Section 5.8): A CNN with identical parameter count performs *worse* than doing nothing (0.68× baseline fidelity), confirming that spatial locality bias is fundamentally wrong for quantum states where entanglement induces non-local correlations.
+1. *CNN baseline*: A CNN with identical parameter count performs *worse* than doing nothing (0.68× baseline fidelity), confirming that spatial locality bias is fundamentally wrong for quantum states where entanglement induces non-local correlations.
 
-2. *Capacity control* (Section 5.5): A wide MLP with 5.2 million parameters (44× the Transformer's count) achieves no improvement over the small MLP (0.587 validation loss), demonstrating that parameter count alone cannot explain the Transformer's advantage.
+2. *Capacity control*: A wide MLP with 5.2 million parameters (44× the Transformer's count) achieves no improvement over the small MLP (0.587 validation loss), demonstrating that parameter count alone cannot explain the Transformer's advantage.
 
-3. *Depth control* (Section 5.6): A deep residual MLP with 8 nonlinear transformations (vs 2 for shallow), per-layer residuals, long skip connections, and GELU activation actually performs *worse* (0.765 vs 0.587 validation loss) than the shallow baseline, ruling out insufficient depth as the limiting factor.
+3. *Depth control*: A deep residual MLP with 8 nonlinear transformations (vs 2 for shallow), per-layer residuals, long skip connections, and GELU activation actually performs *worse* (0.765 vs 0.587 validation loss) than the shallow baseline, ruling out insufficient depth as the limiting factor.
 
-4. *Representation control* (Section 5.7): When inputs are transformed to the Pauli basis—removing spatial structure while preserving algebraic entanglement relationships—the Transformer *improves* to 2.7× while the MLP collapses to 0.45× (worse than no denoising). This demonstrates that the Transformer learns algebraic entanglement structure, while the MLP requires spatial scaffolding to function at all.
+4. *Representation control*: When inputs are transformed to the Pauli basis—removing spatial structure while preserving algebraic entanglement relationships—the Transformer *improves* to 2.7× while the MLP collapses to 0.45× (worse than no denoising). This demonstrates that the Transformer learns algebraic entanglement structure, while the MLP requires spatial scaffolding to function at all.
 
 These results collectively demonstrate that both feedforward and convolutional architectures fundamentally lack the inductive bias needed to exploit the non-local structure of entangled quantum states. The Transformer succeeds not through greater capacity, but through a qualitatively different mechanism—attention routing that maintains token-level dimensionality (1024 dimensions) rather than compressing to a narrow bottleneck or assuming spatial locality.
 
@@ -566,10 +566,10 @@ While we have not implemented these mitigations in the current work, the theoret
 * Appendix
 ** Cholesky and CNN Experiment Architecture Details
 
-The Cholesky-constrained models discussed in Section 5.9 use architectures matched to the post-hoc projection baselines:
+The Cholesky-constrained models use architectures matched to the post-hoc projection baselines:
 - *MLP Cholesky* (~88k parameters): Same hidden structure as post-hoc MLP (2048→28→28), but outputs 1024 Cholesky parameters instead of 2048 reconstruction values. The Cholesky layer converts these to a valid density matrix via $\rho = LL^\dagger / \text{Tr}(LL^\dagger)$.
 - *Transformer Cholesky* (~153k parameters): Same encoder-decoder structure as post-hoc Transformer (embed_dim=32, 4 layers, 4 heads), but uses global attention pooling over decoder outputs followed by projection to 1024 Cholesky parameters. The additional global pooling layer accounts for the parameter increase.
 
-The CNN baseline discussed in Section 5.8 uses:
+The CNN baseline uses:
 - *CNN* (~118k parameters): Encoder-decoder with channel progression 2→19→38→76 (encoder) and 76→38→19→2 (decoder). Uses 3×3 convolutions, MaxPool2d for downsampling, and nearest-neighbor upsampling with transposed convolutions. Post-hoc projection applied to outputs.
 
