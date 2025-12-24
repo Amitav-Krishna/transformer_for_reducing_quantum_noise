@@ -447,6 +447,8 @@ The CNN uses a standard encoder-decoder architecture with channel progression 2�
 
 The CNN performs *worse* than the baseline (0.68× improvement, i.e., degradation), confirming that spatial locality bias is actively harmful for quantum state denoising. Convolutional kernels assume that nearby elements are more correlated than distant ones—but in entangled states, correlations exist between elements separated across the matrix (e.g., $\rho_{00,00}$ and $\rho_{31,31}$ for GHZ states). The CNN's inductive bias directly contradicts the structure of the problem.
 
+A natural objection is that sufficiently deep CNNs can achieve global receptive fields. Our CNN's effective receptive field spans the entire 32×32 matrix through its encoder-decoder architecture with pooling. However, the failure is not about receptive field /size/ but about the /nature/ of the learned representations. Even with global receptive field, CNNs construct features hierarchically from local patterns—they learn that nearby elements form meaningful groups (edges, textures, regions). For quantum states, this hierarchical composition is incorrect: the correlation between $\rho_{00,31}$ and $\rho_{31,00}$ (conjugate off-diagonal elements ensuring Hermiticity) is not mediated by intermediate spatial locations. The 2-channel (real/imaginary) image representation treats the matrix as a spatial grid, but entanglement correlations follow algebraic structure (trace constraints, eigenvalue relationships) that does not respect grid locality at any scale.
+
 This result completes the architectural comparison: the Transformer succeeds (2.3×) because its attention mechanism matches the non-local correlation structure of quantum states; the MLP partially succeeds (1.4×) by learning to exploit residual spatial patterns; and the CNN fails (0.68×) because its locality assumption is fundamentally wrong for this domain.
 
 ** Hard Constraints Cause Optimization Failure
@@ -514,6 +516,16 @@ These results collectively demonstrate that both feedforward and convolutional a
 Our experiments also suggest that the method of enforcing physical validity matters: unconstrained outputs with post-hoc projection to the space of valid density matrices enabled effective optimization in our setup, while hard constraints (Cholesky parameterization) led to optimization difficulties and model collapse. Whether this reflects fundamental limitations of the Cholesky approach or configuration-specific issues remains an open question.
 
 These findings suggest that attention-based architectures may be particularly well-suited for quantum information processing tasks where non-local correlations are fundamental. The element-wise tokenization strategy—treating each density matrix element as a token—provides a natural interface between the quantum state structure and the self-attention mechanism.
+
+** Limitations: Noise Model and Real-World Applicability
+
+Our dataset uses synthetic Markovian noise channels (depolarizing, amplitude damping, phase damping, bit-flip) applied independently to each qubit. Real quantum hardware exhibits additional complexity that our current study does not address:
+
+*Non-Markovian dynamics.* Memory effects in quantum noise can cause error correlations across time, where the noise affecting a qubit depends on its recent history. Our sequential noise composition (mixed channel) does not induce such temporal correlations—each channel acts instantaneously without memory.
+
+*Crosstalk and spatially correlated errors.* In physical devices, operations on one qubit can inadvertently affect neighboring qubits through electromagnetic coupling or shared control lines. This induces spatial correlations in the noise that differ from our independent-per-qubit model.
+
+Interestingly, the Transformer's attention mechanism may be well-suited to handle such correlated errors. Non-Markovian dynamics and crosstalk both introduce correlations between matrix elements that would not exist under independent Markovian noise. Since attention can learn arbitrary pairwise correlations without assuming independence, the same architectural advantage that enables denoising of entanglement-induced correlations might extend to noise-induced correlations. However, this remains speculative—empirical validation on datasets with realistic correlated noise is needed. Future work should evaluate performance on noise models calibrated to specific hardware backends (e.g., IBM, Google, or trapped-ion devices) where crosstalk and non-Markovian effects are characterized.
 
 ** Scalability Analysis and Proposed Mitigations
 

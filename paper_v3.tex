@@ -1,4 +1,4 @@
-% Created 2025-12-21 Sun 17:38
+% Created 2025-12-22 Mon 07:14
 % Intended LaTeX compiler: pdflatex
 \documentclass[11pt]{article}
 \usepackage[utf8]{inputenc}
@@ -29,11 +29,11 @@
 
 \maketitle
 \section{Abstract}
-\label{sec:org33fc62f}
+\label{sec:org115c944}
 
-Quantum state denoising—reconstructing clean density matrices from noisy measurements—is essential for extracting useful information from near-term quantum devices. While prior work has explored convolutional and feedforward architectures for this task, the effectiveness of global attention mechanisms for quantum states with non-local entanglement correlations remains underexplored. We compare multilayer perceptron (MLP) and Transformer autoencoders for density matrix denoising, using comparable parameter counts (\textasciitilde{}120k) to reduce confounding from model capacity. On a synthetic dataset of 5-qubit states corrupted by five noise types at four severity levels, both models improve upon the baseline: the MLP achieves 1.4× higher Uhlmann fidelity while the Transformer achieves 2.3×—a 1.6× advantage over the MLP. Three control experiments confirm this gap is architectural rather than capacity-driven: (1) a wide MLP with 44× more parameters (5.2M) achieves no improvement over the small MLP; (2) a deep residual MLP performs worse than the shallow baseline; and (3) when inputs are transformed to the Pauli basis—removing spatial structure while preserving algebraic entanglement relationships—the Transformer improves to 2.7× while the MLP collapses to 0.45× (worse than no denoising). This final control demonstrates that the Transformer learns algebraic entanglement structure, while the MLP requires spatial scaffolding to function at all. These findings establish that architectural inductive bias, not model capacity or representation format, determines denoising performance for entangled quantum states.
+Quantum state denoising—reconstructing clean density matrices from noisy measurements—is essential for extracting useful information from near-term quantum devices. While prior work has explored convolutional and feedforward architectures for this task, the effectiveness of global attention mechanisms for quantum states with non-local entanglement correlations remains underexplored. We compare multilayer perceptron (MLP), convolutional (CNN), and Transformer autoencoders for density matrix denoising, using comparable parameter counts (\textasciitilde{}120k) to reduce confounding from model capacity. On a synthetic dataset of 5-qubit states corrupted by five noise types at four severity levels, the Transformer achieves 2.3× higher Uhlmann fidelity than baseline, the MLP achieves 1.4×, and the CNN degrades performance to 0.68× (worse than no denoising). Four control experiments confirm this gap is architectural rather than capacity-driven: (1) a wide MLP with 44× more parameters (5.2M) achieves no improvement over the small MLP; (2) a deep residual MLP performs worse than the shallow baseline; (3) when inputs are transformed to the Pauli basis—removing spatial structure while preserving algebraic entanglement relationships—the Transformer improves to 2.7× while the MLP collapses to 0.45×; and (4) Cholesky-constrained outputs that guarantee valid density matrices by construction cause both architectures to collapse to trivial solutions. These findings establish that architectural inductive bias, not model capacity or constraint mechanism, determines denoising performance for entangled quantum states—and that the CNN's locality assumption is fundamentally wrong for this domain.
 \section{Introduction}
-\label{sec:org0241550}
+\label{sec:org5550992}
 Prior work has explored convolutional architectures for quantum state denoising, leveraging locally structured patterns induced by density-matrix representations to mitigate the effects of decoherence without assuming explicit knowledge of the underlying hardware noise channel \citep{kendre2025machinelearningquantumnoise}. Earlier approaches employ feedforward neural networks to reconstruct states corrupted by unknown dynamics, demonstrating that supervised neural models can learn effective, data-driven mappings from noisy to cleaner quantum states \citep{Morgillo_2024}. However, these architectures process density matrices as flat vectors or local patches, potentially failing to capture the non-local correlations induced by quantum entanglement—a limitation that motivates exploring attention-based alternatives.
 
 Beyond state-level denoising, machine learning has been widely applied to quantum error correction and control. Classical convolutional decoders \citep{breuckmann_scalable_2018} and multilayer perceptron models \citep{chamberland_deep_2018} have been trained on local stabilizer syndrome neighborhoods, but this approach limits scalability and often necessitates retraining when code distances change. Transformer-based QEC decoders address this limitation by processing stabilizer syndromes globally, enabling access to long-range correlations and improved generalization across code parameters \citep{wang2023transformerqecquantumerrorcorrection}. Related work applies reinforcement learning and optimal control networks to closed-loop quantum control tasks, targeting robustness at the hardware and pulse levels rather than direct state reconstruction \citep{Ma_2025}.
@@ -48,7 +48,7 @@ We investigate this question by comparing MLP and transformer autoencoders with 
 
 Our results demonstrate that architectural inductive bias determines denoising performance for entangled quantum states. The transformer achieves substantially higher reconstruction fidelity than the MLP baseline, attributable to its self-attention mechanism's ability to capture long-range correlations that mirror quantum entanglement structure, whereas the MLP's unstructured processing fails to exploit these non-local dependencies effectively.
 \section{Related work}
-\label{sec:orgc57bffb}
+\label{sec:orgf0de8a2}
 Recent work has explored neural network architectures for density-matrix denoising. Kendre et al. introduced a CNN-based approach that treats the density matrix as a two-channel image and applies standard encoder-decoder convolutions to map noisy states to clean reconstructions \citep{kendre2025machinelearningquantumnoise}. This architecture exploits local spatial correlations, but its inductive bias makes modeling global correlations across the full matrix inefficient. Morgillo et al. used feedforward networks for states corrupted by unknown noise channels \citep{Morgillo_2024}, demonstrating model-agnostic denoising with multilayer perceptrons. However, neither approach systematically examines how architectural inductive biases—particularly the presence or absence of global attention—affect performance on entangled quantum states.
 
 A related line of work enforces physical validity through hard constraints in quantum state reconstruction. Koutny et al. proposed positivity-constrained feedforward networks that project outputs onto the space of valid quantum states, guaranteeing Hermiticity and positive semidefiniteness by construction \citep{PhysRevA.106.012409}. While effective for tomography, this approach does not address whether the network itself learns representations suited to quantum structure. Our experiments with Cholesky-constrained outputs (Appendix) reveal that hard constraint enforcement can severely impair optimization, with models collapsing to trivial solutions rather than learning meaningful denoising.
@@ -57,9 +57,9 @@ Transformer architectures have been explored for related quantum tasks but not f
 
 No prior work has directly compared feedforward and attention-based architectures for density-matrix denoising with matched parameter counts. Our experiments address this gap, providing evidence about the relative importance of self-attention for this task.
 \section{Methods}
-\label{sec:org129bcd2}
+\label{sec:orgfe5e1d2}
 \subsection{Dataset}
-\label{sec:org8cf0906}
+\label{sec:orgbc10ff0}
 All experiments use 5-qubit quantum states, each represented as a 32 \(\times\) 32 density matrix since the Hilbert space of an \emph{n}-qubit system has dimension \(2^n\). Clean states are generated by sampling random quantum circuits with depths uniformly drawn from 6 to 9 layers. Each layer applies (i) a single-qubit gate chosen uniformly from \(\{X, Y, Z, H, T, S, R_x(\theta), R_y(\theta), R_z(\theta)\}\) with \(\theta \sim \mathcal{U}(0, 2\pi)\), followed by (ii) two randomly selected adjacent two-qubit gates from \(\{CNOT, CZ, SWAP\}\). This produces moderately deep circuits with nontrivial entanglement structure.
 
 Noise is injected by applying a stochastic noise channel after every moment of the circuit. We evaluate five noise types: depolarizing, amplitude damping, phase damping, bit-flip, and a mixed channel. Each noise channel is implemented as a Cirq noise operation applied independently to every qubit at each moment, with strength \emph{p} \(\in \{0.05, 0.10, 0.15, 0.20\}\). All simulations use Cirq's double-precision (\texttt{dtype=np.complex128}). The mixed noise channel is a sequential composition of depolarizing, amplitude-damping, phase-damping, and bit-flip channels, each applied with strength \emph{p} /4. Clean states \(\rho_{clean}\) are obtained by simulating the noiseless circuit using Cirq's \texttt{DensityMatrixSimulator}, and noisy states \(\rho_{noisy}\) are obtained by re-simulating the same circuit with noise inserted at every moment.
@@ -108,7 +108,7 @@ The mixed channel applies these four channels sequentially, each with strength \
 
 \newpage
 \subsection{Post-hoc Projection}
-\label{sec:orgbfb9579}
+\label{sec:org168ced8}
 
 Both models produce unconstrained outputs which are then projected to the space of valid density matrices. Given a raw network output \(\hat{\rho}\), we apply the following projection:
 
@@ -120,7 +120,7 @@ Both models produce unconstrained outputs which are then projected to the space 
 
 This approach guarantees valid density matrices at evaluation time while allowing unconstrained gradient flow during training. We initially explored Cholesky-constrained output layers that enforce validity by construction, but encountered significant optimization difficulties (see Appendix).
 \subsection{MLP Autoencoder}
-\label{sec:orgaa865d6}
+\label{sec:org9786f71}
 
 The MLP autoencoder uses a residual architecture that learns corrections to the noisy input rather than full reconstruction. Given input \(\rho_{noisy}\), the output is computed as:
 
@@ -130,7 +130,7 @@ where \(f\) is a correction network. The input (\(32 \times 32 \times 2 = 2048\)
 
 This residual formulation preserves input information through the skip connection, allowing the network to focus on learning the noise-to-clean mapping rather than memorizing the full state representation. The architecture tests whether unstructured feedforward processing with an appropriate inductive bias (residual learning) suffices for quantum state denoising.
 \subsection{Transformer Autoencoder}
-\label{sec:orgf684e2d}
+\label{sec:org07f19a9}
 
 The Transformer autoencoder uses element-wise tokenization: each of the 1024 elements of the \(32 \times 32\) density matrix becomes a token with 2 values (real and imaginary parts). Each element \(\rho_{ij}\) represents the quantum coherence between computational basis states \(|i\rangle\) and \(|j\rangle\); diagonal elements give occupation probabilities while off-diagonal elements encode phase relationships and entanglement. For entangled states, correlations exist between elements that are distant in the matrix layout but coupled through the underlying quantum state—for instance, Bell-state correlations couple elements \(\rho_{00,00}\) and \(\rho_{11,11}\) despite their separation \citep{nielsen_chuang_2010}. This fine-grained tokenization allows the self-attention mechanism to directly model such correlations between any pair of matrix elements.
 
@@ -146,7 +146,7 @@ Element-wise tokenization incurs \(O(1024^2)\) attention complexity, but enables
 \label{fig:frob-uhlmann}
 \end{figure}
 \subsection{Normalized Frobenius Similarity Loss}
-\label{sec:org09a57fa}
+\label{sec:org6923663}
 
 The reconstruction loss is a normalized Frobenius inner product measuring correlation between predicted and target density matrices:
 
@@ -160,7 +160,7 @@ While Uhlmann fidelity is the correct operational measure of quantum state simil
 
 \newpage
 \section{Experimental Design}
-\label{sec:org3860985}
+\label{sec:orga7ae74e}
 We evaluate two denoising architectures—MLP and Transformer autoencoders—with comparable parameter counts (\textasciitilde{}120k each). The architectures differ in activation functions (ReLU vs. GELU) and connectivity patterns: the MLP uses residual connections while the Transformer does not. We intentionally chose a severe bottleneck (2048→28) for the MLP to test whether unstructured feedforward processing can learn to extract entanglement-relevant structure from density matrices; Section 5.5 shows that relaxing this bottleneck by 36× does not improve performance, indicating the limitation is architectural rather than capacity-driven. We chose not to add residual connections to the Transformer because its encoder-decoder structure with cross-attention already preserves input information through the attention pathway, making an explicit skip connection less critical than for the MLP's severe bottleneck. Despite these differences, the similar capacity allows us to assess the relative importance of self-attention for this task. The Transformer can exploit global structure through self-attention while the MLP processes inputs as unstructured vectors with a residual bypass.
 
 All models are trained to map noisy density matrices to their clean counterparts using unconstrained outputs with post-hoc projection to valid density matrices. Training uses the AdamW optimizer with a learning rate of 3×10⁻⁴ and light L2 regularization (weight decay 10⁻⁵). We employ early stopping with patience of 15 epochs based on validation loss, with a maximum budget of 100 epochs.
@@ -169,9 +169,9 @@ Evaluation uses Uhlmann fidelity \(F(\rho, \sigma) = (\mathrm{Tr}[\sqrt{\sqrt{\r
 
 The smaller batch size for the Transformer accommodates the \(O(1024^2)\) attention complexity over element tokens.
 \subsection{Hyperparameters}
-\label{sec:orgf3f62bc}
+\label{sec:orga4a8f91}
 \subsubsection{Shared Hyperparameters}
-\label{sec:org984b381}
+\label{sec:org4179376}
 
 \begin{center}
 \begin{tabular}{ll}
@@ -189,7 +189,7 @@ Output constraint & Post-hoc projection\\
 \end{tabular}
 \end{center}
 \subsubsection{Architecture-Specific Hyperparameters}
-\label{sec:orgc397fd7}
+\label{sec:orgf67c885}
 
 \begin{center}
 \begin{tabular}{lll}
@@ -216,12 +216,12 @@ The MLP uses a residual architecture where the network learns corrections to the
 
 We note that the two architectures differ substantially in effective latent dimensionality: the MLP compresses to 28 dimensions, while the Transformer maintains 1024 tokens with 16-dimensional per-token representations (16,384 total). This disparity is a direct consequence of architectural constraints rather than an oversight. Widening the MLP bottleneck to match the Transformer's latent capacity would increase its parameter count substantially, breaking the capacity-matched comparison. Conversely, forcing the Transformer to compress through a 28-dimensional global bottleneck would defeat its core architectural advantage. The Transformer achieves higher effective dimensionality through weight-sharing: identical attention weights process all 1024 tokens, amortizing parameters across the sequence. To rule out latent capacity as the driver of performance differences, we conduct a control experiment (Section 5.5) training a wide MLP with a 1024-dimensional bottleneck (5.2M parameters)—the results confirm that capacity alone cannot explain the Transformer's advantage.
 \subsection{Compute Resources}
-\label{sec:orgd77a096}
+\label{sec:org9bcbe21}
 All experiments were conducted on a RunPod cloud instance equipped with a single NVIDIA RTX A4000 GPU (16 GB VRAM), 16 vCPUs, and 62 GB system memory. Both models fit entirely on a single GPU without gradient checkpointing or model parallelism. Training typically completed in under 100 epochs due to early stopping.
 \section{Results}
-\label{sec:org900dc4b}
+\label{sec:org92c141b}
 \subsection{Training Dynamics}
-\label{sec:org304090a}
+\label{sec:org7267dd4}
 
 \begin{figure}[htbp]
 \centering
@@ -229,12 +229,12 @@ All experiments were conducted on a RunPod cloud instance equipped with a single
 \caption{Validation loss during training. The Transformer converges rapidly to a lower loss, while the MLP plateaus at a higher value despite the residual architecture.}
 \end{figure}
 \subsection{Overall Performance}
-\label{sec:org6014ec6}
+\label{sec:orgc0b0e1e}
 
-Table \ref{tab:org5a511e3} summarizes the reconstruction fidelity of both architectures compared to the baseline (noisy input without denoising).
+Table \ref{tab:org227be42} summarizes the reconstruction fidelity of both architectures compared to the baseline (noisy input without denoising).
 
 \begin{table}[htbp]
-\caption{\label{tab:org5a511e3}Uhlmann fidelity on the held-out test set. Higher is better. Baseline represents the fidelity between noisy and clean states without any denoising.}
+\caption{\label{tab:org227be42}Uhlmann fidelity on the held-out test set. Higher is better. Baseline represents the fidelity between noisy and clean states without any denoising.}
 \centering
 \begin{tabular}{lll}
 Model & Uhlmann Fidelity & Improvement\\
@@ -247,14 +247,14 @@ Transformer & 0.28 ± 0.23 & 2.3×\\
 
 Both architectures improve upon the baseline, but the Transformer achieves substantially higher fidelity (1.6× better than the MLP) despite having similar parameter counts. This performance gap demonstrates that the self-attention mechanism provides a meaningful advantage for quantum state denoising, successfully exploiting the non-local correlations present in entangled states.
 \subsection{Analysis}
-\label{sec:org3516b75}
+\label{sec:orge7cea2b}
 The Transformer's advantage stems from its architectural match to the problem structure. Quantum entanglement induces correlations between arbitrary pairs of density matrix elements—precisely the kind of non-local dependency that self-attention is designed to capture. The element-wise tokenization strategy allows each matrix element to attend to every other element, enabling the model to learn which correlations are informative for denoising.
 
 The MLP's residual architecture—learning corrections rather than full reconstruction—proves essential for feedforward denoising. Early experiments with a non-residual MLP achieved fidelity \textbf{worse} than the noisy baseline, as the severe bottleneck (2048→28 dimensions) destroyed information faster than the network could learn to denoise. Critically, this is not merely a capacity issue: our control experiment (Section 5.5) shows that widening the bottleneck to 1024 dimensions yields no improvement despite a 44× increase in parameters. The MLP fails not because it is too small, but because its unstructured connectivity cannot efficiently model the non-local correlations inherent in entangled quantum states.
 
 The relatively high variance in fidelity scores reflects the heterogeneity of the test set, which spans five noise types at four severity levels. Performance varies across noise conditions, with some noise types being inherently easier to correct than others.
 \subsection{Attention on Entangled States}
-\label{sec:org41e6da2}
+\label{sec:org9932df9}
 
 To understand \emph{why} the Transformer outperforms the MLP, we visualize what the self-attention mechanism learns. We test on a GHZ state—a standard benchmark for entanglement where all 5 qubits are maximally correlated: measuring any one qubit instantly determines all the others. Its density matrix is nearly empty (only 4 non-zero elements out of 1024), making attention patterns easy to interpret.
 
@@ -269,12 +269,12 @@ Figure \ref{fig:attention} shows which tokens attend most strongly to token 0 (t
 
 The pattern is striking: the four matrix elements that are non-zero in the pure GHZ state (positions 0, 31, 992, 1023) attend to token 0 with weight 0.5—50× stronger than other elements. These correspond to the density matrix corners: \(\rho_{00,00}\), \(\rho_{00,31}\), \(\rho_{31,00}\), and \(\rho_{31,31}\). The model discovers—without explicit guidance—that these elements are correlated and should share information. This is precisely the entanglement structure: in a GHZ state, knowing one of these elements constrains the others.
 \subsection{Capacity Control: Ruling Out Parameter Count}
-\label{sec:org9848dbe}
+\label{sec:orgd2a7dee}
 
 A natural objection is that the Transformer's advantage stems from its higher effective latent dimensionality (1024 tokens × 16 dimensions = 16,384 total) rather than the attention mechanism itself. To test this, we trained a wide MLP with a 1024-dimensional bottleneck—matching the Transformer's token count—resulting in approximately 5.2 million parameters.
 
 \begin{table}[htbp]
-\caption{\label{tab:org6345f87}Capacity scaling analysis. The wide MLP has 44× more parameters than the Transformer but achieves essentially identical performance to the small MLP, demonstrating that capacity alone cannot explain the Transformer's advantage.}
+\caption{\label{tab:org29acb68}Capacity scaling analysis. The wide MLP has 44× more parameters than the Transformer but achieves essentially identical performance to the small MLP, demonstrating that capacity alone cannot explain the Transformer's advantage.}
 \centering
 \begin{tabular}{llrrr}
 Model & Parameters & Bottleneck & Batch Size & Val Loss\\
@@ -290,12 +290,12 @@ The results are striking: despite having 44× more parameters than the Transform
 
 This experiment provides strong evidence that the MLP architecture, regardless of scale, lacks the inductive bias necessary to efficiently model the non-local correlations inherent in entangled quantum states. The efficiency gap is stark: the Transformer achieves 22\% lower validation loss (0.457 vs 0.587) with 44× fewer parameters. Self-attention can directly capture element-to-element dependencies that the MLP must approximate through unstructured matrix multiplication. The MLP, even when given massive capacity, essentially "doesn't know where to look" in the density matrix—attention appears necessary in this regime for effectively exploiting the non-local structure of entangled states.
 \subsection{Depth Control: Ruling Out Insufficient Layers}
-\label{sec:orgf7e8043}
+\label{sec:org1d3bdb4}
 
 A natural follow-up question: is the shallow MLP's underperformance due to insufficient depth rather than architectural unsuitability? To definitively test this, we trained a deep residual MLP with identical parameter count (\textasciitilde{}121.6k) but 8 nonlinear transformations (vs 2 for shallow), per-layer residual connections, long skip connections, and GELU activation (smoother than ReLU for regression).
 
 \begin{table}[htbp]
-\caption{\label{tab:org8afae8d}Depth control experiment. A deep residual MLP with 8 nonlinear transformations and equivalent parameter count to the shallow MLP achieves worse validation loss, ruling out insufficient depth as the limiting factor.}
+\caption{\label{tab:org063cce0}Depth control experiment. A deep residual MLP with 8 nonlinear transformations and equivalent parameter count to the shallow MLP achieves worse validation loss, ruling out insufficient depth as the limiting factor.}
 \centering
 \begin{tabular}{llrr}
 Model & Parameters & Nonlinear Transforms & Val Loss\\
@@ -310,7 +310,7 @@ Surprisingly, the deep residual MLP performs \textbf{worse} than the shallow bas
 
 The core limitation is not depth or parameter count, but the representational capacity of the 2048→28→2048 pathway itself. The Transformer avoids this by maintaining 1024-dimensional token representations and using attention to route information—a qualitatively different capacity mechanism than mere parameter count.
 \subsection{Representation Control: Pauli Basis Removes Spatial Structure}
-\label{sec:org821d637}
+\label{sec:org4370bb4}
 
 A final control tests whether the Transformer exploits \textbf{spatial layout} of the density matrix or \textbf{algebraic entanglement structure}. The density matrix representation encodes quantum states as 32×32 grids where physically related elements (e.g., coherences between entangled basis states) occupy specific grid positions. An architecture might succeed by learning these spatial patterns rather than understanding entanglement itself.
 
@@ -330,7 +330,7 @@ Both Pauli-basis models use an analogous Frobenius loss: cosine similarity betwe
 \end{figure}
 
 \begin{table}[htbp]
-\caption{\label{tab:org80f13fa}Pauli basis representation control. The Transformer improves when spatial structure is removed, while the MLP collapses to worse-than-baseline performance.}
+\caption{\label{tab:org971a6bd}Pauli basis representation control. The Transformer improves when spatial structure is removed, while the MLP collapses to worse-than-baseline performance.}
 \centering
 \begin{tabular}{llll}
 Model & Representation & Uhlmann Fidelity & vs Baseline\\
@@ -357,20 +357,47 @@ To visualize what the Pauli-basis Transformer learns, we examine its attention p
 \caption{Pauli-basis Transformer attention on a noisy GHZ state. Red bars mark the 10 X/Y coherence operators (XXXYY, XXYXY, etc.) that encode entanglement—they attend to the identity coefficient with 90$\times$ mean attention weight.}
 \label{fig:pauli-attention}
 \end{figure}
+\subsection{CNN Baseline: Spatial Locality Bias Fails}
+\label{sec:org57b85ff}
+
+To rule out that any architecture with \textasciitilde{}120k parameters could succeed, we trained a CNN autoencoder as an additional baseline. CNNs impose strong spatial locality bias through their convolutional kernels, which is appropriate for images but potentially mismatched to quantum states where correlations span arbitrary matrix elements.
+
+The CNN uses a standard encoder-decoder architecture with channel progression 2→19→38→76→76→38→19→2, MaxPooling for downsampling, and nearest-neighbor upsampling with transposed convolutions. Like the MLP and Transformer, it uses unconstrained outputs with post-hoc projection to valid density matrices. Total parameters: \textasciitilde{}118k, closely matching the other architectures.
+
+\begin{table}[htbp]
+\caption{\label{tab:orgda35c73}CNN baseline with post-hoc projection. Despite comparable parameter count, the CNN performs worse than the noisy baseline.}
+\centering
+\begin{tabular}{llll}
+Model & Parameters & Uhlmann Fidelity & vs Baseline\\
+\hline
+Baseline (noisy input) & — & 0.12 ± 0.13 & 1.00×\\
+MLP (post-hoc) & 117k & 0.17 ± 0.17 & 1.4×\\
+Transformer (post-hoc) & 119k & 0.28 ± 0.23 & 2.3×\\
+CNN (post-hoc) & 118k & 0.08 ± 0.05 & 0.68×\\
+\end{tabular}
+\end{table}
+
+The CNN performs \textbf{worse} than the baseline (0.68× improvement, i.e., degradation), confirming that spatial locality bias is actively harmful for quantum state denoising. Convolutional kernels assume that nearby elements are more correlated than distant ones—but in entangled states, correlations exist between elements separated across the matrix (e.g., \(\rho_{00,00}\) and \(\rho_{31,31}\) for GHZ states). The CNN's inductive bias directly contradicts the structure of the problem.
+
+A natural objection is that sufficiently deep CNNs can achieve global receptive fields. Our CNN's effective receptive field spans the entire 32×32 matrix through its encoder-decoder architecture with pooling. However, the failure is not about receptive field \emph{size} but about the \emph{nature} of the learned representations. Even with global receptive field, CNNs construct features hierarchically from local patterns—they learn that nearby elements form meaningful groups (edges, textures, regions). For quantum states, this hierarchical composition is incorrect: the correlation between \(\rho_{00,31}\) and \(\rho_{31,00}\) (conjugate off-diagonal elements ensuring Hermiticity) is not mediated by intermediate spatial locations. The 2-channel (real/imaginary) image representation treats the matrix as a spatial grid, but entanglement correlations follow algebraic structure (trace constraints, eigenvalue relationships) that does not respect grid locality at any scale.
+
+This result completes the architectural comparison: the Transformer succeeds (2.3×) because its attention mechanism matches the non-local correlation structure of quantum states; the MLP partially succeeds (1.4×) by learning to exploit residual spatial patterns; and the CNN fails (0.68×) because its locality assumption is fundamentally wrong for this domain.
 \subsection{Hard Constraints Cause Optimization Failure}
-\label{sec:org9ab9c45}
+\label{sec:org4e4e4fd}
 
 An alternative approach to ensuring valid density matrices is to enforce physical constraints by construction rather than post-hoc projection. We tested Cholesky-constrained output layers, where the network outputs 1024 real parameters encoding a lower-triangular matrix \(L \in \mathbb{C}^{32 \times 32}\), and the density matrix is computed as \(\rho = LL^\dagger / \mathrm{Tr}(LL^\dagger)\). This guarantees Hermiticity, positive semi-definiteness, and unit trace without projection.
 
+To ensure a fair comparison, we use identical internal architectures to the post-hoc models—same hidden dimensions, layer counts, and activation functions—differing only in the output layer. The MLP Cholesky outputs 1024 values (vs 2048 for post-hoc), and the Transformer Cholesky uses global pooling to produce 1024 Cholesky parameters (vs per-token outputs for post-hoc).
+
 \begin{table}[htbp]
-\caption{\label{tab:orgb792a8c}Cholesky-constrained models perform worse than the noisy baseline. The Transformer collapses to the maximally mixed state (fidelity \(\approx 1/32\)).}
+\caption{\label{tab:orga4982b1}Cholesky-constrained models perform worse than the noisy baseline. The Transformer collapses to the maximally mixed state (fidelity \(\approx 1/32\)).}
 \centering
-\begin{tabular}{ll}
-Model & Uhlmann Fidelity\\
+\begin{tabular}{llll}
+Model & Parameters & Uhlmann Fidelity & vs Baseline\\
 \hline
-Baseline (noisy input) & 0.11\\
-MLP Cholesky & 0.045 ± 0.018\\
-Transformer Cholesky & 0.031 ± 0.003\\
+Baseline (noisy input) & — & 0.12 ± 0.13 & 1.00×\\
+MLP Cholesky & 88k & 0.053 ± 0.027 & 0.44×\\
+Transformer Cholesky & 153k & 0.032 ± 0.003 & 0.26×\\
 \end{tabular}
 \end{table}
 
@@ -380,7 +407,7 @@ The Cholesky parameterization creates a highly non-convex optimization landscape
 
 \newpage
 \subsection{Performance by Noise Type}
-\label{sec:org9d0f234}
+\label{sec:org72e3f28}
 
 Figure \ref{fig:noise-heatmaps} breaks down fidelity across all 20 noise conditions. Phase damping is easiest to correct—the Transformer reaches 0.71 at p=0.05, since phase damping only destroys off-diagonal coherence. Depolarizing and bit-flip noise at high levels (p=0.20) are hardest, driving states toward maximally mixed where little signal remains. The Transformer outperforms the MLP in every cell, with the largest gaps on amplitude damping and mixed noise at moderate levels.
 
@@ -409,24 +436,36 @@ Figure \ref{fig:noise-heatmaps} breaks down fidelity across all 20 noise conditi
 
 \newpage
 \section{Conclusion}
-\label{sec:org851e80c}
-We have demonstrated that architectural inductive bias—not model capacity, depth, or representation format—determines neural network performance for quantum state denoising. With comparable parameter counts (\textasciitilde{}120k), the Transformer autoencoder achieves 2.3× higher Uhlmann fidelity than the noisy baseline, compared to 1.4× for the MLP—a 1.6× advantage attributable to the self-attention mechanism's ability to model correlations between arbitrary matrix elements. Three control experiments reinforce this conclusion:
+\label{sec:orgbc3d7a1}
+We have demonstrated that architectural inductive bias—not model capacity, depth, or representation format—determines neural network performance for quantum state denoising. With comparable parameter counts (\textasciitilde{}120k), the Transformer autoencoder achieves 2.3× higher Uhlmann fidelity than the noisy baseline, compared to 1.4× for the MLP and 0.68× for the CNN (which actively degrades states). Four control experiments reinforce this conclusion:
 
 \begin{enumerate}
-\item \textbf{Capacity control} (Section 5.5): A wide MLP with 5.2 million parameters (44× the Transformer's count) achieves no improvement over the small MLP (0.587 validation loss), demonstrating that parameter count alone cannot explain the Transformer's advantage.
+\item \textbf{CNN baseline}: A CNN with identical parameter count performs \textbf{worse} than doing nothing (0.68× baseline fidelity), confirming that spatial locality bias is fundamentally wrong for quantum states where entanglement induces non-local correlations.
 
-\item \textbf{Depth control} (Section 5.6): A deep residual MLP with 8 nonlinear transformations (vs 2 for shallow), per-layer residuals, long skip connections, and GELU activation actually performs \textbf{worse} (0.765 vs 0.587 validation loss) than the shallow baseline, ruling out insufficient depth as the limiting factor.
+\item \textbf{Capacity control}: A wide MLP with 5.2 million parameters (44× the Transformer's count) achieves no improvement over the small MLP (0.587 validation loss), demonstrating that parameter count alone cannot explain the Transformer's advantage.
 
-\item \textbf{Representation control} (Section 5.7): When inputs are transformed to the Pauli basis—removing spatial structure while preserving algebraic entanglement relationships—the Transformer \textbf{improves} to 2.7× while the MLP collapses to 0.45× (worse than no denoising). This demonstrates that the Transformer learns algebraic entanglement structure, while the MLP requires spatial scaffolding to function at all.
+\item \textbf{Depth control}: A deep residual MLP with 8 nonlinear transformations (vs 2 for shallow), per-layer residuals, long skip connections, and GELU activation actually performs \textbf{worse} (0.765 vs 0.587 validation loss) than the shallow baseline, ruling out insufficient depth as the limiting factor.
+
+\item \textbf{Representation control}: When inputs are transformed to the Pauli basis—removing spatial structure while preserving algebraic entanglement relationships—the Transformer \textbf{improves} to 2.7× while the MLP collapses to 0.45× (worse than no denoising). This demonstrates that the Transformer learns algebraic entanglement structure, while the MLP requires spatial scaffolding to function at all.
 \end{enumerate}
 
-These results collectively demonstrate that the feedforward architecture fundamentally lacks the inductive bias needed to exploit the non-local structure of entangled quantum states. The Transformer succeeds not through greater capacity, but through a qualitatively different mechanism—attention routing that maintains token-level dimensionality (1024 dimensions) rather than compressing to a narrow bottleneck.
+These results collectively demonstrate that both feedforward and convolutional architectures fundamentally lack the inductive bias needed to exploit the non-local structure of entangled quantum states. The Transformer succeeds not through greater capacity, but through a qualitatively different mechanism—attention routing that maintains token-level dimensionality (1024 dimensions) rather than compressing to a narrow bottleneck or assuming spatial locality.
 
 Our experiments also suggest that the method of enforcing physical validity matters: unconstrained outputs with post-hoc projection to the space of valid density matrices enabled effective optimization in our setup, while hard constraints (Cholesky parameterization) led to optimization difficulties and model collapse. Whether this reflects fundamental limitations of the Cholesky approach or configuration-specific issues remains an open question.
 
 These findings suggest that attention-based architectures may be particularly well-suited for quantum information processing tasks where non-local correlations are fundamental. The element-wise tokenization strategy—treating each density matrix element as a token—provides a natural interface between the quantum state structure and the self-attention mechanism.
+\subsection{Limitations: Noise Model and Real-World Applicability}
+\label{sec:org7d59338}
+
+Our dataset uses synthetic Markovian noise channels (depolarizing, amplitude damping, phase damping, bit-flip) applied independently to each qubit. Real quantum hardware exhibits additional complexity that our current study does not address:
+
+\textbf{Non-Markovian dynamics.} Memory effects in quantum noise can cause error correlations across time, where the noise affecting a qubit depends on its recent history. Our sequential noise composition (mixed channel) does not induce such temporal correlations—each channel acts instantaneously without memory.
+
+\textbf{Crosstalk and spatially correlated errors.} In physical devices, operations on one qubit can inadvertently affect neighboring qubits through electromagnetic coupling or shared control lines. This induces spatial correlations in the noise that differ from our independent-per-qubit model.
+
+Interestingly, the Transformer's attention mechanism may be well-suited to handle such correlated errors. Non-Markovian dynamics and crosstalk both introduce correlations between matrix elements that would not exist under independent Markovian noise. Since attention can learn arbitrary pairwise correlations without assuming independence, the same architectural advantage that enables denoising of entanglement-induced correlations might extend to noise-induced correlations. However, this remains speculative—empirical validation on datasets with realistic correlated noise is needed. Future work should evaluate performance on noise models calibrated to specific hardware backends (e.g., IBM, Google, or trapped-ion devices) where crosstalk and non-Markovian effects are characterized.
 \subsection{Scalability Analysis and Proposed Mitigations}
-\label{sec:org031a5c7}
+\label{sec:orgdc1e771}
 
 The primary limitation of this work is computational complexity scaling. Element-wise tokenization scales quadratically with matrix dimension, which scales exponentially with qubit count. Concretely, with \(n\) qubits:
 
@@ -439,7 +478,7 @@ The primary limitation of this work is computational complexity scaling. Element
 This creates a hard scalability barrier:
 
 \begin{table}[htbp]
-\caption{\label{tab:orgb8435fa}Computational complexity scaling with qubit count. Element-wise tokenization becomes prohibitive beyond \textasciitilde{}6 qubits.}
+\caption{\label{tab:org7e807eb}Computational complexity scaling with qubit count. Element-wise tokenization becomes prohibitive beyond \textasciitilde{}6 qubits.}
 \centering
 \begin{tabular}{rllll}
 Qubits & Matrix Size & Tokens & Naive Attention & Feasibility\\
@@ -454,7 +493,7 @@ Qubits & Matrix Size & Tokens & Naive Attention & Feasibility\\
 
 However, density matrices have strong \textbf{structure} that naive attention ignores. The Transformer's success on 5-qubit systems suggests that attention mechanisms can exploit this structure when it's available. Three concrete mitigations are tractable:
 \subsubsection{Block-Sparse Attention (Quantum-Aware)}
-\label{sec:org5c589d9}
+\label{sec:org67e48b9}
 
 Density matrices under typical noise exhibit block structure aligned with qubit partitions. For an \(n\)-qubit system, we can partition the \(4^n\) tokens into \(2^n\) blocks corresponding to qubit subsets. Attention can be restricted to:
 \begin{enumerate}
@@ -464,11 +503,11 @@ Density matrices under typical noise exhibit block structure aligned with qubit 
 
 This reduces complexity from \(O(16^n)\) to \(O(4^n \cdot k)\) where \(k\) is block size. For \(n=7\) qubits, this is a \textasciitilde{}100× reduction.
 \subsubsection{Low-Rank Attention Approximations}
-\label{sec:org62c207a}
+\label{sec:org665c4e3}
 
 Density matrices satisfy \(\text{rank}(\rho) \leq 2^n\), and physically relevant states are often much lower rank. Low-rank attention factorizations (e.g., Linformer, Performer) reduce complexity to \(O(L \cdot r)\) where \(L = 4^n\) is sequence length and \(r \ll L\) is rank. For near-pure states (low rank), this is substantial savings.
 \subsubsection{Hierarchical Tokenization}
-\label{sec:org6ea0660}
+\label{sec:orge172d02}
 
 Instead of treating each 32×32 element as a token, we can:
 \begin{itemize}
@@ -477,21 +516,26 @@ Instead of treating each 32×32 element as a token, we can:
 \item This reduces sequence length from 1024 to \textasciitilde{}64 for 5 qubits, enabling 10+ qubit scaling with modified architecture
 \end{itemize}
 \subsubsection{Empirical Outlook}
-\label{sec:org5338f92}
+\label{sec:org6322609}
 
 While we have not implemented these mitigations in the current work, the theoretical reduction in complexity is dramatic. Block-sparse attention with quantum structure could extend practical scaling to 8-10 qubits. For production quantum error mitigation (20+ qubits), hierarchical or hybrid approaches would be necessary—but these are orthogonal to the core finding (attention > feedforward) and can be addressed in follow-up work.
 \section{References}
-\label{sec:org3d18ad7}
+\label{sec:org9dc4704}
 \bibliographystyle{unsrtnat}
 \bibliography{references}
 \section{Appendix}
-\label{sec:orgf87c8e9}
-\subsection{Cholesky Experiment Architecture Details}
-\label{sec:org2102b87}
+\label{sec:org8c5b58d}
+\subsection{Cholesky and CNN Experiment Architecture Details}
+\label{sec:orgb592d71}
 
-The Cholesky-constrained models discussed in Section 5.6 used the following architectures:
+The Cholesky-constrained models use architectures matched to the post-hoc projection baselines:
 \begin{itemize}
-\item \textbf{MLP}: 2048 → 128 → 142 → 1024 with ReLU activations (\textasciitilde{}427k parameters)
-\item \textbf{Transformer}: Row-based tokenization (32 rows + CLS token), 5 encoder/decoder layers, 8 heads, global projection from CLS token to 1024 Cholesky parameters (\textasciitilde{}492k parameters)
+\item \textbf{MLP Cholesky} (\textasciitilde{}88k parameters): Same hidden structure as post-hoc MLP (2048→28→28), but outputs 1024 Cholesky parameters instead of 2048 reconstruction values. The Cholesky layer converts these to a valid density matrix via \(\rho = LL^\dagger / \text{Tr}(LL^\dagger)\).
+\item \textbf{Transformer Cholesky} (\textasciitilde{}153k parameters): Same encoder-decoder structure as post-hoc Transformer (embed\textsubscript{dim}=32, 4 layers, 4 heads), but uses global attention pooling over decoder outputs followed by projection to 1024 Cholesky parameters. The additional global pooling layer accounts for the parameter increase.
+\end{itemize}
+
+The CNN baseline uses:
+\begin{itemize}
+\item \textbf{CNN} (\textasciitilde{}118k parameters): Encoder-decoder with channel progression 2→19→38→76 (encoder) and 76→38→19→2 (decoder). Uses 3×3 convolutions, MaxPool2d for downsampling, and nearest-neighbor upsampling with transposed convolutions. Post-hoc projection applied to outputs.
 \end{itemize}
 \end{document}
