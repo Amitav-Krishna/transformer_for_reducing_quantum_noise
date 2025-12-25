@@ -636,6 +636,64 @@ python figures/attention_maps_pauli.py      # Full Pauli attention analysis
 
 **Conclusion**: Transformer advantage persists even without spatial structure. Attention learns algebraic correlations between Pauli operators, not spatial patterns. X/Y coherence operators (encoding entanglement) receive 90× mean attention.
 
+### Scalability: Hierarchical Transformers (8-qubit)
+
+Response to peer review Critique 1: Proof-of-concept for scaling beyond 5 qubits.
+
+**Key Challenge**: Element-wise tokenization doesn't scale:
+- 5 qubits: 1,024 tokens → O(1M) attention ops ✓
+- 6 qubits: 4,096 tokens → O(16M) attention ops (expensive)
+- 8 qubits: 65,536 tokens → O(4B) attention ops (impossible)
+
+**Solution**: Hierarchical patch-based tokenization reduces tokens:
+- Group elements into spatial patches
+- Each patch → 1 token
+- Example: 256×256 matrix → 32×32 patches → 64 tokens → O(4k) attention ops
+
+#### Dataset Generation
+
+| File | Description |
+|------|-------------|
+| `generate_8qubit_dataset.py` | Generates 8-qubit dataset (256×256 matrices, ~49GB, 100k samples) |
+| `dataset_6qubit_backup/` | Backup of 6-qubit dataset (97 chunks, 6GB) - intermediate experiment |
+
+**8-qubit Dataset Properties**:
+- Matrix size: 256×256 (65,536 complex elements)
+- Circuit depth: 6-9 layers (matching 5-qubit pattern)
+- Noise types: depolarizing, amplitude damping, phase damping, bit flip, mixed
+- Noise levels: 0.05, 0.10, 0.15, 0.20
+- Total samples: 100,000 (100 chunks × 1000 samples)
+- Storage: ~49GB
+
+#### Hierarchical Models
+
+| File | Description |
+|------|-------------|
+| `models/transformer_hierarchical_5qubit.py` | Hierarchical Transformer for 5-qubit with patch embedding (~1.1M params) |
+| `train_hierarchical_5qubit.py` | Training script with **timing logs** for 5-qubit hierarchical transformer |
+| `queue_jobs.sh` | Auto-run script: waits for 8-qubit generation → trains 5-qubit → trains 8-qubit |
+
+**Hierarchical Transformer Architecture (5-qubit)**:
+- **Input**: 32×32 density matrix (1,024 elements)
+- **Patch embedding**: 4×4 patches → 64 tokens (16× fewer than element-wise)
+- **Encoder-Decoder**: 4 layers each, embed_dim=128, ffn_dim=256
+- **Bottleneck**: 128 → 64 → 128
+- **Output**: Patch unembed back to 32×32
+- **Parameters**: ~1.1M
+
+**Purpose**: Compare element-wise vs hierarchical performance/speed to demonstrate scalability tradeoffs for reviewers.
+
+#### Training Infrastructure (`train_14/`)
+
+Experimental directory for 6-qubit/8-qubit hierarchical training (intermediate work, superseded by final 8-qubit approach).
+
+| File | Description |
+|------|-------------|
+| `train_14/transformer_6qubit.py` | Hierarchical Transformer for 6-qubit (64×64 → 64 tokens) |
+| `train_14/generate_6qubit_dataset.py` | 6-qubit dataset generator (intermediate) |
+| `train_14/train.py` | Training script with disk-freeing for quota issues |
+| `train_14/eval_uhlmann.py` | Uhlmann fidelity evaluation |
+
 ---
 
 ## Miscellaneous Files
