@@ -1,0 +1,87 @@
+#+BIBLIOGRAPHY:references.bib
+#+LATEX_HEADER: \usepackage{subcaption}
+#+LATEX_HEADER: \usepackage[round,authoryear]{natbib}
+#+LATEX_HEADER: \bibliographystyle{plainnat}
+#+cite_export: natbib
+#+OPTIONS: toc:nil
+#+TITLE: Self-Attention Captures Entanglement: Transformers for Quantum State Denoising
+#+AUTHOR: Amitav Krishna
+
+* Outline
+
+** Claim (1-2 sentences)
+
+Transformers outperform MLPs for quantum density matrix denoising, and this advantage is not explained by differences in parameter count or network depth. The gap persists as system size scales from 5 to 8 qubits.
+
+** Metrics & Data Protocol
+
+- *Primary metric*: Uhlmann fidelity $F(\rho, \sigma) = (\text{Tr}[\sqrt{\sqrt{\rho} \sigma \sqrt{\rho}}])^2$ --- the quantum-native measure of state similarity
+- *Training loss*: Frobenius fidelity (differentiable proxy, correlates with Uhlmann at $\rho=0.99$)
+- *Dataset*: 100k (noisy, clean) density matrix pairs
+  - 5-qubit: $32 \times 32$ matrices, 5 noise types $\times$ 4 levels = 20 cells, 5000 samples/cell
+  - 8-qubit: $256 \times 256$ matrices, same noise distribution
+- *Noise types*: depolarizing, amplitude damping, phase damping, bit-flip, mixed
+- *Noise levels*: $p \in \{0.05, 0.10, 0.15, 0.20\}$
+- *Split*: 80/10/10 train/val/test, seed=42
+- *Precision*: float64 throughout (numerical stability for eigendecomposition)
+
+** Baselines
+
+| Model | Params | 5-qubit Uhlmann | Improvement |
+|-------|--------|-----------------|-------------|
+| Noisy input (no denoising) | --- | 0.12 | $1.0\times$ |
+| CNN autoencoder | ~750k | TBD | TBD |
+| MLP (residual) | ~1.09M | TBD | TBD |
+| Transformer (hierarchical) | ~1.09M | TBD | TBD |
+
+** Ablation 1: Capacity Control
+
+Does MLP underperformance stem from insufficient capacity?
+
+| Model | Params | 5-qubit Uhlmann | Notes |
+|-------|--------|-----------------|-------|
+| MLP (matched) | ~1.09M | TBD | Same params as Transformer |
+| MLP (wide) | ~5.2M | TBD | $5\times$ more params |
+| MLP (deep) | ~2.15M | TBD | $2\times$ depth (8+8 layers) |
+| Transformer | ~1.09M | TBD | Baseline comparison |
+
+*Expected result*: More capacity doesn't help MLP match Transformer $\to$ architecture matters, not size.
+
+** Ablation 2: Depth Control
+
+Does MLP underperformance stem from insufficient depth?
+
+| Model | Layers | Params | 5-qubit Uhlmann | Notes |
+|-------|--------|--------|-----------------|-------|
+| MLP (matched) | 4+4 | ~1.09M | TBD | Same depth as Transformer |
+| MLP (deep) | 8+8 | ~2.15M | TBD | $2\times$ depth |
+| Transformer | 4+4 | ~1.09M | TBD | Baseline comparison |
+
+*Expected result*: More depth doesn't help MLP match Transformer $\to$ attention mechanism matters, not depth.
+
+** Scaling Result (5-qubit $\rightarrow$ 8-qubit)
+
+Does the Transformer advantage hold as system size increases?
+
+| Model | 5-qubit | 8-qubit | Scaling |
+|-------|---------|---------|---------|
+| Baseline (noisy) | 0.12 | TBD | --- |
+| MLP (hierarchical) | TBD | TBD | TBD |
+| Transformer (hierarchical) | TBD | TBD | TBD |
+
+*Architecture*: Hierarchical patch-based (64 tokens for both scales)
+- 5-qubit: $4 \times 4$ patches on $32 \times 32$ matrix
+- 8-qubit: $32 \times 32$ patches on $256 \times 256$ matrix
+
+*Expected result*: Transformer advantage persists or grows with scale.
+
+* TODO Sections to Write
+
+- [ ] Abstract
+- [ ] Introduction
+- [ ] Related Work
+- [ ] Methods (dataset, models, training)
+- [ ] Results (baselines, ablations, scaling)
+- [ ] Discussion
+- [ ] Conclusion
+- [ ] Appendix (failed approaches: Cholesky, row tokenization)

@@ -5,6 +5,8 @@ This project compares neural network autoencoders for density-matrix denoising a
 **Paper v2 (completed):** CNN vs Transformer comparison → Transformer wins (0.95 vs 0.30 fidelity)
 
 **Paper v3 (completed):** MLP vs Transformer comparison
+
+**Paper v4 (in progress):** Hierarchical models + scaling (5-qubit → 8-qubit) with capacity/depth ablations
 - v3/v4: Cholesky-constrained outputs → **FAILED** (collapsed to maximally mixed state)
 - v5: Row-based tokenization → **FAILED** (stuck at 0.968 val loss)
 - v6: Element-wise tokenization (~120k params each) → MLP destroyed info (0.038 fidelity < baseline)
@@ -20,6 +22,7 @@ This project compares neural network autoencoders for density-matrix denoising a
 ├── paper_v2.org            # Paper v2 (Org-mode source) - CNN vs Transformer
 ├── paper_v3.org            # Paper v3 (Org-mode source) - MLP vs Transformer (final: residual MLP)
 ├── paper_v3.pdf            # Paper v3 compiled PDF
+├── paper_v4.org            # Paper v4 (Org-mode source) - Hierarchical + scaling (in progress)
 ├── references.bib          # Bibliography
 │
 ├── dataset_smaller/        # Chunked training dataset (100k samples, float32)
