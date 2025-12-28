@@ -22,7 +22,9 @@ This project compares neural network autoencoders for density-matrix denoising a
 ├── paper_v3.pdf            # Paper v3 compiled PDF
 ├── references.bib          # Bibliography
 │
-├── dataset_smaller/        # Chunked training dataset (100k samples)
+├── dataset_smaller/        # Chunked training dataset (100k samples, float32)
+├── dataset_5qubit_float64/ # Float64 5-qubit dataset (100k samples) - train_16
+├── dataset_8qubit_float64/ # Float64 8-qubit dataset (100k samples) - train_16
 ├── dataset.pt              # Original full dataset (1M samples)
 │
 ├── models/                 # Original model architectures (CNN, Transformer)
@@ -34,6 +36,7 @@ This project compares neural network autoencoders for density-matrix denoising a
 ├── train_v8/               # **FINAL**: Residual MLP + Transformer on full dataset
 ├── train_v9/               # Wide MLP capacity control (~1M params)
 ├── train_11/               # **PAULI**: Representation without spatial structure
+├── train_16/               # **CURRENT**: Float64 end-to-end pipeline (5-qubit + 8-qubit)
 ├── losses/                 # Loss functions
 ├── training_loop/          # Training infrastructure
 │
@@ -452,6 +455,45 @@ Control experiment that removes spatial structure by converting density matrices
 | `train_11/checkpoints_11/mlp_pauli_frob/` | MLP Pauli checkpoints |
 | `train_11/checkpoints_11/transformer_pauli_frob/` | Transformer Pauli checkpoints |
 
+### train_15: Hierarchical MLP Experiments (`train_15/`)
+
+Patch-based MLP models for fair comparison with hierarchical Transformers. Uses identical patch embedding/unembedding as Transformers, replacing only the attention mechanism with MLP-Mixer style token mixing.
+
+**Architecture**:
+- **Patch embedding**: Same as Transformer (Conv2d with patch_size stride)
+- **Token mixing**: MLP that mixes across patches (replaces attention)
+- **Channel mixing**: Per-patch MLP (same as Transformer FFN)
+- **Patch unembedding**: Same as Transformer
+
+**Key difference**: Token mixing uses fixed learned weights (O(n)) instead of input-dependent attention (O(n²)).
+
+#### Models
+
+| File | Params | Description |
+|------|--------|-------------|
+| `mlp_hierarchical_5qubit.py` | 1,092,960 | 5-qubit MLP, matched to Transformer |
+| `mlp_hierarchical_5qubit_wide.py` | 5,201,408 | 5-qubit wide MLP (capacity control) |
+| `mlp_hierarchical_8qubit.py` | 1,611,072 | 8-qubit MLP, matched to Transformer |
+
+#### Training Scripts
+
+| File | Description |
+|------|-------------|
+| `train_5qubit.py` | Train 5-qubit hierarchical MLP (matched params) |
+| `train_5qubit_wide.py` | Train 5-qubit wide MLP (~5.2M params, capacity control) |
+| `train.py` | Train 8-qubit hierarchical MLP with streaming |
+| `queue_mlp_experiments.sh` | Queue script to run all MLP experiments after Transformer |
+
+#### Parameter Matching
+
+| Model | 5-qubit | 8-qubit |
+|-------|---------|---------|
+| Hierarchical Transformer | 1,092,960 | 1,611,072 |
+| Hierarchical MLP (matched) | 1,092,960 | 1,611,072 |
+| Hierarchical MLP Wide | 5,201,408 | — |
+
+**Why patch-based models have more params than element-wise**: The patch embedding layer scales with patch size². For 8-qubit (32×32 patches): `2 × 128 × 1024 = 262k` params just for embedding, vs negligible for element-wise.
+
 ---
 
 ## Figures (`figures/`)
@@ -669,17 +711,43 @@ Response to peer review Critique 1: Proof-of-concept for scaling beyond 5 qubits
 
 | File | Description |
 |------|-------------|
-| `models/transformer_hierarchical_5qubit.py` | Hierarchical Transformer for 5-qubit with patch embedding (~1.1M params) |
+| `models/transformer_hierarchical_5qubit.py` | Hierarchical Transformer for 5-qubit (~1.1M params) |
+| `models/transformer_hierarchical_8qubit.py` | Hierarchical Transformer for 8-qubit (~1.6M params) |
 | `train_hierarchical_5qubit.py` | Training script with **timing logs** for 5-qubit hierarchical transformer |
+| `train_hierarchical_8qubit.py` | Training script for 8-qubit with **streaming dataset** |
 | `queue_jobs.sh` | Auto-run script: waits for 8-qubit generation → trains 5-qubit → trains 8-qubit |
 
-**Hierarchical Transformer Architecture (5-qubit)**:
-- **Input**: 32×32 density matrix (1,024 elements)
-- **Patch embedding**: 4×4 patches → 64 tokens (16× fewer than element-wise)
-- **Encoder-Decoder**: 4 layers each, embed_dim=128, ffn_dim=256
-- **Bottleneck**: 128 → 64 → 128
-- **Output**: Patch unembed back to 32×32
-- **Parameters**: ~1.1M
+**Hierarchical Transformer Architecture**:
+
+| Component | 5-qubit | 8-qubit |
+|-----------|---------|---------|
+| Input | 32×32 | 256×256 |
+| Patch size | 4×4 | 32×32 |
+| Tokens | 64 | 64 |
+| Embed dim | 128 | 128 |
+| Layers | 4 enc + 4 dec | 4 enc + 4 dec |
+| Parameters | 1,092,960 | 1,611,072 |
+
+**Key insight**: Token count stays constant (64) regardless of matrix size. Only the patch embed/unembed layers grow with patch size.
+
+#### Streaming Dataset (`training_loop/dataset/StreamingChunkDataset.py`)
+
+For the 98GB 8-qubit dataset, loading all chunks into RAM causes OOM. The streaming dataset loads one chunk at a time:
+
+```python
+from training_loop.dataset.StreamingChunkDataset import (
+    StreamingChunkDataset,
+    get_chunk_files,
+    split_chunk_files,
+)
+
+chunk_files = get_chunk_files("/workspace/dataset_8qubit")
+train_files, val_files, test_files = split_chunk_files(chunk_files, seed=42)
+
+# Streaming dataset for training (reshuffles each epoch)
+train_dataset = StreamingChunkDataset(train_files, shuffle=True)
+train_loader = DataLoader(train_dataset, batch_size=4)
+```
 
 **Purpose**: Compare element-wise vs hierarchical performance/speed to demonstrate scalability tradeoffs for reviewers.
 
@@ -694,6 +762,281 @@ Experimental directory for 6-qubit/8-qubit hierarchical training (intermediate w
 | `train_14/train.py` | Training script with disk-freeing for quota issues |
 | `train_14/eval_uhlmann.py` | Uhlmann fidelity evaluation |
 
+#### Monitoring Running Experiments
+
+**Runpod Access**:
+```bash
+ssh -i ~/.ssh/id_ed25519 -p 20698 root@157.157.221.29
+```
+
+**GPU**: NVIDIA RTX A4000 (16GB)
+**Storage**: 120GB allocated
+
+##### Check Running Processes
+
+```bash
+# View all Python processes
+ps aux | grep python
+
+# Check specific processes
+ps aux | grep generate_8qubit_dataset.py    # 8-qubit dataset generation
+ps aux | grep train_hierarchical            # Hierarchical training
+ps aux | grep queue_jobs.sh                 # Queue script
+```
+
+##### Monitor Dataset Generation Progress
+
+```bash
+# Count generated chunks
+ls -1 /workspace/dataset_8qubit/*.pt | wc -l
+
+# Check latest chunk timestamp (shows if still generating)
+ls -lt /workspace/dataset_8qubit/*.pt | head -5
+
+# Monitor in real-time (updates every 60 seconds)
+watch -n 60 'ls -1 /workspace/dataset_8qubit/*.pt | wc -l'
+
+# Check dataset size
+du -sh /workspace/dataset_8qubit/
+
+# View generation log (if running with nohup)
+tail -f nohup.out
+tail -f generate_8qubit.log  # If redirected to specific log file
+```
+
+##### Monitor Training Progress
+
+```bash
+# Check training logs
+tail -f /workspace/csvs_2/hierarchical_transformer_5qubit.csv
+tail -f /workspace/csvs_2/hierarchical_transformer_8qubit.csv
+
+# Check timing logs (critical for paper)
+tail -f /workspace/csvs_2/hierarchical_transformer_5qubit_timing.csv
+tail -f /workspace/csvs_2/hierarchical_transformer_8qubit_timing.csv
+
+# Check training process log output
+tail -f /workspace/train_hierarchical_5qubit.log
+tail -f /workspace/train_hierarchical_8qubit.log
+
+# Count saved checkpoints
+ls -1 /workspace/checkpoints_2/hierarchical_transformer_5qubit/ | wc -l
+ls -1 /workspace/checkpoints_2/hierarchical_transformer_8qubit/ | wc -l
+
+# Check most recent checkpoint
+ls -lt /workspace/checkpoints_2/hierarchical_transformer_5qubit/ | head -5
+```
+
+##### Monitor System Resources
+
+```bash
+# Check GPU usage
+nvidia-smi
+
+# Detailed GPU monitoring (updates every 2 seconds)
+watch -n 2 nvidia-smi
+
+# Check disk usage
+df -h /workspace
+
+# Check detailed directory sizes
+du -sh /workspace/*
+
+# Check free space breakdown
+du -h --max-depth=1 /workspace | sort -hr
+```
+
+##### Monitor Queue Script
+
+```bash
+# Check if queue script is running
+ps aux | grep queue_jobs.sh
+
+# View queue script log output
+tail -f nohup.out | grep -A 5 "queue_jobs"
+
+# Manually check queue status
+bash /workspace/queue_jobs.sh --dry-run  # If implemented
+```
+
+##### Check 5-qubit Dataset Upload (from local machine)
+
+```bash
+# On local machine - check upload process
+ps aux | grep "scp.*dataset_smaller"
+
+# Count uploaded chunks (on runpod)
+ls -1 /workspace/dataset_smaller/*.pt | wc -l
+
+# Target: 1000 chunks total
+# Check progress: (current_count / 1000) * 100%
+```
+
+##### Quick Status Check (All-in-One)
+
+```bash
+# SSH into runpod and run this comprehensive status check:
+ssh -i ~/.ssh/id_ed25519 -p 20698 root@157.157.221.29 << 'EOF'
+echo "=== GPU Status ==="
+nvidia-smi --query-gpu=name,utilization.gpu,memory.used,memory.total --format=csv,noheader
+
+echo -e "\n=== Disk Usage ==="
+df -h /workspace | tail -1
+
+echo -e "\n=== Running Processes ==="
+ps aux | grep -E "(python|queue_jobs)" | grep -v grep
+
+echo -e "\n=== Dataset Progress ==="
+echo "8-qubit chunks: $(ls -1 /workspace/dataset_8qubit/*.pt 2>/dev/null | wc -l) / 100"
+echo "5-qubit chunks: $(ls -1 /workspace/dataset_smaller/*.pt 2>/dev/null | wc -l) / 1000"
+
+echo -e "\n=== Training Progress ==="
+if [ -f /workspace/csvs_2/hierarchical_transformer_5qubit.csv ]; then
+    echo "5-qubit training: epoch $(tail -1 /workspace/csvs_2/hierarchical_transformer_5qubit.csv | cut -d',' -f1)"
+fi
+if [ -f /workspace/csvs_2/hierarchical_transformer_8qubit.csv ]; then
+    echo "8-qubit training: epoch $(tail -1 /workspace/csvs_2/hierarchical_transformer_8qubit.csv | cut -d',' -f1)"
+fi
+
+echo -e "\n=== Latest Logs (last 5 lines) ==="
+if [ -f /workspace/train_hierarchical_5qubit.log ]; then
+    echo "5-qubit training log:"
+    tail -5 /workspace/train_hierarchical_5qubit.log
+fi
+EOF
+```
+
+##### Estimated Timeline
+
+- **8-qubit dataset generation**: ~10-12 hours (100,000 samples at ~2.5 samples/sec)
+- **5-qubit hierarchical training**: ~6-8 hours (100 epochs)
+- **8-qubit hierarchical training**: ~12-15 hours (100 epochs, larger matrices)
+- **Total pipeline**: ~30-36 hours from start
+
+##### Troubleshooting
+
+**Process died unexpectedly**:
+```bash
+# Check nohup.out for errors
+tail -100 nohup.out
+
+# Check for OOM kills
+dmesg | grep -i "killed process"
+```
+
+**Disk full**:
+```bash
+# Find largest files
+find /workspace -type f -size +1G -exec ls -lh {} \;
+
+# Clean up old checkpoints (if needed)
+rm /workspace/checkpoints_2/hierarchical_transformer_5qubit/epoch_[1-9].pt
+rm /workspace/checkpoints_2/hierarchical_transformer_5qubit/epoch_[1-4][0-9].pt
+```
+
+**Port changed after restart**:
+```bash
+# Check runpod web UI for new port
+# Remove old host key: ssh-keygen -R [157.157.221.29]:<old_port>
+# Connect with new port: ssh -i ~/.ssh/id_ed25519 -p <new_port> root@157.157.221.29
+```
+
+---
+
+## train_16: Float64 End-to-End Pipeline (CURRENT)
+
+Complete float64 precision training pipeline for quantum density matrix denoising. Uses double precision throughout to ensure numerical stability during eigendecomposition for Uhlmann fidelity.
+
+### Key Design Decisions
+
+1. **All float64**: Models, data, and computations use `torch.float64`
+2. **Hierarchical tokenization**: 64 tokens regardless of qubit count (4x4 patches for 5-qubit, 32x32 for 8-qubit)
+3. **Parallel dataset generation**: ~10x speedup using multiprocessing (20 workers)
+4. **Batch size = 256**: Max tested on RTX A4000 (16GB) with 8-qubit models using ~10GB VRAM
+5. **VRAM logging**: For scalability arguments
+
+### Dataset Generation (Parallel)
+
+| File | Description |
+|------|-------------|
+| `train_16/generate_5qubit_float64_parallel.py` | Parallel 5-qubit dataset generator (~12 min for 100k samples) |
+| `train_16/generate_8qubit_float64_parallel.py` | Parallel 8-qubit dataset generator (~1 hour for 100k samples) |
+| `train_16/generate_5qubit_float64.py` | Sequential version (legacy, ~2 hours) |
+| `train_16/generate_8qubit_float64.py` | Sequential version (legacy, ~10 hours) |
+
+**Parallel speedup**: Uses `multiprocessing.Pool` with 20 workers (one per noise cell). Each cell generates 5000 samples independently with unique seed.
+
+### Models (`train_16/models/`)
+
+| File | Params | Description |
+|------|--------|-------------|
+| `transformer_5qubit.py` | ~1.09M | 5-qubit hierarchical Transformer (4+4 layers, 8 heads) |
+| `transformer_8qubit.py` | ~1.61M | 8-qubit hierarchical Transformer (4+4 layers, 8 heads) |
+| `mlp_5qubit.py` | ~1.09M | 5-qubit MLP-Mixer style (matched params) |
+| `mlp_5qubit_wide.py` | ~5.2M | 5-qubit wide MLP (capacity control) |
+| `mlp_5qubit_deep.py` | ~2.15M | 5-qubit deep MLP (8+8 layers, depth control) |
+| `mlp_8qubit.py` | ~1.61M | 8-qubit MLP (matched params) |
+
+### Training Scripts (`train_16/train/`)
+
+| File | Description |
+|------|-------------|
+| `train_utils.py` | Shared training loop with VRAM logging, early stopping |
+| `train_transformer_5qubit.py` | Train 5-qubit Transformer |
+| `train_mlp_5qubit.py` | Train 5-qubit MLP (matched) |
+| `train_mlp_5qubit_wide.py` | Train 5-qubit MLP (wide, ~5.2M params) |
+| `train_mlp_5qubit_deep.py` | Train 5-qubit MLP (deep, 8+8 layers) |
+| `train_transformer_8qubit.py` | Train 8-qubit Transformer |
+| `train_mlp_8qubit.py` | Train 8-qubit MLP (matched) |
+
+### Evaluation (`train_16/eval/`)
+
+| File | Description |
+|------|-------------|
+| `eval_uhlmann.py` | Uhlmann fidelity evaluation with failure tracking and self-check |
+
+### Utilities
+
+| File | Description |
+|------|-------------|
+| `train_16/test_batch_size.py` | Binary search for max batch size on GPU (found 256 safe for 8-qubit) |
+
+### Pipeline Script
+
+| File | Description |
+|------|-------------|
+| `train_16/queue_float64.sh` | Complete pipeline: generate datasets → train all models → evaluate |
+
+**Pipeline phases**:
+1. Generate 5-qubit float64 dataset (parallel, ~12 min)
+2. Train 5-qubit models (transformer, mlp, mlp_wide, mlp_deep) with Uhlmann eval after each
+3. Generate 8-qubit float64 dataset (parallel, ~1 hour)
+4. Train 8-qubit models (transformer, mlp) with Uhlmann eval after each
+
+### Output Locations
+
+| Directory | Description |
+|-----------|-------------|
+| `dataset_5qubit_float64/` | 5-qubit dataset (100 chunks, 100k samples) |
+| `dataset_8qubit_float64/` | 8-qubit dataset (100 chunks, 100k samples) |
+| `train_16/checkpoints_16/` | Model checkpoints (`best.pt` for each model) |
+| `train_16/csvs_16/` | Training logs, VRAM logs, Uhlmann fidelity results |
+
+### Monitoring Experiments
+
+Use the status script for quick checks:
+
+```bash
+python .opencode/skill/check-experiments/scripts/status.py
+```
+
+This shows:
+- Pipeline running status and current phase
+- Progress percentage with ETA
+- GPU/disk usage
+- Dataset and checkpoint status
+- Recent log output
+
 ---
 
 ## Miscellaneous Files
@@ -703,6 +1046,7 @@ Experimental directory for 6-qubit/8-qubit hierarchical training (intermediate w
 | `emergency_notes.txt` | Quick notes about which csvs/checkpoints are canonical |
 | `nohup.out` | Training logs from runpod (23MB, contains multiple runs) |
 | `training_loop_3/` | Placeholder for paper v3 training loop (mostly empty) |
+| `.opencode/skill/check-experiments/` | OpenCode skill for monitoring RunPod experiments |
 
 ---
 
