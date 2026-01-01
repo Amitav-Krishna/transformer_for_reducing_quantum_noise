@@ -4,84 +4,352 @@
 #+LATEX_HEADER: \bibliographystyle{plainnat}
 #+cite_export: natbib
 #+OPTIONS: toc:nil
-#+TITLE: Self-Attention Captures Entanglement: Transformers for Quantum State Denoising
+#+TITLE: Hierarchical Attention for Scalable Quantum State Denoising
 #+AUTHOR: Amitav Krishna
 
-* Outline
+* Abstract
 
-** Claim (1-2 sentences)
+TODO: Write after results are complete.
 
-Transformers outperform MLPs for quantum density matrix denoising, and this advantage is not explained by differences in parameter count or network depth. The gap persists as system size scales from 5 to 8 qubits.
+Key points to hit:
+- Problem: Element-wise tokenization doesn't scale (O(16^n) attention for n qubits)
+- Solution: Hierarchical patch-based tokenization maintains fixed token count (64) regardless of matrix size
+- Result: Transformer advantage over MLP persists at 8-qubit scale
+- Ablations: Neither increased capacity (5x params) nor depth (2x layers) closes the gap
+- Implication: Attention mechanism itself---not model size---captures entanglement structure
 
-** Metrics & Data Protocol
+* Introduction
 
-- *Primary metric*: Uhlmann fidelity $F(\rho, \sigma) = (\text{Tr}[\sqrt{\sqrt{\rho} \sigma \sqrt{\rho}}])^2$ --- the quantum-native measure of state similarity
-- *Training loss*: Frobenius fidelity (differentiable proxy, correlates with Uhlmann at $\rho=0.99$)
-- *Dataset*: 100k (noisy, clean) density matrix pairs
-  - 5-qubit: $32 \times 32$ matrices, 5 noise types $\times$ 4 levels = 20 cells, 5000 samples/cell
-  - 8-qubit: $256 \times 256$ matrices, same noise distribution
-- *Noise types*: depolarizing, amplitude damping, phase damping, bit-flip, mixed
-- *Noise levels*: $p \in \{0.05, 0.10, 0.15, 0.20\}$
-- *Split*: 80/10/10 train/val/test, seed=42
-- *Precision*: float64 throughout (numerical stability for eigendecomposition)
+** The Scaling Problem
 
-** Baselines
+Prior work (paper v3) established that Transformers outperform MLPs for 5-qubit density matrix denoising (0.28 vs 0.17 Uhlmann fidelity). However, the element-wise tokenization strategy---treating each of 1024 matrix elements as a token---does not scale:
 
-| Model | Params | 5-qubit Uhlmann | Improvement |
-|-------|--------|-----------------|-------------|
-| Noisy input (no denoising) | --- | 0.12 | $1.0\times$ |
-| CNN autoencoder | ~750k | TBD | TBD |
-| MLP (residual) | ~1.09M | TBD | TBD |
+| Qubits | Matrix Size | Tokens | Attention Ops |
+|--------|-------------|--------|---------------|
+| 5      | 32x32       | 1,024  | ~1M           |
+| 6      | 64x64       | 4,096  | ~16M          |
+| 8      | 256x256     | 65,536 | ~4B           |
+
+At 8 qubits, element-wise attention is computationally infeasible.
+
+** Our Contribution
+
+We introduce *hierarchical patch-based tokenization* that maintains a fixed token count (64) regardless of system size:
+- 5-qubit: 4x4 patches on 32x32 matrix → 64 tokens
+- 8-qubit: 32x32 patches on 256x256 matrix → 64 tokens
+
+This enables scaling to larger quantum systems while preserving the attention mechanism's ability to capture non-local correlations.
+
+We further demonstrate through capacity and depth ablations that the Transformer's advantage is architectural, not attributable to parameter count or network depth.
+
+** Paper Structure
+
+- Section 2: Related work on scalable attention and quantum ML
+- Section 3: Hierarchical architecture and training protocol
+- Section 4: Results---baselines, ablations, and 5→8 qubit scaling
+- Section 5: Discussion and limitations
+- Section 6: Conclusion
+
+* Related Work
+
+** Scalable Attention Mechanisms
+
+TODO: Cite Linformer, Performer, BigBird, etc. for linear attention approximations.
+
+** Hierarchical Vision Transformers
+
+TODO: Cite ViT, Swin Transformer for patch-based tokenization in vision.
+
+** Quantum Machine Learning for Error Correction
+
+TODO: Brief recap of transformer-QEC and other quantum ML approaches.
+
+* Methods
+
+** Dataset
+
+*** 5-Qubit Dataset
+
+- Matrix size: 32 × 32 (1024 complex elements)
+- 100,000 (noisy, clean) pairs
+- 5 noise types × 4 noise levels = 20 cells, 5000 samples/cell
+- Noise types: depolarizing, amplitude damping, phase damping, bit-flip, mixed
+- Noise levels: p ∈ {0.05, 0.10, 0.15, 0.20}
+- Precision: float64 throughout
+
+*** 8-Qubit Dataset
+
+- Matrix size: 256 × 256 (65,536 complex elements)
+- 100,000 (noisy, clean) pairs
+- Same noise distribution as 5-qubit
+- Storage: ~50GB (streamed during training)
+
+*** Data Split
+
+80/10/10 train/val/test, seed=42 for reproducibility.
+
+** Hierarchical Transformer Architecture
+
+*** Patch Embedding
+
+The input density matrix is divided into non-overlapping patches, each embedded via a linear projection:
+
+- 5-qubit: 4×4 patches → 64 tokens, each patch has 32 complex elements (64 real values)
+- 8-qubit: 32×32 patches → 64 tokens, each patch has 2048 complex elements (4096 real values)
+
+Embedding dimension: 128 for both scales.
+
+*** Encoder-Decoder Structure
+
+- Encoder: 4 transformer layers, 8 attention heads, FFN dimension 512
+- Decoder: 4 transformer layers, 8 attention heads, cross-attention to encoder
+- Total parameters: ~1.09M (5-qubit), ~1.61M (8-qubit)
+
+The parameter difference comes from the patch embedding/unembedding layers, which scale with patch size.
+
+*** Patch Unembedding
+
+Each decoder token is projected back to its corresponding patch via a linear layer, then patches are reassembled into the full matrix.
+
+** Hierarchical MLP Architecture (MLP-Mixer Style)
+
+For fair comparison, we use an MLP with identical patch embedding/unembedding as the Transformer, replacing only the attention mechanism:
+
+- *Token mixing*: MLP that mixes across patches (replaces attention)
+- *Channel mixing*: Per-patch MLP (same as Transformer FFN)
+
+This isolates the effect of attention vs. fixed learned mixing weights.
+
+Parameter counts matched to Transformer: ~1.09M (5-qubit), ~1.61M (8-qubit).
+
+** Ablation Models
+
+*** Wide MLP (~5.2M params)
+
+Same architecture as matched MLP but with 4× wider hidden dimensions:
+- Tests whether MLP underperformance is due to insufficient capacity
+
+*** Deep MLP (8+8 layers, ~2.15M params)
+
+Same architecture as matched MLP but with 2× depth:
+- Tests whether MLP underperformance is due to insufficient depth
+
+** Training Protocol
+
+| Hyperparameter | Value |
+|----------------|-------|
+| Optimizer | AdamW |
+| Learning rate | 3×10⁻⁴ |
+| Weight decay | 10⁻⁵ |
+| Batch size | 256 |
+| Max epochs | 100 |
+| Early stopping | patience=15 on val loss |
+| Loss function | Frobenius fidelity (cosine similarity) |
+
+** Evaluation Metric
+
+Uhlmann fidelity: $F(\rho, \sigma) = (\mathrm{Tr}[\sqrt{\sqrt{\rho}\sigma\sqrt{\rho}}])^2$
+
+Computed on test set after projecting outputs to valid density matrices (Hermitianize → clamp negative eigenvalues → normalize trace).
+
+* Results
+
+** 5-Qubit Baselines
+
+#+NAME: tab:5qubit-baselines
+#+CAPTION: 5-qubit hierarchical model performance. TBD values will be filled after running eval_uhlmann.py.
+| Model | Params | Uhlmann Fidelity | vs Baseline |
+|-------|--------|------------------|-------------|
+| Baseline (noisy input) | --- | TBD | 1.0× |
+| MLP (hierarchical) | ~1.09M | TBD | TBD |
 | Transformer (hierarchical) | ~1.09M | TBD | TBD |
 
-** Ablation 1: Capacity Control
+** Capacity Ablation (5-Qubit)
 
-Does MLP underperformance stem from insufficient capacity?
+#+NAME: tab:capacity-ablation
+#+CAPTION: Does more capacity help MLP match Transformer?
+| Model | Params | Uhlmann Fidelity | Notes |
+|-------|--------|------------------|-------|
+| MLP (matched) | ~1.09M | TBD | Baseline MLP |
+| MLP (wide) | ~5.2M | TBD | 5× more params |
+| Transformer | ~1.09M | TBD | Comparison |
 
-| Model | Params | 5-qubit Uhlmann | Notes |
-|-------|--------|-----------------|-------|
-| MLP (matched) | ~1.09M | TBD | Same params as Transformer |
-| MLP (wide) | ~5.2M | TBD | $5\times$ more params |
-| MLP (deep) | ~2.15M | TBD | $2\times$ depth (8+8 layers) |
-| Transformer | ~1.09M | TBD | Baseline comparison |
+*Hypothesis*: Wide MLP will not match Transformer despite 5× more parameters.
 
-*Expected result*: More capacity doesn't help MLP match Transformer $\to$ architecture matters, not size.
+** Depth Ablation (5-Qubit)
 
-** Ablation 2: Depth Control
+#+NAME: tab:depth-ablation
+#+CAPTION: Does more depth help MLP match Transformer?
+| Model | Layers | Params | Uhlmann Fidelity | Notes |
+|-------|--------|--------|------------------|-------|
+| MLP (matched) | 4+4 | ~1.09M | TBD | Baseline MLP |
+| MLP (deep) | 8+8 | ~2.15M | TBD | 2× depth |
+| Transformer | 4+4 | ~1.09M | TBD | Comparison |
 
-Does MLP underperformance stem from insufficient depth?
+*Hypothesis*: Deep MLP will not match Transformer despite 2× depth.
 
-| Model | Layers | Params | 5-qubit Uhlmann | Notes |
-|-------|--------|--------|-----------------|-------|
-| MLP (matched) | 4+4 | ~1.09M | TBD | Same depth as Transformer |
-| MLP (deep) | 8+8 | ~2.15M | TBD | $2\times$ depth |
-| Transformer | 4+4 | ~1.09M | TBD | Baseline comparison |
+** 8-Qubit Scaling
 
-*Expected result*: More depth doesn't help MLP match Transformer $\to$ attention mechanism matters, not depth.
-
-** Scaling Result (5-qubit $\rightarrow$ 8-qubit)
-
-Does the Transformer advantage hold as system size increases?
-
+#+NAME: tab:8qubit-scaling
+#+CAPTION: Does the Transformer advantage persist at 8-qubit scale?
 | Model | 5-qubit | 8-qubit | Scaling |
 |-------|---------|---------|---------|
-| Baseline (noisy) | 0.12 | TBD | --- |
+| Baseline (noisy) | TBD | TBD | --- |
 | MLP (hierarchical) | TBD | TBD | TBD |
 | Transformer (hierarchical) | TBD | TBD | TBD |
 
-*Architecture*: Hierarchical patch-based (64 tokens for both scales)
-- 5-qubit: $4 \times 4$ patches on $32 \times 32$ matrix
-- 8-qubit: $32 \times 32$ patches on $256 \times 256$ matrix
+*Architecture note*: Both use 64 tokens (4×4 patches for 5-qubit, 32×32 patches for 8-qubit).
 
-*Expected result*: Transformer advantage persists or grows with scale.
+*Hypothesis*: Transformer advantage persists or grows with scale.
 
-* TODO Sections to Write
+** Training Dynamics
 
-- [ ] Abstract
-- [ ] Introduction
-- [ ] Related Work
-- [ ] Methods (dataset, models, training)
-- [ ] Results (baselines, ablations, scaling)
-- [ ] Discussion
-- [ ] Conclusion
-- [ ] Appendix (failed approaches: Cholesky, row tokenization)
+TODO: Add validation loss curves comparing MLP vs Transformer for both 5-qubit and 8-qubit.
+
+** Timing Comparison
+
+#+NAME: tab:timing
+#+CAPTION: Training time per epoch (RTX A4000, batch size 256).
+| Model | 5-qubit | 8-qubit |
+|-------|---------|---------|
+| MLP | TBD | TBD |
+| Transformer | TBD | TBD |
+
+** VRAM Usage
+
+#+NAME: tab:vram
+#+CAPTION: Peak GPU memory usage during training.
+| Model | 5-qubit | 8-qubit |
+|-------|---------|---------|
+| MLP | TBD | TBD |
+| Transformer | TBD | TBD |
+
+* Discussion
+
+** Why Hierarchical Tokenization Works
+
+Patch-based tokenization trades spatial resolution for scalability:
+- Loses fine-grained element-level attention within patches
+- Preserves global attention across patches (inter-patch correlations)
+- Key insight: Most entanglement-relevant correlations span patches, not individual elements
+
+** Capacity vs Architecture
+
+The ablation results (if hypothesis confirmed) demonstrate that:
+1. MLP underperformance is not due to insufficient parameters
+2. MLP underperformance is not due to insufficient depth
+3. The attention mechanism itself captures structure that MLPs cannot
+
+** Limitations
+
+*** Patch Size Tradeoff
+
+Larger patches = fewer tokens = less memory, but coarser attention resolution. The optimal patch size depends on the entanglement structure of the target states.
+
+*** Noise Model Simplicity
+
+Our synthetic noise (Markovian, independent per qubit) may not capture crosstalk and non-Markovian effects in real hardware. However, attention may be well-suited to learn such correlated noise patterns.
+
+*** Maximum System Size
+
+Even with hierarchical tokenization, the patch embedding/unembedding layers scale with patch size. For very large systems (>10 qubits), additional compression may be needed.
+
+* Conclusion
+
+TODO: Summarize key findings after results are complete.
+
+Key points:
+1. Hierarchical tokenization enables scaling to 8 qubits while preserving attention mechanism
+2. Transformer advantage persists at scale (quantify the gap)
+3. Ablations confirm architecture > capacity/depth
+4. Practical path toward quantum state denoising on larger systems
+
+* Appendix
+
+** Model Parameter Counts
+
+#+NAME: tab:param-counts
+#+CAPTION: Detailed parameter breakdown.
+| Component | 5-qubit Transformer | 8-qubit Transformer | 5-qubit MLP | 8-qubit MLP |
+|-----------|---------------------|---------------------|-------------|-------------|
+| Patch embed | TBD | TBD | TBD | TBD |
+| Encoder | TBD | TBD | TBD | TBD |
+| Decoder | TBD | TBD | TBD | TBD |
+| Patch unembed | TBD | TBD | TBD | TBD |
+| Total | ~1.09M | ~1.61M | ~1.09M | ~1.61M |
+
+** Comparison to Element-wise Tokenization
+
+TODO: If time permits, compare hierarchical vs element-wise on 5-qubit to quantify the resolution tradeoff.
+
+| Model | Tokens | 5-qubit Uhlmann | Time/Epoch |
+|-------|--------|-----------------|------------|
+| Element-wise Transformer | 1024 | 0.28 (from v3) | ~300s |
+| Hierarchical Transformer | 64 | TBD | TBD |
+
+** Failed Approaches (from paper v3)
+
+Brief summary of Cholesky constraints, row tokenization, non-residual MLP failures. Reference paper v3 appendix for details.
+
+* Notes :noexport:
+
+** Status Tracking
+
+Completed:
+- [X] 5-qubit dataset generation (float64)
+- [X] 8-qubit dataset generation (float64)
+- [X] 5-qubit Transformer training
+- [X] 5-qubit MLP (matched) training
+- [X] 5-qubit MLP (deep) training
+
+Running:
+- [ ] 5-qubit MLP (wide) training
+- [ ] 8-qubit Transformer training
+- [ ] 8-qubit MLP training
+
+TODO:
+- [ ] Run eval_uhlmann.py on all completed models
+- [ ] Fill in TBD values in tables
+- [ ] Generate figures (val loss curves, heatmaps)
+- [ ] Write prose for all sections
+- [ ] Update training script docstrings (batch_size: 4 → 256)
+
+** Preliminary Results (5-qubit, 2024-12-31)
+
+With trace normalization fix applied to eval_uhlmann.py:
+
+| Model | Params | Uhlmann Fidelity | vs Baseline |
+|-------|--------|------------------|-------------|
+| Baseline (noisy) | --- | 0.167 | 1.00× |
+| MLP (deep, 8 layers) | 2.15M | 0.298 | 1.78× |
+| MLP (matched) | 1.09M | 0.342 | 2.04× |
+| Transformer | 1.09M | 0.375 | 2.25× |
+
+Key observations:
+- Transformer beats MLP by ~10% relative (0.375 vs 0.342)
+- Deep MLP performs WORSE than matched MLP despite 2× params
+- Supports thesis: architecture > capacity
+
+Still running:
+- mlp_5qubit_wide (~46%)
+- mlp_8qubit (~44%)
+- transformer_8qubit (~46%)
+
+** Key Differences from Paper v3
+
+1. *Hierarchical tokenization*: Patches instead of elements
+2. *Larger models*: ~1.09M params vs ~120k (needed for patch embedding)
+3. *8-qubit scaling*: New experiment, not in v3
+4. *Capacity/depth ablations*: More systematic than v3's wide MLP experiment
+5. *float64 throughout*: Numerical stability for Uhlmann fidelity
+
+** RunPod Specs Used for Training
+
+| Pod | GPU | vCPUs | RAM | Container Disk | Volume Storage | Purpose |
+|-----|-----|-------|-----|----------------|----------------|---------|
+| 5q combo | RTX A4000 | 16 | 62 GB | 5 GB | 450 GB | 5q Transformer, 5q MLP, 5q dataset gen |
+| Deep MLP | RTX A4000 | 5 | 31 GB | 20 GB | 20 GB | 5q Deep MLP training |
+| Wide MLP | RTX A4000 | 16 | 62 GB | 20 GB | 20 GB | 5q Wide MLP training |
+| 8q dataset gen | CPU only | 32 | 256 GB | 5 GB | 300 GB | 8q dataset generation |
+| 8q MLP | RTX A4000 | 16 | 62 GB | 20 GB | 300 GB | 8q MLP training |
+| 8q Transformer | RTX A4000 | 16 | 62 GB | 20 GB | 300 GB | 8q Transformer training |

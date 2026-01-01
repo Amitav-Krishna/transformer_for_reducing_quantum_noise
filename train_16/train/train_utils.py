@@ -31,6 +31,51 @@ from training_loop.dataset.StreamingChunkDataset import (
 
 
 # ============================================================================
+# Reproducibility
+# ============================================================================
+
+import random
+import json
+
+
+def set_seed(seed=42):
+    """Set all random seeds for reproducibility."""
+    random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+
+
+def log_environment(csv_dir: str, model_name: str):
+    """Log environment info (PyTorch, CUDA, GPU) to JSON file for reproducibility verification."""
+    env_info = {
+        "pytorch_version": torch.__version__,
+        "cuda_version": torch.version.cuda,
+        "cudnn_version": torch.backends.cudnn.version(),
+        "gpu_name": torch.cuda.get_device_name() if torch.cuda.is_available() else None,
+        "dtype": str(DTYPE),
+        "batch_size": BATCH_SIZE,
+        "learning_rate": LEARNING_RATE,
+        "weight_decay": WEIGHT_DECAY,
+        "epochs": EPOCHS,
+        "seed": 42,
+        "cudnn_deterministic": True,
+        "cudnn_benchmark": False,
+    }
+
+    filepath = os.path.join(csv_dir, f"{model_name}_environment.json")
+    with open(filepath, "w") as f:
+        json.dump(env_info, f, indent=2)
+
+    print(f"Environment logged to {filepath}")
+    print(f"  PyTorch: {env_info['pytorch_version']}")
+    print(f"  CUDA: {env_info['cuda_version']}")
+    print(f"  cuDNN: {env_info['cudnn_version']}")
+    print(f"  GPU: {env_info['gpu_name']}")
+
+
+# ============================================================================
 # Constants
 # ============================================================================
 
@@ -80,10 +125,13 @@ def load_5qubit_data():
         dataset_dir = "dataset_smaller"
 
     print(f"Loading 5-qubit dataset from {dataset_dir}...")
-    chunks = load_chunks(dataset_dir)
-
-    if len(chunks) == 0:
-        raise RuntimeError(f"No chunks found in {dataset_dir}")
+    chunks = load_chunks(
+        dataset_dir,
+        expected_chunks=100,
+        expected_samples_per_chunk=1000,
+        expected_dtype=DTYPE,
+    )
+    print(f"  Verified: 100 chunks, 1000 samples each, dtype={DTYPE}")
 
     train_chunks, val_chunks, test_chunks = split_chunks(chunks, 0.8, 0.1, seed=42)
 
@@ -177,6 +225,9 @@ def train_5qubit_model(
     os.makedirs(checkpoint_dir, exist_ok=True)
     os.makedirs(csv_dir, exist_ok=True)
 
+    # Log environment for reproducibility verification
+    log_environment(csv_dir, model_name)
+
     # Setup optimizer
     optimizer = torch.optim.AdamW(
         model.parameters(), lr=LEARNING_RATE, weight_decay=WEIGHT_DECAY
@@ -222,7 +273,9 @@ def train_5qubit_model(
 
         for X, Y in train_chunks:
             ds = ChunkDataset(X, Y, mode="transformer")
-            loader = DataLoader(ds, batch_size=BATCH_SIZE, shuffle=True)
+            g = torch.Generator()
+            g.manual_seed(42 + epoch)
+            loader = DataLoader(ds, batch_size=BATCH_SIZE, shuffle=True, generator=g)
 
             for x, y in loader:
                 x, y = x.to(device), y.to(device)
@@ -343,7 +396,7 @@ def evaluate_streaming(model, val_files, device, batch_size=BATCH_SIZE):
     total_samples = 0
 
     for fpath in val_files:
-        blob = torch.load(fpath, weights_only=False)
+        blob = torch.load(fpath, weights_only=False, map_location="cpu")
         X = blob["X"]  # Keep original dtype (float64)
         Y = blob["Y"]
         del blob
@@ -395,6 +448,9 @@ def train_8qubit_model(
     os.makedirs(checkpoint_dir, exist_ok=True)
     os.makedirs(csv_dir, exist_ok=True)
 
+    # Log environment for reproducibility verification
+    log_environment(csv_dir, model_name)
+
     # Setup optimizer
     optimizer = torch.optim.AdamW(
         model.parameters(), lr=LEARNING_RATE, weight_decay=WEIGHT_DECAY
@@ -439,7 +495,10 @@ def train_8qubit_model(
         epoch_losses = []
 
         train_dataset = StreamingChunkDataset(
-            train_files, shuffle=True, samples_per_chunk=samples_per_chunk
+            train_files,
+            shuffle=True,
+            samples_per_chunk=samples_per_chunk,
+            seed=42 + epoch,
         )
         train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, num_workers=0)
 

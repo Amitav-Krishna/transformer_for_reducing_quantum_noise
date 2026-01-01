@@ -19,12 +19,15 @@ from train_16.models.transformer_8qubit import HierarchicalTransformer8Qubit
 from train_16.train.train_utils import (
     load_8qubit_file_lists,
     train_8qubit_model,
+    set_seed,
     DTYPE,
 )
 from losses.frob import FrobeniusFidelityLoss
 
 
 def main():
+    set_seed(42)
+
     if not torch.cuda.is_available():
         print("FATAL ERROR: No GPU found. Please fix this.")
         sys.exit(1)

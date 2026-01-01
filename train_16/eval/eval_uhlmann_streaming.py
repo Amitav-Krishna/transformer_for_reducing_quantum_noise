@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """
-Uhlmann fidelity evaluation for train_16 float64 benchmark suite.
+Streaming Uhlmann fidelity evaluation for large datasets (e.g., 8-qubit).
+
+Loads chunks one at a time to avoid OOM errors on datasets that don't fit in RAM.
+Uses StreamingChunkDataset from training_loop.
 
 Features:
 - Full float64 precision throughout
@@ -15,14 +18,17 @@ from pathlib import Path
 
 import torch
 from torch.utils.data import DataLoader
+from tqdm import tqdm
 
 # Add project root to path
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from training_loop.dataset.ChunkDataset import ChunkDataset
-from training_loop.dataset.load_chunks import load_chunks
-from training_loop.dataset.split_chunks import split_chunks
+from training_loop.dataset.StreamingChunkDataset import (
+    get_chunk_files,
+    split_chunk_files,
+    StreamingChunkDataset,
+)
 
 # Import models from train_16.models
 from train_16.models.transformer_5qubit import HierarchicalTransformer5Qubit
@@ -138,16 +144,15 @@ def tensor_to_complex(t: torch.Tensor) -> torch.Tensor:
 # =============================================================================
 
 
-def self_check_fidelity(device: torch.device) -> bool:
+def self_check_fidelity(device: torch.device, matrix_size: int = 32) -> bool:
     """
     Verify F(rho, rho) = 1.0 for random density matrices.
     Returns True if self-check passes.
     """
-    print("Running self-check: F(rho, rho) should equal 1.0...")
+    print(f"Running self-check: F(rho, rho) should equal 1.0 (d={matrix_size})...")
 
     # Generate random density matrix via Wishart distribution
-    d = 32  # 5-qubit system
-    G = torch.randn(d, d, dtype=CDTYPE, device=device)
+    G = torch.randn(matrix_size, matrix_size, dtype=CDTYPE, device=device)
     rho = G @ G.mH
     rho = rho / torch.trace(rho)  # Normalize
 
@@ -168,18 +173,20 @@ def self_check_fidelity(device: torch.device) -> bool:
 
 
 # =============================================================================
-# Evaluation Functions
+# Streaming Evaluation Functions
 # =============================================================================
 
 
 @torch.no_grad()
-def evaluate_baseline_fidelity(
-    chunks: list,
+def evaluate_baseline_fidelity_streaming(
+    test_files: list,
     device: torch.device,
     batch_size: int = 32,
+    samples_per_chunk: int = 1000,
 ) -> dict:
     """
     Compute baseline Uhlmann fidelity: F(noisy, clean).
+    Streams chunks one at a time to avoid OOM.
 
     Returns:
         dict with 'mean', 'std', 'n_samples', 'n_failures'
@@ -188,26 +195,36 @@ def evaluate_baseline_fidelity(
     n_failures = 0
     n_total = 0
 
-    for X, Y in chunks:
-        ds = ChunkDataset(
-            X, Y, mode="transformer"
-        )  # mode doesn't matter, just returns (2,H,W)
-        loader = DataLoader(ds, batch_size=batch_size, shuffle=False)
+    # Use streaming dataset with no shuffle for reproducibility
+    dataset = StreamingChunkDataset(
+        test_files, shuffle=False, samples_per_chunk=samples_per_chunk, seed=42
+    )
+    loader = DataLoader(dataset, batch_size=batch_size)
 
-        for x, y in loader:
-            x = x.to(device)
-            y = y.to(device)
+    total_samples = len(test_files) * samples_per_chunk
+    pbar = tqdm(
+        loader, total=total_samples // batch_size, desc="Baseline F(noisy, clean)"
+    )
 
-            for i in range(x.shape[0]):
-                n_total += 1
-                noisy = tensor_to_complex(x[i])
-                clean = tensor_to_complex(y[i])
+    for x, y in pbar:
+        x = x.to(device)
+        y = y.to(device)
 
-                try:
-                    fid = uhlmann_fidelity_single(noisy, clean)
-                    all_fidelities.append(fid)
-                except RuntimeError:
-                    n_failures += 1
+        for i in range(x.shape[0]):
+            n_total += 1
+            noisy = tensor_to_complex(x[i])
+            clean = tensor_to_complex(y[i])
+
+            try:
+                fid = uhlmann_fidelity_single(noisy, clean)
+                all_fidelities.append(fid)
+            except RuntimeError:
+                n_failures += 1
+
+        # Update progress bar
+        if len(all_fidelities) > 0:
+            current_mean = sum(all_fidelities) / len(all_fidelities)
+            pbar.set_postfix({"mean": f"{current_mean:.4f}", "failures": n_failures})
 
     if len(all_fidelities) == 0:
         return {"mean": 0.0, "std": 0.0, "n_samples": 0, "n_failures": n_total}
@@ -222,14 +239,16 @@ def evaluate_baseline_fidelity(
 
 
 @torch.no_grad()
-def evaluate_model_fidelity(
+def evaluate_model_fidelity_streaming(
     model: torch.nn.Module,
-    chunks: list,
+    test_files: list,
     device: torch.device,
     batch_size: int = 4,
+    samples_per_chunk: int = 1000,
 ) -> dict:
     """
     Compute model Uhlmann fidelity: F(pred, clean).
+    Streams chunks one at a time to avoid OOM.
 
     Returns:
         dict with 'mean', 'std', 'n_samples', 'n_failures'
@@ -239,26 +258,36 @@ def evaluate_model_fidelity(
     n_failures = 0
     n_total = 0
 
-    for X, Y in chunks:
-        ds = ChunkDataset(X, Y, mode="transformer")
-        loader = DataLoader(ds, batch_size=batch_size, shuffle=False)
+    # Use streaming dataset with no shuffle for reproducibility
+    dataset = StreamingChunkDataset(
+        test_files, shuffle=False, samples_per_chunk=samples_per_chunk, seed=42
+    )
+    loader = DataLoader(dataset, batch_size=batch_size)
 
-        for x, y in loader:
-            x = x.to(device, dtype=DTYPE)
-            y = y.to(device, dtype=DTYPE)
+    total_samples = len(test_files) * samples_per_chunk
+    pbar = tqdm(loader, total=total_samples // batch_size, desc="Model F(pred, clean)")
 
-            pred = model(x)
+    for x, y in pbar:
+        x = x.to(device, dtype=DTYPE)
+        y = y.to(device, dtype=DTYPE)
 
-            for i in range(pred.shape[0]):
-                n_total += 1
-                pred_mat = tensor_to_complex(pred[i])
-                clean_mat = tensor_to_complex(y[i])
+        pred = model(x)
 
-                try:
-                    fid = uhlmann_fidelity_single(pred_mat, clean_mat)
-                    all_fidelities.append(fid)
-                except RuntimeError:
-                    n_failures += 1
+        for i in range(pred.shape[0]):
+            n_total += 1
+            pred_mat = tensor_to_complex(pred[i])
+            clean_mat = tensor_to_complex(y[i])
+
+            try:
+                fid = uhlmann_fidelity_single(pred_mat, clean_mat)
+                all_fidelities.append(fid)
+            except RuntimeError:
+                n_failures += 1
+
+        # Update progress bar
+        if len(all_fidelities) > 0:
+            current_mean = sum(all_fidelities) / len(all_fidelities)
+            pbar.set_postfix({"mean": f"{current_mean:.4f}", "failures": n_failures})
 
     if len(all_fidelities) == 0:
         return {"mean": 0.0, "std": 0.0, "n_samples": 0, "n_failures": n_total}
@@ -278,12 +307,14 @@ def evaluate_model_fidelity(
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Evaluate models on Uhlmann fidelity")
+    parser = argparse.ArgumentParser(
+        description="Streaming Uhlmann fidelity evaluation for large datasets"
+    )
     parser.add_argument(
         "--model",
         type=str,
         required=True,
-        help="Model name (e.g., transformer_5qubit, mlp_5qubit)",
+        help="Model name (e.g., transformer_8qubit, mlp_8qubit)",
     )
     parser.add_argument(
         "--checkpoint", type=str, required=True, help="Path to checkpoint file"
@@ -291,7 +322,7 @@ def main():
     parser.add_argument(
         "--dataset",
         type=str,
-        default="dataset_smaller",
+        required=True,
         help="Path to dataset directory",
     )
     parser.add_argument(
@@ -301,6 +332,12 @@ def main():
         "--skip-self-check",
         action="store_true",
         help="Skip F(rho, rho) = 1.0 self-check",
+    )
+    parser.add_argument(
+        "--samples-per-chunk",
+        type=int,
+        default=1000,
+        help="Number of samples per chunk file",
     )
     args = parser.parse_args()
 
@@ -312,48 +349,42 @@ def main():
     print(f"Device: {device} ({torch.cuda.get_device_name()})")
     print(f"Dtype: {DTYPE}")
 
-    # Self-check
-    if not args.skip_self_check:
-        if not self_check_fidelity(device):
-            print("FATAL: Self-check failed. Aborting evaluation.")
-            sys.exit(1)
-
-    # Determine model registry
+    # Determine model registry and matrix size
     if args.model in MODEL_REGISTRY_5Q:
         ModelClass = MODEL_REGISTRY_5Q[args.model]
+        matrix_size = 32  # 5-qubit
     elif args.model in MODEL_REGISTRY_8Q:
         ModelClass = MODEL_REGISTRY_8Q[args.model]
+        matrix_size = 256  # 8-qubit
     else:
         all_models = list(MODEL_REGISTRY_5Q.keys()) + list(MODEL_REGISTRY_8Q.keys())
         print(f"Unknown model: {args.model}")
         print(f"Available models: {all_models}")
         sys.exit(1)
 
-    # Load data
-    print(f"\nLoading dataset from {args.dataset}...")
-    # Determine expected values based on model type
-    if args.model in MODEL_REGISTRY_5Q:
-        expected_chunks, expected_samples = 100, 1000
-    else:
-        expected_chunks, expected_samples = 100, 1000  # 8-qubit also has 100 chunks
+    # Self-check
+    if not args.skip_self_check:
+        if not self_check_fidelity(device, matrix_size=matrix_size):
+            print("FATAL: Self-check failed. Aborting evaluation.")
+            sys.exit(1)
 
-    chunks = load_chunks(
-        args.dataset,
-        expected_chunks=expected_chunks,
-        expected_samples_per_chunk=expected_samples,
-        expected_dtype=DTYPE,
-    )
+    # Get chunk files and split
+    print(f"\nLoading chunk files from {args.dataset}...")
+    chunk_files = get_chunk_files(args.dataset)
+    print(f"  Found {len(chunk_files)} chunk files")
+
+    _, _, test_files = split_chunk_files(chunk_files, 0.8, 0.1, seed=42)
     print(
-        f"  Verified: {expected_chunks} chunks, {expected_samples} samples each, dtype={DTYPE}"
+        f"  Test set: {len(test_files)} chunks ({len(test_files) * args.samples_per_chunk} samples)"
     )
-    _, _, test_chunks = split_chunks(chunks, 0.8, 0.1, seed=42)
-    print(f"Test set: {len(test_chunks)} chunks")
 
     # Compute baseline fidelity
     print("\n" + "=" * 60)
     print("BASELINE: F(noisy, clean)")
     print("=" * 60)
-    baseline = evaluate_baseline_fidelity(test_chunks, device, batch_size=32)
+    baseline = evaluate_baseline_fidelity_streaming(
+        test_files, device, batch_size=32, samples_per_chunk=args.samples_per_chunk
+    )
     print(f"  Mean:     {baseline['mean']:.6f}")
     print(f"  Std:      {baseline['std']:.6f}")
     print(f"  Samples:  {baseline['n_samples']}")
@@ -381,8 +412,12 @@ def main():
 
     # Evaluate model
     print("\nEvaluating model fidelity: F(pred, clean)...")
-    model_result = evaluate_model_fidelity(
-        model, test_chunks, device, batch_size=args.batch_size
+    model_result = evaluate_model_fidelity_streaming(
+        model,
+        test_files,
+        device,
+        batch_size=args.batch_size,
+        samples_per_chunk=args.samples_per_chunk,
     )
 
     # Results
