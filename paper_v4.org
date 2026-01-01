@@ -293,28 +293,64 @@ Brief summary of Cholesky constraints, row tokenization, non-residual MLP failur
 
 * Notes :noexport:
 
-** Status Tracking
+** Status Tracking (Updated 2025-01-01)
 
-Completed:
+*** Completed Training
 - [X] 5-qubit dataset generation (float64)
 - [X] 8-qubit dataset generation (float64)
-- [X] 5-qubit Transformer training
-- [X] 5-qubit MLP (matched) training
-- [X] 5-qubit MLP (deep) training
+- [X] 5-qubit Transformer training (epoch 100)
+- [X] 5-qubit MLP (matched) training (epoch 100)
+- [X] 5-qubit MLP (deep) training (epoch 100)
+- [X] 5-qubit MLP (wide) training (epoch 100)
+- [X] 8-qubit Transformer training (epoch 100)
+- [X] 8-qubit MLP training (epoch 100)
 
-Running:
-- [ ] 5-qubit MLP (wide) training
-- [ ] 8-qubit Transformer training
-- [ ] 8-qubit MLP training
+*** Currently Running Evals
 
-TODO:
-- [ ] Run eval_uhlmann.py on all completed models
-- [ ] Fill in TBD values in tables
+| Eval | Pod IP | Port | Progress | ETA |
+|------|--------|------|----------|-----|
+| mlp_8qubit (streaming) | 157.157.221.29 | 20657 | ~45% baseline | ~10 min |
+| transformer_8qubit (streaming) | 157.157.221.29 | 19975 | ~45% baseline | ~10 min |
+
+*** Checkpoint Locations (Remote Pods)
+
+| Model | Pod IP | Port | Checkpoint Path |
+|-------|--------|------|-----------------|
+| transformer_5qubit | 157.157.221.29 | 20634 | /workspace/checkpoints_16/transformer_5qubit/best.pt |
+| mlp_5qubit | 157.157.221.29 | 20634 | /workspace/checkpoints_16/mlp_5qubit/best.pt |
+| mlp_5qubit_deep | 157.157.221.29 | 20634 | /workspace/checkpoints_16/mlp_5qubit_deep/best.pt |
+| mlp_5qubit_deep | 205.196.17.100 | 9691 | /workspace/checkpoints_16/mlp_5qubit_deep/best.pt |
+| mlp_5qubit_wide | 157.157.221.29 | 20634 | /workspace/checkpoints_16/mlp_5qubit_wide/best.pt |
+| mlp_5qubit_wide | 157.157.221.29 | 19931 | /workspace/checkpoints_16/mlp_5qubit_wide/best.pt |
+| transformer_8qubit | 157.157.221.29 | 20657 | /workspace/checkpoints_16/transformer_8qubit/best.pt |
+| transformer_8qubit | 157.157.221.29 | 19975 | /workspace/checkpoints_16/transformer_8qubit/best.pt |
+| mlp_8qubit | 157.157.221.29 | 20657 | /workspace/checkpoints_16/mlp_8qubit/best.pt |
+| mlp_8qubit | 157.157.221.29 | 19975 | /workspace/checkpoints_16/mlp_8qubit/best.pt |
+
+*** Local Checkpoints (OUTDATED - from pre-reproducibility-fix runs)
+
+All local checkpoints at train_16/checkpoints_16/ are from BEFORE the reproducibility fix
+(sorted file listing + local RNG). They should NOT be used for final results.
+
+| Model | Local Path | Status |
+|-------|------------|--------|
+| transformer_5qubit | train_16/checkpoints_16/transformer_5qubit/best.pt | OUTDATED |
+| mlp_5qubit | train_16/checkpoints_16/mlp_5qubit/best.pt | OUTDATED |
+| mlp_5qubit_deep | train_16/checkpoints_16/mlp_5qubit_deep/best.pt | OUTDATED |
+| mlp_5qubit_wide | train_16/checkpoints_16/mlp_5qubit_wide/best.pt | OUTDATED |
+| transformer_8qubit | train_16/checkpoints_16/transformer_8qubit/best.pt | OUTDATED |
+| mlp_8qubit | train_16/checkpoints_16/mlp_8qubit/best.pt | OUTDATED |
+
+TODO: Download fresh checkpoints from pods after eval completes.
+
+*** TODO
+- [ ] Wait for 8-qubit streaming evals to complete
+- [ ] Download fresh checkpoints from pods
+- [ ] Fill in TBD values in tables with new results
 - [ ] Generate figures (val loss curves, heatmaps)
 - [ ] Write prose for all sections
-- [ ] Update training script docstrings (batch_size: 4 → 256)
 
-** Preliminary Results (5-qubit, 2024-12-31)
+** Preliminary Results (5-qubit, 2025-01-01)
 
 With trace normalization fix applied to eval_uhlmann.py:
 
@@ -322,18 +358,17 @@ With trace normalization fix applied to eval_uhlmann.py:
 |-------|--------|------------------|-------------|
 | Baseline (noisy) | --- | 0.167 | 1.00× |
 | MLP (deep, 8 layers) | 2.15M | 0.298 | 1.78× |
+| MLP (wide, 4× hidden) | 5.29M | 0.304 | 1.82× |
 | MLP (matched) | 1.09M | 0.342 | 2.04× |
 | Transformer | 1.09M | 0.375 | 2.25× |
 
 Key observations:
 - Transformer beats MLP by ~10% relative (0.375 vs 0.342)
 - Deep MLP performs WORSE than matched MLP despite 2× params
+- Wide MLP performs WORSE than matched MLP despite 5× params
 - Supports thesis: architecture > capacity
 
-Still running:
-- mlp_5qubit_wide (~46%)
-- mlp_8qubit (~44%)
-- transformer_8qubit (~46%)
+8-qubit eval in progress (baseline ~0.006, much lower than 5-qubit 0.167 as expected)
 
 ** Key Differences from Paper v3
 
