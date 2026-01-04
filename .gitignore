@@ -8,3 +8,10 @@ dataset.pt
 dataset*
 \#*\#
 *~
+
+# Large artifacts kept locally
+csvs/training_loss_log_transformer_frobenius.csv
+train_v6/train_v6.out
+train_v9/mlp_wide_wd1e-03/best.pt
+train_v9/mlp_wide_wd1e-04/best.pt
+nohup.out
