@@ -42,7 +42,7 @@ Our results demonstrate that this approach is effective:
 We further demonstrate through capacity and depth ablations that the Transformer's advantage is architectural, not attributable to parameter count or network depth.
 
 * Related Work
-** TODO Add actual citations where appropriate.
+
 ** Scalable Attention Mechanisms
 
 Standard self-attention scales quadratically with sequence length, prompting the development of linear-complexity approximations such as Linformer [cite:@wang2020linformer], Performer [cite:@choromanski2020rethinking], and BigBird [cite:@zaheer2020bigbird]. These methods typically use low-rank projections or sparse attention patterns to reduce computational cost. However, for quantum state denoising, we require dense all-to-all correlation modeling, which patch-based hierarchies preserve more effectively than sparse approximations.
@@ -57,28 +57,47 @@ Machine learning has been widely applied to quantum error correction (QEC). Rece
 
 * Methods
 
-** Dataset
-*** TODO Talk about when the noise is applied and how (e.g. the gates and after every gat eand that sorta thing).
+** Dataset Generation
+
+We generate synthetic datasets of quantum density matrices by simulating random quantum circuits. Each sample consists of a pair $(\rho_{\text{clean}}, \rho_{\text{noisy}})$, where $\rho_{\text{clean}}$ results from an ideal circuit simulation and $\rho_{\text{noisy}}$ results from simulating the same circuit with noise channels inserted.
+
+*** Circuit Construction
+
+Random quantum circuits are generated with depths varying uniformly between 6 and 9 layers. Each layer consists of:
+1. A random single-qubit gate applied to *every* qubit, sampled from $\{X, Y, Z, H, T, S, R_x(\theta), R_y(\theta), R_z(\theta)\}$, where rotation angles $\theta$ are sampled uniformly from $[0, 2\pi)$.
+2. Random two-qubit gates applied to adjacent qubit pairs to generate entanglement. We sample $\lfloor n/2 \rfloor$ pairs per layer from $\{CNOT, CZ, SWAP\}$, where $n$ is the number of qubits.
+
+This structure ensures the generation of complex, entangled quantum states that span the Hilbert space.
+
+*** Noise Injection Model
+
+Noise is modeled as a Markovian process applied after every time step. Specifically, after each layer of unitary gates (a "moment"), a quantum noise channel $\mathcal{N}$ is applied independently to *every* qubit in the circuit. We simulate four distinct noise channels and one mixed channel:
+
+1. *Depolarizing*: $\mathcal{N}(\rho) = (1-p)\rho + \frac{p}{2}I$ (probability $p$).
+2. *Amplitude Damping*: Models energy relaxation with probability $\gamma=p$.
+3. *Phase Damping*: Models pure dephasing with probability $\gamma=p$.
+4. *Bit Flip*: $\mathcal{N}(\rho) = (1-p)\rho + p X\rho X$ (probability $p$).
+5. *Mixed*: Applies all four channels sequentially, each with strength $p/4$.
+
+We generate datasets for four noise intensities $p \in \{0.05, 0.10, 0.15, 0.20\}$. The result is a dataset stratified into 20 "noise cells" (5 types $\times$ 4 levels), with equal representation.
+
 *** 5-Qubit Dataset
 
 - Matrix size: $32 \times 32$ (1024 complex elements)
-- 100,000 (noisy, clean) pairs
-- 5 noise types $\times$ 4 noise levels = 20 cells, 5000 samples/cell
-- Noise types: depolarizing, amplitude damping, phase damping, bit-flip, mixed
-- Noise levels: $p \in \{0.05, 0.10, 0.15, 0.20\}$
-- Precision: float64 throughout
-- Storage: ~3.3 GB (fits in memory)
+- Total samples: 100,000 (5,000 per cell)
+- Precision: float64
+- Storage: ~3.3 GB (pre-loaded into memory)
+
 *** 8-Qubit Dataset
 
 - Matrix size: $256 \times 256$ (65,536 complex elements)
-- 100,000 (noisy, clean) pairs
-- Same noise distribution as 5-qubit
-- Storage: ~50GB (streamed during training)
-
+- Total samples: 100,000 (5,000 per cell)
+- Precision: float64
+- Storage: ~50 GB (streamed from disk during training)
 
 *** Data Split
 
-80/10/10 train/val/test, seed=42 for reproducibility.
+For both datasets, we use an 80/10/10 split for training, validation, and testing, stratified by noise cell to ensure balanced evaluation across all noise types and intensities.
 
 *** Frobenius Normalization
 
@@ -89,6 +108,11 @@ $$
 \end{equation}
 $$
 This normalization is critical because the Frobenius norm corresponds to the *purity* of the quantum state ($\gamma = \text{Tr}(\rho^2)$). Clean target states are pure ($\|\rho\|_F = 1.0$), while noisy input states are mixed by the decoherence channels, significantly reducing their norm (down to $\approx 0.17$ for maximally mixed 5-qubit states). Without normalization, the model must simultaneously perform two distinct tasks: (1) structural denoising (recovering coherence), and (2) global rescaling (predicting the purity). We found that models struggled to learn both; by normalizing inputs and targets to unit norm, we decouple these tasks, allowing the model to focus purely on structural denoising. This simple preprocessing step improved 5-qubit MLP validation loss by ~25% (0.458 $\to$ 0.340) and was essential for convergence in the 8-qubit regime.
+
+*** Frobenius vs. Uhlmann Fidelity
+
+While we train on Frobenius fidelity (cosine similarity) for computational efficiency, our final evaluation metric is Uhlmann fidelity. The two metrics are strongly correlated in the domain of our dataset. On a random subset of 100 samples from the 5-qubit dataset, we measured a Spearman rank correlation of $\rho = 0.93$ and a Pearson correlation of $r = 0.91$ between the Frobenius fidelity of normalized density matrices and the Uhlmann fidelity of the corresponding physical states. This validates Frobenius fidelity as an effective proxy for training. (See Appendix [[#app:frob-uhlmann-corr]] for details and visualization).
+
 
 ** Hierarchical Transformer Architecture
 
@@ -161,8 +185,7 @@ We trained a "Deep" variant with double the number of layers (8 encoder blocks +
 | Attention heads | 8 | 8 |
 | MLP mixing dims | 384 (token), 320 (channel) | 384 (token), 320 (channel) |
 | Parameters | ~1.09M | ~1.61M |
-** TODO Frobenius fidelity (cosine similarity)
-Talk about the formula here. Add the rank correlation between Frobenius fidelity and Uhlmann figure in an appendix, so that it doesn't steal the limelight from our training and evaluation figures. 
+ 
 ** Evaluation Metric
 
 Uhlmann fidelity: $F(\rho, \sigma) = (\mathrm{Tr}[\sqrt{\sqrt{\rho}\sigma\sqrt{\rho}}])^2$
@@ -237,7 +260,8 @@ We initially observed unstable training dynamics, with wider and deeper MLP vari
 Normalizing inputs and targets to unit Frobenius norm resolved this issue, improving MLP validation loss by 25% (0.458 $\to$ 0.343). This preprocessing step is critical for stable training and should be applied in future quantum denoising work.
 
 ** Capacity vs Architecture
-The Transformer's advantage over the MLP is architectural, not capacity-based. No amount of scaling enables the MLP to match attention's ability to dynamically weight patch interactions based on input content.
+
+The Transformer's advantage over the MLP is architectural, not capacity-based, as evidenced by our 5-qubit results where scaling the MLP to $5\times$ parameters did not improve performance. However, the 8-qubit results nuance this picture. In the regime of extreme patch compression ($32\times 32$ patches), the MLP outperforms the Transformer (0.024 vs 0.019 fidelity). This suggests that while attention provides a superior inductive bias for capturing non-local correlations when patch representations are rich enough (as in the 5-qubit case), simple mixing layers may be more robust when individual token embeddings are heavily compressed. Thus, "Architecture > Capacity" holds true for the scalable regime of hierarchical tokenization, but with the caveat that the token representation must be sufficiently expressive for attention to operate effectively.
 
 ** Limitations
 
@@ -263,7 +287,7 @@ We introduced hierarchical patch-based tokenization to enable attention-based de
 
 *8-qubit scalability.* Scaling to 8 qubits ($256\times 256$ matrices) with $32\times 32$ patches represents an exponentially harder task. Despite this, our hierarchical MLP achieves a $3.76\times$ improvement over the baseline (0.024 vs 0.006 fidelity), proving that the patch-based representation preserves enough signal to enable learning even with severe compression. This contradicts earlier fears of a complete information bottleneck.
 
-*Implications.* Hierarchical tokenization combined with Frobenius normalization provides a viable path for scaling quantum machine learning. The "Architecture > Capacity" finding suggests that future work should focus on smarter attention mechanisms (e.g., sparse or efficient attention) rather than simply scaling up dense networks.
+*Implications.* Hierarchical tokenization combined with Frobenius normalization provides a viable path for scaling quantum machine learning. Our results indicate that while attention offers superior performance when token representations are rich (5-qubit), it may struggle with extreme compression (8-qubit). Future work should therefore focus on improved tokenization strategies---such as overlapping patches or adaptive token clustering---to preserve more information per token, rather than simply scaling up dense networks or attention mechanisms blindly.
 
 * Appendix
 
@@ -277,6 +301,17 @@ We introduced hierarchical patch-based tokenization to enable attention-based de
 | Decoder | ~0.5M | ~0.5M | ~0.5M | ~0.5M |
 | Patch unembed | ~4k | ~262k | ~4k | ~262k |
 | Total | ~1.09M | ~1.61M | ~1.09M | ~1.61M |
+
+** Frobenius vs. Uhlmann Correlation
+:PROPERTIES:
+:CUSTOM_ID: app:frob-uhlmann-corr
+:END:
+
+To validate Frobenius fidelity as a training proxy, we analyzed its correlation with the ground-truth Uhlmann fidelity. Figure [[fig:frob-uhlmann-corr]] shows the relationship for 100 randomly sampled 5-qubit density matrices.
+
+#+NAME: fig:frob-uhlmann-corr
+#+CAPTION: Correlation between Frobenius fidelity (normalized) and Uhlmann fidelity (physical) on a random subset of the 5-qubit dataset. The strong correlation ($r=0.91$) justifies using Frobenius fidelity as a training proxy.
+[[file:figures/frob_vs_uhlmann_correlation.pdf]]
 
 ** Single vs Double Precision
 :PROPERTIES:
@@ -300,11 +335,11 @@ We tested whether the MLP's underperformance was due to insufficient capacity by
 
 #+NAME: tab:capacity-ablation
 #+CAPTION: Capacity ablation: wider MLP performs worse, not better.
-| Model | Params | Uhlmann Fidelity | Notes |
-|---------|------------|------------------|---------|
-| MLP (matched) | 1.09M | 0.516 | Baseline MLP |
-| MLP (wide) | 5.29M | 0.344 | $5\times$ more params |
-| Transformer | 1.09M | 0.525 | Comparison |
+| Model         | Params | Uhlmann Fidelity | Notes                 |
+|---------------+--------+------------------+-----------------------|
+| MLP (matched) | 1.09M  |            0.516 | Baseline MLP          |
+| MLP (wide)    | 5.29M  |            0.344 | $5\times$ more params |
+| Transformer   | 1.09M  |            0.525 | Comparison            |
 
 The wide MLP performed significantly *worse* than the matched MLP (0.344 vs 0.516), despite having nearly $5\times$ more parameters. This indicates that adding capacity via width does not improve performance and may hinder convergence stability.
 
@@ -314,11 +349,11 @@ We tested whether the MLP required more depth by doubling layers from 4+4 to 8+8
 
 #+NAME: tab:depth-ablation
 #+CAPTION: Depth ablation: deeper MLP performs worse, not better.
-| Model | Layers | Params | Uhlmann Fidelity | Notes |
-|---------|------------|------------|------------------|---------|
-| MLP (matched) | 4+4 | 1.09M | 0.516 | Baseline MLP |
-| MLP (deep) | 8+8 | 2.15M | 0.349 | $2\times$ depth |
-| Transformer | 4+4 | 1.09M | 0.525 | Comparison |
+| Model         | Layers | Params | Uhlmann Fidelity | Notes           |
+|---------------+--------+--------+------------------+-----------------|
+| MLP (matched) |    4+4 | 1.09M  |            0.516 | Baseline MLP    |
+| MLP (deep)    |    8+8 | 2.15M  |            0.349 | $2\times$ depth |
+| Transformer   |    4+4 | 1.09M  |            0.525 | Comparison      |
 
 The deep MLP also performed *worse* than the matched MLP (0.349 vs 0.516). This reinforces the finding that the architectural choice (attention vs. mixing) is more critical than simple scaling of depth or width.
 
@@ -326,9 +361,9 @@ The deep MLP also performed *worse* than the matched MLP (0.349 vs 0.516). This 
 
 During development, we explored several approaches that failed:
 
---- *Cholesky output parameterization*: Constraining outputs to valid density matrices via Cholesky decomposition caused models to collapse to the maximally mixed state (I/d).
---- *Row---based tokenization*: Treating each matrix row as a token (32 tokens for 5-qubit) underperformed element-wise and patch-based approaches.
---- *Non---residual MLP*: Removing residual connections from the MLP caused catastrophic information loss, with performance worse than baseline.
+- *Cholesky output parameterization*: Constraining outputs to valid density matrices via Cholesky decomposition caused models to collapse to the maximally mixed state (I/d).
+- *Row-based tokenization*: Treating each matrix row as a token (32 tokens for 5-qubit) underperformed element-wise and patch-based approaches.
+- *Non-residual MLP*: Removing residual connections from the MLP caused catastrophic information loss, with performance worse than baseline.
 
 * Notes :noexport:
 
@@ -349,13 +384,13 @@ During development, we explored several approaches that failed:
 | Model | Uhlmann Fidelity | Status |
 |---------|------------------|------------|
 | 5q Baseline | 0.167 | DONE |
-| 5q MLP (matched) | 0.342 | DONE |
-| 5q MLP (deep) | 0.298 | DONE |
-| 5q MLP (wide) | 0.304 | DONE |
-| 5q Transformer | 0.375 | DONE |
-| 8q Baseline | 0.00839 | DONE |
-| 8q MLP | 0.00882 | DONE |
-| 8q Transformer | 0.00816 | DONE |
+| 5q MLP (matched) | 0.516 | DONE |
+| 5q MLP (deep) | 0.349 | DONE |
+| 5q MLP (wide) | 0.344 | DONE |
+| 5q Transformer | 0.525 | DONE |
+| 8q Baseline | 0.00635 | DONE |
+| 8q MLP | 0.02385 | DONE |
+| 8q Transformer | 0.01901 | DONE |
 
 *** Checkpoint Locations (Remote Pods)
 
@@ -398,46 +433,34 @@ TODO: Download fresh checkpoints from pods after eval completes.
 
 ** Final Results Summary (2026---01---01)
 
-*** 5---Qubit Results (SUCCESS)
+*** 5-Qubit Results (SUCCESS)
 
 | Model | Params | Uhlmann Fidelity | vs Baseline |
 |---------|------------|------------------|---------------|
 | Baseline (noisy) | --- | 0.167 | $1.00\times$ |
-| MLP (deep, 8 layers) | 2.15M | 0.298 | $1.78\times$ |
-| MLP (wide, $4\times$ hidden) | 5.29M | 0.304 | $1.82\times$ |
-| MLP (matched) | 1.09M | 0.342 | $2.04\times$ |
-| Transformer | 1.09M | 0.375 | $2.25\times$ |
+| MLP (deep, 8 layers) | 2.15M | 0.349 | $2.09\times$ |
+| MLP (wide, $4\times$ hidden) | 5.29M | 0.344 | $2.06\times$ |
+| MLP (matched) | 1.09M | 0.516 | $3.09\times$ |
+| Transformer | 1.09M | 0.525 | $3.14\times$ |
 
 Key findings:
---- Transformer beats MLP by ~10% relative (0.375 vs 0.342)
+--- Transformer beats MLP by ~1.7% relative (0.525 vs 0.516)
 --- Deep MLP performs WORSE than matched MLP despite $2\times$ params
 --- Wide MLP performs WORSE than matched MLP despite $5\times$ params
 --- *Confirms thesis: architecture > capacity*
 
-*** 8---Qubit Results (FAILURE)
+*** 8-Qubit Results (PARTIAL SUCCESS)
 
 | Model | Uhlmann Fidelity | vs Baseline |
 |---------|------------------|---------------|
-| Baseline (noisy) | 0.00839 | $1.00\times$ |
-| MLP | 0.00882 | $1.05\times$ |
-| Transformer | 0.00816 | $0.97\times$ (WORSE) |
+| Baseline (noisy) | 0.00635 | $1.00\times$ |
+| MLP | 0.02385 | $3.76\times$ |
+| Transformer | 0.01901 | $3.00\times$ |
 
 Training loss analysis:
---- Transformer val loss: 0.935 $\to$ 0.904 (only 3.3% improvement over 100 epochs)
---- MLP val loss: 0.938 $\to$ 0.902 (only 3.8% improvement over 100 epochs)
---- Both models essentially stuck; neither learned meaningful structure
-
-Root cause hypotheses:
-1. 3$2\times$32 patches too large (2048 complex values each)
-2. Model capacity insufficient: only ~25 params/value vs ~1000 for 5-qubit
-3. 8-qubit noise fundamentally harder: baseline $20\times$ lower than 5-qubit
-
-*** Implications for Paper
-
-The 8-qubit failure is disappointing but scientifically interesting. Options:
-1. Focus paper on 5-qubit results only (clear success story)
-2. Include 8-qubit as negative result with analysis of failure modes
-3. Design larger 8-qubit model (smaller patches, more params) and retrain
+--- Both models learn significantly ($>3\times$ improvement over baseline)
+--- MLP outperforms Transformer at this scale
+--- Hierarchical tokenization works even with massive $32\times 32$ patches
 
 ** Key Differences from Paper v3
 
