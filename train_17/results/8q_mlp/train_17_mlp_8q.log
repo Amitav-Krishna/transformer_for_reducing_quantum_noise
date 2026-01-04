@@ -1,0 +1,1615 @@
+Using device: cuda
+Train chunks: 80
+Val chunks: 10
+Test chunks: 10
+
+Using STREAMING + FROBENIUS NORMALIZATION
+
+============================================================
+Training MLP 8-qubit (v17 - Streaming + Frobenius)
+Parameters: 1,611,072
+Batch size: 64
+============================================================
+
+Epoch 1
+  batch 100 loss = 0.940147
+  batch 200 loss = 0.938522
+  batch 300 loss = 0.917383
+  batch 400 loss = 0.938278
+  batch 500 loss = 0.937218
+  batch 600 loss = 0.935121
+  batch 700 loss = 0.937483
+  batch 800 loss = 0.921127
+  batch 900 loss = 0.937102
+  batch 1000 loss = 0.903674
+  batch 1100 loss = 0.938300
+  batch 1200 loss = 0.910670
+  Total batches: 1250, final loss = 0.933748
+Validation loss: 0.929457
+Saved BEST checkpoint
+Epoch 2
+  batch 100 loss = 0.940182
+  batch 200 loss = 0.904810
+  batch 300 loss = 0.939308
+  batch 400 loss = 0.908253
+  batch 500 loss = 0.937145
+  batch 600 loss = 0.903932
+  batch 700 loss = 0.935885
+  batch 800 loss = 0.934659
+  batch 900 loss = 0.902998
+  batch 1000 loss = 0.897563
+  batch 1100 loss = 0.935478
+  batch 1200 loss = 0.936450
+  Total batches: 1250, final loss = 0.906465
+Validation loss: 0.926377
+Saved BEST checkpoint
+Epoch 3
+  batch 100 loss = 0.940209
+  batch 200 loss = 0.899195
+  batch 300 loss = 0.905933
+  batch 400 loss = 0.895718
+  batch 500 loss = 0.914816
+  batch 600 loss = 0.942075
+  batch 700 loss = 0.936714
+  batch 800 loss = 0.903478
+  batch 900 loss = 0.938763
+  batch 1000 loss = 0.938406
+  batch 1100 loss = 0.925735
+  batch 1200 loss = 0.901126
+  Total batches: 1250, final loss = 0.933780
+Validation loss: 0.926350
+Saved BEST checkpoint
+Epoch 4
+  batch 100 loss = 0.895579
+  batch 200 loss = 0.928418
+  batch 300 loss = 0.903244
+  batch 400 loss = 0.934789
+  batch 500 loss = 0.913906
+  batch 600 loss = 0.919261
+  batch 700 loss = 0.935294
+  batch 800 loss = 0.938115
+  batch 900 loss = 0.935797
+  batch 1000 loss = 0.893917
+  batch 1100 loss = 0.927355
+  batch 1200 loss = 0.923941
+  Total batches: 1250, final loss = 0.937816
+Validation loss: 0.925657
+Saved BEST checkpoint
+Epoch 5
+  batch 100 loss = 0.933342
+  batch 200 loss = 0.899242
+  batch 300 loss = 0.939188
+  batch 400 loss = 0.935352
+  batch 500 loss = 0.899865
+  batch 600 loss = 0.896377
+  batch 700 loss = 0.935898
+  batch 800 loss = 0.935028
+  batch 900 loss = 0.936054
+  batch 1000 loss = 0.909697
+  batch 1100 loss = 0.938343
+  batch 1200 loss = 0.903136
+  Total batches: 1250, final loss = 0.926952
+Validation loss: 0.924335
+Saved BEST checkpoint
+Epoch 6
+  batch 100 loss = 0.938798
+  batch 200 loss = 0.916048
+  batch 300 loss = 0.936384
+  batch 400 loss = 0.937302
+  batch 500 loss = 0.935317
+  batch 600 loss = 0.938302
+  batch 700 loss = 0.898312
+  batch 800 loss = 0.937554
+  batch 900 loss = 0.937175
+  batch 1000 loss = 0.910828
+  batch 1100 loss = 0.915219
+  batch 1200 loss = 0.936081
+  Total batches: 1250, final loss = 0.902268
+Validation loss: 0.924209
+Saved BEST checkpoint
+Epoch 7
+  batch 100 loss = 0.934090
+  batch 200 loss = 0.899811
+  batch 300 loss = 0.942742
+  batch 400 loss = 0.911417
+  batch 500 loss = 0.935065
+  batch 600 loss = 0.937425
+  batch 700 loss = 0.938529
+  batch 800 loss = 0.939917
+  batch 900 loss = 0.907784
+  batch 1000 loss = 0.907092
+  batch 1100 loss = 0.898475
+  batch 1200 loss = 0.933273
+  Total batches: 1250, final loss = 0.936553
+Validation loss: 0.923546
+Saved BEST checkpoint
+Epoch 8
+  batch 100 loss = 0.937440
+  batch 200 loss = 0.893755
+  batch 300 loss = 0.950317
+  batch 400 loss = 0.917404
+  batch 500 loss = 0.899244
+  batch 600 loss = 0.936348
+  batch 700 loss = 0.936024
+  batch 800 loss = 0.937112
+  batch 900 loss = 0.926231
+  batch 1000 loss = 0.902336
+  batch 1100 loss = 0.923029
+  batch 1200 loss = 0.895192
+  Total batches: 1250, final loss = 0.920611
+Validation loss: 0.922751
+Saved BEST checkpoint
+Epoch 9
+  batch 100 loss = 0.923390
+  batch 200 loss = 0.937225
+  batch 300 loss = 0.926888
+  batch 400 loss = 0.935138
+  batch 500 loss = 0.899219
+  batch 600 loss = 0.914666
+  batch 700 loss = 0.897438
+  batch 800 loss = 0.936641
+  batch 900 loss = 0.935662
+  batch 1000 loss = 0.893617
+  batch 1100 loss = 0.938099
+  batch 1200 loss = 0.938387
+  Total batches: 1250, final loss = 0.891858
+Validation loss: 0.926770
+No improvement for 1 epochs
+Epoch 10
+  batch 100 loss = 0.928304
+  batch 200 loss = 0.911812
+  batch 300 loss = 0.896674
+  batch 400 loss = 0.935954
+  batch 500 loss = 0.936556
+  batch 600 loss = 0.936681
+  batch 700 loss = 0.936131
+  batch 800 loss = 0.900396
+  batch 900 loss = 0.914051
+  batch 1000 loss = 0.891864
+  batch 1100 loss = 0.897847
+  batch 1200 loss = 0.911365
+  Total batches: 1250, final loss = 0.932787
+Validation loss: 0.923255
+No improvement for 2 epochs
+Epoch 11
+  batch 100 loss = 0.891824
+  batch 200 loss = 0.898106
+  batch 300 loss = 0.933387
+  batch 400 loss = 0.936093
+  batch 500 loss = 0.897683
+  batch 600 loss = 0.890979
+  batch 700 loss = 0.935289
+  batch 800 loss = 0.937685
+  batch 900 loss = 0.937941
+  batch 1000 loss = 0.897614
+  batch 1100 loss = 0.923869
+  batch 1200 loss = 0.900577
+  Total batches: 1250, final loss = 0.897023
+Validation loss: 0.924490
+No improvement for 3 epochs
+Epoch 12
+  batch 100 loss = 0.934972
+  batch 200 loss = 0.920397
+  batch 300 loss = 0.900090
+  batch 400 loss = 0.896444
+  batch 500 loss = 0.937279
+  batch 600 loss = 0.937624
+  batch 700 loss = 0.937330
+  batch 800 loss = 0.890816
+  batch 900 loss = 0.936210
+  batch 1000 loss = 0.926177
+  batch 1100 loss = 0.940884
+  batch 1200 loss = 0.916355
+  Total batches: 1250, final loss = 0.934141
+Validation loss: 0.919722
+Saved BEST checkpoint
+Epoch 13
+  batch 100 loss = 0.909365
+  batch 200 loss = 0.937588
+  batch 300 loss = 0.884169
+  batch 400 loss = 0.905320
+  batch 500 loss = 0.936099
+  batch 600 loss = 0.886778
+  batch 700 loss = 0.923277
+  batch 800 loss = 0.936802
+  batch 900 loss = 0.883690
+  batch 1000 loss = 0.935328
+  batch 1100 loss = 0.903288
+  batch 1200 loss = 0.918126
+  Total batches: 1250, final loss = 0.927243
+Validation loss: 0.918502
+Saved BEST checkpoint
+Epoch 14
+  batch 100 loss = 0.935053
+  batch 200 loss = 0.935673
+  batch 300 loss = 0.933074
+  batch 400 loss = 0.910489
+  batch 500 loss = 0.936573
+  batch 600 loss = 0.917036
+  batch 700 loss = 0.937802
+  batch 800 loss = 0.920095
+  batch 900 loss = 0.933086
+  batch 1000 loss = 0.885908
+  batch 1100 loss = 0.888807
+  batch 1200 loss = 0.936463
+  Total batches: 1250, final loss = 0.937185
+Validation loss: 0.918257
+Saved BEST checkpoint
+Epoch 15
+  batch 100 loss = 0.931999
+  batch 200 loss = 0.898266
+  batch 300 loss = 0.881829
+  batch 400 loss = 0.880018
+  batch 500 loss = 0.932308
+  batch 600 loss = 0.939385
+  batch 700 loss = 0.876787
+  batch 800 loss = 0.909313
+  batch 900 loss = 0.936796
+  batch 1000 loss = 0.936588
+  batch 1100 loss = 0.938468
+  batch 1200 loss = 0.931726
+  Total batches: 1250, final loss = 0.878889
+Validation loss: 0.919534
+No improvement for 1 epochs
+Epoch 16
+  batch 100 loss = 0.915064
+  batch 200 loss = 0.937170
+  batch 300 loss = 0.932015
+  batch 400 loss = 0.873050
+  batch 500 loss = 0.932682
+  batch 600 loss = 0.893760
+  batch 700 loss = 0.936756
+  batch 800 loss = 0.897455
+  batch 900 loss = 0.878962
+  batch 1000 loss = 0.904549
+  batch 1100 loss = 0.938304
+  batch 1200 loss = 0.881283
+  Total batches: 1250, final loss = 0.885172
+Validation loss: 0.919783
+No improvement for 2 epochs
+Epoch 17
+  batch 100 loss = 0.909871
+  batch 200 loss = 0.883823
+  batch 300 loss = 0.889395
+  batch 400 loss = 0.935506
+  batch 500 loss = 0.909882
+  batch 600 loss = 0.936434
+  batch 700 loss = 0.938134
+  batch 800 loss = 0.939235
+  batch 900 loss = 0.937629
+  batch 1000 loss = 0.930501
+  batch 1100 loss = 0.906803
+  batch 1200 loss = 0.930848
+  Total batches: 1250, final loss = 0.915857
+Validation loss: 0.918151
+Saved BEST checkpoint
+Epoch 18
+  batch 100 loss = 0.935835
+  batch 200 loss = 0.877200
+  batch 300 loss = 0.910315
+  batch 400 loss = 0.881256
+  batch 500 loss = 0.871866
+  batch 600 loss = 0.937757
+  batch 700 loss = 0.882104
+  batch 800 loss = 0.884702
+  batch 900 loss = 0.875783
+  batch 1000 loss = 0.876267
+  batch 1100 loss = 0.878249
+  batch 1200 loss = 0.937984
+  Total batches: 1250, final loss = 0.919778
+Validation loss: 0.914573
+Saved BEST checkpoint
+Epoch 19
+  batch 100 loss = 0.904707
+  batch 200 loss = 0.936651
+  batch 300 loss = 0.891535
+  batch 400 loss = 0.937263
+  batch 500 loss = 0.883393
+  batch 600 loss = 0.872614
+  batch 700 loss = 0.937496
+  batch 800 loss = 0.877516
+  batch 900 loss = 0.880431
+  batch 1000 loss = 0.937260
+  batch 1100 loss = 0.918301
+  batch 1200 loss = 0.932501
+  Total batches: 1250, final loss = 0.907863
+Validation loss: 0.914404
+Saved BEST checkpoint
+Epoch 20
+  batch 100 loss = 0.914755
+  batch 200 loss = 0.935987
+  batch 300 loss = 0.884833
+  batch 400 loss = 0.881753
+  batch 500 loss = 0.922694
+  batch 600 loss = 0.933790
+  batch 700 loss = 0.879602
+  batch 800 loss = 0.935320
+  batch 900 loss = 0.936217
+  batch 1000 loss = 0.897220
+  batch 1100 loss = 0.938819
+  batch 1200 loss = 0.903278
+  Total batches: 1250, final loss = 0.930303
+Validation loss: 0.917627
+No improvement for 1 epochs
+Epoch 21
+  batch 100 loss = 0.885944
+  batch 200 loss = 0.938321
+  batch 300 loss = 0.880537
+  batch 400 loss = 0.882537
+  batch 500 loss = 0.897074
+  batch 600 loss = 0.938209
+  batch 700 loss = 0.878051
+  batch 800 loss = 0.911884
+  batch 900 loss = 0.934390
+  batch 1000 loss = 0.938928
+  batch 1100 loss = 0.878945
+  batch 1200 loss = 0.884252
+  Total batches: 1250, final loss = 0.881102
+Validation loss: 0.915726
+No improvement for 2 epochs
+Epoch 22
+  batch 100 loss = 0.872291
+  batch 200 loss = 0.932644
+  batch 300 loss = 0.901143
+  batch 400 loss = 0.936931
+  batch 500 loss = 0.901069
+  batch 600 loss = 0.936902
+  batch 700 loss = 0.931519
+  batch 800 loss = 0.876960
+  batch 900 loss = 0.917096
+  batch 1000 loss = 0.876114
+  batch 1100 loss = 0.930915
+  batch 1200 loss = 0.930672
+  Total batches: 1250, final loss = 0.906182
+Validation loss: 0.915767
+No improvement for 3 epochs
+Epoch 23
+  batch 100 loss = 0.937566
+  batch 200 loss = 0.883959
+  batch 300 loss = 0.876274
+  batch 400 loss = 0.871247
+  batch 500 loss = 0.912073
+  batch 600 loss = 0.910621
+  batch 700 loss = 0.929793
+  batch 800 loss = 0.875120
+  batch 900 loss = 0.857722
+  batch 1000 loss = 0.866822
+  batch 1100 loss = 0.881436
+  batch 1200 loss = 0.933102
+  Total batches: 1250, final loss = 0.873172
+Validation loss: 0.913727
+Saved BEST checkpoint
+Epoch 24
+  batch 100 loss = 0.878031
+  batch 200 loss = 0.932075
+  batch 300 loss = 0.937611
+  batch 400 loss = 0.901510
+  batch 500 loss = 0.869799
+  batch 600 loss = 0.939837
+  batch 700 loss = 0.933105
+  batch 800 loss = 0.934559
+  batch 900 loss = 0.932399
+  batch 1000 loss = 0.899529
+  batch 1100 loss = 0.910075
+  batch 1200 loss = 0.868704
+  Total batches: 1250, final loss = 0.936481
+Validation loss: 0.912839
+Saved BEST checkpoint
+Epoch 25
+  batch 100 loss = 0.870906
+  batch 200 loss = 0.934567
+  batch 300 loss = 0.881648
+  batch 400 loss = 0.930935
+  batch 500 loss = 0.906484
+  batch 600 loss = 0.929609
+  batch 700 loss = 0.936188
+  batch 800 loss = 0.895681
+  batch 900 loss = 0.864783
+  batch 1000 loss = 0.937375
+  batch 1100 loss = 0.876516
+  batch 1200 loss = 0.875104
+  Total batches: 1250, final loss = 0.936219
+Validation loss: 0.911758
+Saved BEST checkpoint
+Epoch 26
+  batch 100 loss = 0.899211
+  batch 200 loss = 0.907765
+  batch 300 loss = 0.913694
+  batch 400 loss = 0.875801
+  batch 500 loss = 0.933852
+  batch 600 loss = 0.938152
+  batch 700 loss = 0.859153
+  batch 800 loss = 0.909166
+  batch 900 loss = 0.876058
+  batch 1000 loss = 0.858318
+  batch 1100 loss = 0.878096
+  batch 1200 loss = 0.875457
+  Total batches: 1250, final loss = 0.881057
+Validation loss: 0.910910
+Saved BEST checkpoint
+Epoch 27
+  batch 100 loss = 0.893972
+  batch 200 loss = 0.851838
+  batch 300 loss = 0.877560
+  batch 400 loss = 0.936910
+  batch 500 loss = 0.862541
+  batch 600 loss = 0.883370
+  batch 700 loss = 0.901413
+  batch 800 loss = 0.879979
+  batch 900 loss = 0.937288
+  batch 1000 loss = 0.936843
+  batch 1100 loss = 0.933973
+  batch 1200 loss = 0.928848
+  Total batches: 1250, final loss = 0.910062
+Validation loss: 0.911136
+No improvement for 1 epochs
+Epoch 28
+  batch 100 loss = 0.938190
+  batch 200 loss = 0.935922
+  batch 300 loss = 0.938556
+  batch 400 loss = 0.876603
+  batch 500 loss = 0.938197
+  batch 600 loss = 0.895189
+  batch 700 loss = 0.911863
+  batch 800 loss = 0.931745
+  batch 900 loss = 0.873246
+  batch 1000 loss = 0.858816
+  batch 1100 loss = 0.868525
+  batch 1200 loss = 0.905516
+  Total batches: 1250, final loss = 0.862303
+Validation loss: 0.912108
+No improvement for 2 epochs
+Epoch 29
+  batch 100 loss = 0.875346
+  batch 200 loss = 0.882817
+  batch 300 loss = 0.872994
+  batch 400 loss = 0.907411
+  batch 500 loss = 0.936522
+  batch 600 loss = 0.860660
+  batch 700 loss = 0.856195
+  batch 800 loss = 0.936447
+  batch 900 loss = 0.911383
+  batch 1000 loss = 0.860944
+  batch 1100 loss = 0.867835
+  batch 1200 loss = 0.877339
+  Total batches: 1250, final loss = 0.895755
+Validation loss: 0.913818
+No improvement for 3 epochs
+Epoch 30
+  batch 100 loss = 0.872204
+  batch 200 loss = 0.863808
+  batch 300 loss = 0.864349
+  batch 400 loss = 0.903318
+  batch 500 loss = 0.935346
+  batch 600 loss = 0.938227
+  batch 700 loss = 0.853548
+  batch 800 loss = 0.940625
+  batch 900 loss = 0.938767
+  batch 1000 loss = 0.908611
+  batch 1100 loss = 0.939945
+  batch 1200 loss = 0.931499
+  Total batches: 1250, final loss = 0.934938
+Validation loss: 0.912241
+No improvement for 4 epochs
+Epoch 31
+  batch 100 loss = 0.903474
+  batch 200 loss = 0.938212
+  batch 300 loss = 0.858565
+  batch 400 loss = 0.929526
+  batch 500 loss = 0.929976
+  batch 600 loss = 0.887992
+  batch 700 loss = 0.848702
+  batch 800 loss = 0.927629
+  batch 900 loss = 0.928886
+  batch 1000 loss = 0.927007
+  batch 1100 loss = 0.890542
+  batch 1200 loss = 0.881633
+  Total batches: 1250, final loss = 0.835572
+Validation loss: 0.904290
+Saved BEST checkpoint
+Epoch 32
+  batch 100 loss = 0.938815
+  batch 200 loss = 0.932851
+  batch 300 loss = 0.849841
+  batch 400 loss = 0.904968
+  batch 500 loss = 0.841178
+  batch 600 loss = 0.883694
+  batch 700 loss = 0.860812
+  batch 800 loss = 0.936211
+  batch 900 loss = 0.882517
+  batch 1000 loss = 0.928106
+  batch 1100 loss = 0.895971
+  batch 1200 loss = 0.937537
+  Total batches: 1250, final loss = 0.857092
+Validation loss: 0.907641
+No improvement for 1 epochs
+Epoch 33
+  batch 100 loss = 0.925702
+  batch 200 loss = 0.929985
+  batch 300 loss = 0.850627
+  batch 400 loss = 0.837603
+  batch 500 loss = 0.934887
+  batch 600 loss = 0.943144
+  batch 700 loss = 0.934373
+  batch 800 loss = 0.934526
+  batch 900 loss = 0.831680
+  batch 1000 loss = 0.929325
+  batch 1100 loss = 0.938645
+  batch 1200 loss = 0.873833
+  Total batches: 1250, final loss = 0.895864
+Validation loss: 0.898428
+Saved BEST checkpoint
+Epoch 34
+  batch 100 loss = 0.906452
+  batch 200 loss = 0.839310
+  batch 300 loss = 0.939846
+  batch 400 loss = 0.931725
+  batch 500 loss = 0.854870
+  batch 600 loss = 0.848448
+  batch 700 loss = 0.900544
+  batch 800 loss = 0.937781
+  batch 900 loss = 0.931405
+  batch 1000 loss = 0.831785
+  batch 1100 loss = 0.893705
+  batch 1200 loss = 0.838285
+  Total batches: 1250, final loss = 0.850016
+Validation loss: 0.897323
+Saved BEST checkpoint
+Epoch 35
+  batch 100 loss = 0.829908
+  batch 200 loss = 0.853264
+  batch 300 loss = 0.898228
+  batch 400 loss = 0.919597
+  batch 500 loss = 0.937060
+  batch 600 loss = 0.899567
+  batch 700 loss = 0.857418
+  batch 800 loss = 0.934563
+  batch 900 loss = 0.895523
+  batch 1000 loss = 0.937003
+  batch 1100 loss = 0.930162
+  batch 1200 loss = 0.878551
+  Total batches: 1250, final loss = 0.848266
+Validation loss: 0.900421
+No improvement for 1 epochs
+Epoch 36
+  batch 100 loss = 0.926380
+  batch 200 loss = 0.932708
+  batch 300 loss = 0.888730
+  batch 400 loss = 0.923470
+  batch 500 loss = 0.898551
+  batch 600 loss = 0.929975
+  batch 700 loss = 0.923627
+  batch 800 loss = 0.884376
+  batch 900 loss = 0.905591
+  batch 1000 loss = 0.825294
+  batch 1100 loss = 0.875142
+  batch 1200 loss = 0.848204
+  Total batches: 1250, final loss = 0.842336
+Validation loss: 0.901445
+No improvement for 2 epochs
+Epoch 37
+  batch 100 loss = 0.852601
+  batch 200 loss = 0.933336
+  batch 300 loss = 0.925152
+  batch 400 loss = 0.850645
+  batch 500 loss = 0.937915
+  batch 600 loss = 0.814250
+  batch 700 loss = 0.937942
+  batch 800 loss = 0.940345
+  batch 900 loss = 0.841614
+  batch 1000 loss = 0.936731
+  batch 1100 loss = 0.931136
+  batch 1200 loss = 0.927596
+  Total batches: 1250, final loss = 0.937273
+Validation loss: 0.898488
+No improvement for 3 epochs
+Epoch 38
+  batch 100 loss = 0.847006
+  batch 200 loss = 0.826384
+  batch 300 loss = 0.827481
+  batch 400 loss = 0.887505
+  batch 500 loss = 0.935955
+  batch 600 loss = 0.844877
+  batch 700 loss = 0.889405
+  batch 800 loss = 0.844985
+  batch 900 loss = 0.926943
+  batch 1000 loss = 0.826059
+  batch 1100 loss = 0.875381
+  batch 1200 loss = 0.832921
+  Total batches: 1250, final loss = 0.927089
+Validation loss: 0.893482
+Saved BEST checkpoint
+Epoch 39
+  batch 100 loss = 0.822783
+  batch 200 loss = 0.839621
+  batch 300 loss = 0.926021
+  batch 400 loss = 0.831324
+  batch 500 loss = 0.874418
+  batch 600 loss = 0.942346
+  batch 700 loss = 0.937196
+  batch 800 loss = 0.838915
+  batch 900 loss = 0.840499
+  batch 1000 loss = 0.898377
+  batch 1100 loss = 0.937747
+  batch 1200 loss = 0.934698
+  Total batches: 1250, final loss = 0.830809
+Validation loss: 0.895532
+No improvement for 1 epochs
+Epoch 40
+  batch 100 loss = 0.929517
+  batch 200 loss = 0.884471
+  batch 300 loss = 0.922284
+  batch 400 loss = 0.819992
+  batch 500 loss = 0.922119
+  batch 600 loss = 0.823051
+  batch 700 loss = 0.812465
+  batch 800 loss = 0.930803
+  batch 900 loss = 0.934568
+  batch 1000 loss = 0.868013
+  batch 1100 loss = 0.938695
+  batch 1200 loss = 0.826600
+  Total batches: 1250, final loss = 0.933971
+Validation loss: 0.891826
+Saved BEST checkpoint
+Epoch 41
+  batch 100 loss = 0.875548
+  batch 200 loss = 0.922485
+  batch 300 loss = 0.882893
+  batch 400 loss = 0.938820
+  batch 500 loss = 0.810168
+  batch 600 loss = 0.935491
+  batch 700 loss = 0.935931
+  batch 800 loss = 0.925734
+  batch 900 loss = 0.937702
+  batch 1000 loss = 0.886038
+  batch 1100 loss = 0.936111
+  batch 1200 loss = 0.826679
+  Total batches: 1250, final loss = 0.888903
+Validation loss: 0.891039
+Saved BEST checkpoint
+Epoch 42
+  batch 100 loss = 0.881763
+  batch 200 loss = 0.890765
+  batch 300 loss = 0.873927
+  batch 400 loss = 0.820650
+  batch 500 loss = 0.889220
+  batch 600 loss = 0.827566
+  batch 700 loss = 0.832194
+  batch 800 loss = 0.812190
+  batch 900 loss = 0.840313
+  batch 1000 loss = 0.885761
+  batch 1100 loss = 0.825110
+  batch 1200 loss = 0.814774
+  Total batches: 1250, final loss = 0.932230
+Validation loss: 0.894015
+No improvement for 1 epochs
+Epoch 43
+  batch 100 loss = 0.837067
+  batch 200 loss = 0.814351
+  batch 300 loss = 0.934298
+  batch 400 loss = 0.903517
+  batch 500 loss = 0.865972
+  batch 600 loss = 0.836180
+  batch 700 loss = 0.937426
+  batch 800 loss = 0.923667
+  batch 900 loss = 0.898747
+  batch 1000 loss = 0.796705
+  batch 1100 loss = 0.858107
+  batch 1200 loss = 0.858993
+  Total batches: 1250, final loss = 0.802344
+Validation loss: 0.894065
+No improvement for 2 epochs
+Epoch 44
+  batch 100 loss = 0.926135
+  batch 200 loss = 0.920058
+  batch 300 loss = 0.925718
+  batch 400 loss = 0.808006
+  batch 500 loss = 0.906684
+  batch 600 loss = 0.937270
+  batch 700 loss = 0.824177
+  batch 800 loss = 0.861512
+  batch 900 loss = 0.816862
+  batch 1000 loss = 0.836130
+  batch 1100 loss = 0.831804
+  batch 1200 loss = 0.810912
+  Total batches: 1250, final loss = 0.862106
+Validation loss: 0.888736
+Saved BEST checkpoint
+Epoch 45
+  batch 100 loss = 0.860056
+  batch 200 loss = 0.935161
+  batch 300 loss = 0.883184
+  batch 400 loss = 0.934098
+  batch 500 loss = 0.868087
+  batch 600 loss = 0.931795
+  batch 700 loss = 0.879082
+  batch 800 loss = 0.884527
+  batch 900 loss = 0.825352
+  batch 1000 loss = 0.812440
+  batch 1100 loss = 0.834592
+  batch 1200 loss = 0.837190
+  Total batches: 1250, final loss = 0.935366
+Validation loss: 0.892521
+No improvement for 1 epochs
+Epoch 46
+  batch 100 loss = 0.855562
+  batch 200 loss = 0.918984
+  batch 300 loss = 0.826133
+  batch 400 loss = 0.926228
+  batch 500 loss = 0.936975
+  batch 600 loss = 0.825517
+  batch 700 loss = 0.884559
+  batch 800 loss = 0.924528
+  batch 900 loss = 0.923051
+  batch 1000 loss = 0.853312
+  batch 1100 loss = 0.920183
+  batch 1200 loss = 0.936497
+  Total batches: 1250, final loss = 0.933202
+Validation loss: 0.888399
+Saved BEST checkpoint
+Epoch 47
+  batch 100 loss = 0.935461
+  batch 200 loss = 0.923877
+  batch 300 loss = 0.866166
+  batch 400 loss = 0.834000
+  batch 500 loss = 0.814713
+  batch 600 loss = 0.923481
+  batch 700 loss = 0.827328
+  batch 800 loss = 0.828616
+  batch 900 loss = 0.854691
+  batch 1000 loss = 0.890226
+  batch 1100 loss = 0.826006
+  batch 1200 loss = 0.920471
+  Total batches: 1250, final loss = 0.921475
+Validation loss: 0.885469
+Saved BEST checkpoint
+Epoch 48
+  batch 100 loss = 0.936997
+  batch 200 loss = 0.935877
+  batch 300 loss = 0.925084
+  batch 400 loss = 0.876209
+  batch 500 loss = 0.856013
+  batch 600 loss = 0.817026
+  batch 700 loss = 0.826614
+  batch 800 loss = 0.893792
+  batch 900 loss = 0.916795
+  batch 1000 loss = 0.860758
+  batch 1100 loss = 0.820069
+  batch 1200 loss = 0.919297
+  Total batches: 1250, final loss = 0.821197
+Validation loss: 0.894409
+No improvement for 1 epochs
+Epoch 49
+  batch 100 loss = 0.935453
+  batch 200 loss = 0.825511
+  batch 300 loss = 0.890715
+  batch 400 loss = 0.939825
+  batch 500 loss = 0.805546
+  batch 600 loss = 0.801212
+  batch 700 loss = 0.928476
+  batch 800 loss = 0.938849
+  batch 900 loss = 0.819290
+  batch 1000 loss = 0.935519
+  batch 1100 loss = 0.830151
+  batch 1200 loss = 0.934933
+  Total batches: 1250, final loss = 0.918769
+Validation loss: 0.881716
+Saved BEST checkpoint
+Epoch 50
+  batch 100 loss = 0.929407
+  batch 200 loss = 0.938548
+  batch 300 loss = 0.782772
+  batch 400 loss = 0.849670
+  batch 500 loss = 0.801298
+  batch 600 loss = 0.935136
+  batch 700 loss = 0.883965
+  batch 800 loss = 0.937209
+  batch 900 loss = 0.927835
+  batch 1000 loss = 0.857265
+  batch 1100 loss = 0.853986
+  batch 1200 loss = 0.816462
+  Total batches: 1250, final loss = 0.807468
+Validation loss: 0.883296
+No improvement for 1 epochs
+Epoch 51
+  batch 100 loss = 0.922442
+  batch 200 loss = 0.819732
+  batch 300 loss = 0.854616
+  batch 400 loss = 0.795660
+  batch 500 loss = 0.879313
+  batch 600 loss = 0.935072
+  batch 700 loss = 0.838841
+  batch 800 loss = 0.867958
+  batch 900 loss = 0.926268
+  batch 1000 loss = 0.934350
+  batch 1100 loss = 0.792809
+  batch 1200 loss = 0.920754
+  Total batches: 1250, final loss = 0.877120
+Validation loss: 0.879525
+Saved BEST checkpoint
+Epoch 52
+  batch 100 loss = 0.938541
+  batch 200 loss = 0.810630
+  batch 300 loss = 0.796509
+  batch 400 loss = 0.818015
+  batch 500 loss = 0.845334
+  batch 600 loss = 0.936880
+  batch 700 loss = 0.848537
+  batch 800 loss = 0.847443
+  batch 900 loss = 0.829742
+  batch 1000 loss = 0.886748
+  batch 1100 loss = 0.902499
+  batch 1200 loss = 0.796300
+  Total batches: 1250, final loss = 0.844195
+Validation loss: 0.886221
+No improvement for 1 epochs
+Epoch 53
+  batch 100 loss = 0.822607
+  batch 200 loss = 0.934440
+  batch 300 loss = 0.927841
+  batch 400 loss = 0.877887
+  batch 500 loss = 0.934921
+  batch 600 loss = 0.783407
+  batch 700 loss = 0.915054
+  batch 800 loss = 0.881204
+  batch 900 loss = 0.899357
+  batch 1000 loss = 0.807693
+  batch 1100 loss = 0.789637
+  batch 1200 loss = 0.793725
+  Total batches: 1250, final loss = 0.918661
+Validation loss: 0.885867
+No improvement for 2 epochs
+Epoch 54
+  batch 100 loss = 0.929239
+  batch 200 loss = 0.852155
+  batch 300 loss = 0.941352
+  batch 400 loss = 0.819342
+  batch 500 loss = 0.890196
+  batch 600 loss = 0.873360
+  batch 700 loss = 0.845370
+  batch 800 loss = 0.929617
+  batch 900 loss = 0.847896
+  batch 1000 loss = 0.793447
+  batch 1100 loss = 0.816567
+  batch 1200 loss = 0.798657
+  Total batches: 1250, final loss = 0.811907
+Validation loss: 0.884618
+No improvement for 3 epochs
+Epoch 55
+  batch 100 loss = 0.882127
+  batch 200 loss = 0.834804
+  batch 300 loss = 0.933074
+  batch 400 loss = 0.786367
+  batch 500 loss = 0.805465
+  batch 600 loss = 0.910162
+  batch 700 loss = 0.848208
+  batch 800 loss = 0.861951
+  batch 900 loss = 0.852674
+  batch 1000 loss = 0.937920
+  batch 1100 loss = 0.921850
+  batch 1200 loss = 0.791199
+  Total batches: 1250, final loss = 0.801583
+Validation loss: 0.887922
+No improvement for 4 epochs
+Epoch 56
+  batch 100 loss = 0.792209
+  batch 200 loss = 0.847901
+  batch 300 loss = 0.864185
+  batch 400 loss = 0.935907
+  batch 500 loss = 0.936990
+  batch 600 loss = 0.915772
+  batch 700 loss = 0.927443
+  batch 800 loss = 0.922907
+  batch 900 loss = 0.923325
+  batch 1000 loss = 0.804505
+  batch 1100 loss = 0.925360
+  batch 1200 loss = 0.936078
+  Total batches: 1250, final loss = 0.876768
+Validation loss: 0.876931
+Saved BEST checkpoint
+Epoch 57
+  batch 100 loss = 0.888619
+  batch 200 loss = 0.890392
+  batch 300 loss = 0.812488
+  batch 400 loss = 0.778726
+  batch 500 loss = 0.839188
+  batch 600 loss = 0.794224
+  batch 700 loss = 0.803066
+  batch 800 loss = 0.939318
+  batch 900 loss = 0.803385
+  batch 1000 loss = 0.914318
+  batch 1100 loss = 0.820565
+  batch 1200 loss = 0.920283
+  Total batches: 1250, final loss = 0.790230
+Validation loss: 0.880705
+No improvement for 1 epochs
+Epoch 58
+  batch 100 loss = 0.915602
+  batch 200 loss = 0.793811
+  batch 300 loss = 0.789529
+  batch 400 loss = 0.854373
+  batch 500 loss = 0.846770
+  batch 600 loss = 0.881708
+  batch 700 loss = 0.808488
+  batch 800 loss = 0.801980
+  batch 900 loss = 0.898191
+  batch 1000 loss = 0.936996
+  batch 1100 loss = 0.918158
+  batch 1200 loss = 0.934278
+  Total batches: 1250, final loss = 0.935628
+Validation loss: 0.884660
+No improvement for 2 epochs
+Epoch 59
+  batch 100 loss = 0.912135
+  batch 200 loss = 0.780655
+  batch 300 loss = 0.931078
+  batch 400 loss = 0.836678
+  batch 500 loss = 0.782033
+  batch 600 loss = 0.924498
+  batch 700 loss = 0.935525
+  batch 800 loss = 0.938877
+  batch 900 loss = 0.934961
+  batch 1000 loss = 0.802473
+  batch 1100 loss = 0.932360
+  batch 1200 loss = 0.862902
+  Total batches: 1250, final loss = 0.788820
+Validation loss: 0.881244
+No improvement for 3 epochs
+Epoch 60
+  batch 100 loss = 0.804721
+  batch 200 loss = 0.913137
+  batch 300 loss = 0.797829
+  batch 400 loss = 0.797749
+  batch 500 loss = 0.782213
+  batch 600 loss = 0.846590
+  batch 700 loss = 0.936227
+  batch 800 loss = 0.917823
+  batch 900 loss = 0.865612
+  batch 1000 loss = 0.788304
+  batch 1100 loss = 0.796846
+  batch 1200 loss = 0.856802
+  Total batches: 1250, final loss = 0.935442
+Validation loss: 0.879182
+No improvement for 4 epochs
+Epoch 61
+  batch 100 loss = 0.787663
+  batch 200 loss = 0.935772
+  batch 300 loss = 0.936358
+  batch 400 loss = 0.775440
+  batch 500 loss = 0.872873
+  batch 600 loss = 0.848593
+  batch 700 loss = 0.933402
+  batch 800 loss = 0.881983
+  batch 900 loss = 0.801591
+  batch 1000 loss = 0.841657
+  batch 1100 loss = 0.919416
+  batch 1200 loss = 0.785014
+  Total batches: 1250, final loss = 0.839772
+Validation loss: 0.878968
+No improvement for 5 epochs
+Epoch 62
+  batch 100 loss = 0.790681
+  batch 200 loss = 0.797765
+  batch 300 loss = 0.799657
+  batch 400 loss = 0.923535
+  batch 500 loss = 0.770719
+  batch 600 loss = 0.775651
+  batch 700 loss = 0.800264
+  batch 800 loss = 0.861573
+  batch 900 loss = 0.917240
+  batch 1000 loss = 0.793997
+  batch 1100 loss = 0.803922
+  batch 1200 loss = 0.932090
+  Total batches: 1250, final loss = 0.917517
+Validation loss: 0.875816
+Saved BEST checkpoint
+Epoch 63
+  batch 100 loss = 0.796471
+  batch 200 loss = 0.905473
+  batch 300 loss = 0.933046
+  batch 400 loss = 0.866018
+  batch 500 loss = 0.806251
+  batch 600 loss = 0.810018
+  batch 700 loss = 0.927735
+  batch 800 loss = 0.886027
+  batch 900 loss = 0.931707
+  batch 1000 loss = 0.912104
+  batch 1100 loss = 0.936894
+  batch 1200 loss = 0.811589
+  Total batches: 1250, final loss = 0.871629
+Validation loss: 0.881440
+No improvement for 1 epochs
+Epoch 64
+  batch 100 loss = 0.801618
+  batch 200 loss = 0.918518
+  batch 300 loss = 0.795677
+  batch 400 loss = 0.779965
+  batch 500 loss = 0.933154
+  batch 600 loss = 0.802191
+  batch 700 loss = 0.833557
+  batch 800 loss = 0.936240
+  batch 900 loss = 0.919031
+  batch 1000 loss = 0.763521
+  batch 1100 loss = 0.880207
+  batch 1200 loss = 0.775721
+  Total batches: 1250, final loss = 0.850637
+Validation loss: 0.871865
+Saved BEST checkpoint
+Epoch 65
+  batch 100 loss = 0.831897
+  batch 200 loss = 0.936160
+  batch 300 loss = 0.935792
+  batch 400 loss = 0.812107
+  batch 500 loss = 0.774689
+  batch 600 loss = 0.938638
+  batch 700 loss = 0.851093
+  batch 800 loss = 0.934171
+  batch 900 loss = 0.933620
+  batch 1000 loss = 0.925654
+  batch 1100 loss = 0.806887
+  batch 1200 loss = 0.842523
+  Total batches: 1250, final loss = 0.783322
+Validation loss: 0.879308
+No improvement for 1 epochs
+Epoch 66
+  batch 100 loss = 0.866991
+  batch 200 loss = 0.771983
+  batch 300 loss = 0.928238
+  batch 400 loss = 0.781176
+  batch 500 loss = 0.873380
+  batch 600 loss = 0.800445
+  batch 700 loss = 0.857342
+  batch 800 loss = 0.829409
+  batch 900 loss = 0.929800
+  batch 1000 loss = 0.922475
+  batch 1100 loss = 0.938009
+  batch 1200 loss = 0.754677
+  Total batches: 1250, final loss = 0.775455
+Validation loss: 0.875890
+No improvement for 2 epochs
+Epoch 67
+  batch 100 loss = 0.935330
+  batch 200 loss = 0.800585
+  batch 300 loss = 0.934123
+  batch 400 loss = 0.843329
+  batch 500 loss = 0.764826
+  batch 600 loss = 0.858041
+  batch 700 loss = 0.877356
+  batch 800 loss = 0.851960
+  batch 900 loss = 0.782549
+  batch 1000 loss = 0.933753
+  batch 1100 loss = 0.873630
+  batch 1200 loss = 0.866154
+  Total batches: 1250, final loss = 0.753995
+Validation loss: 0.878633
+No improvement for 3 epochs
+Epoch 68
+  batch 100 loss = 0.770670
+  batch 200 loss = 0.934334
+  batch 300 loss = 0.897221
+  batch 400 loss = 0.790616
+  batch 500 loss = 0.836933
+  batch 600 loss = 0.828477
+  batch 700 loss = 0.934478
+  batch 800 loss = 0.935287
+  batch 900 loss = 0.920924
+  batch 1000 loss = 0.937575
+  batch 1100 loss = 0.778338
+  batch 1200 loss = 0.783675
+  Total batches: 1250, final loss = 0.929317
+Validation loss: 0.873216
+No improvement for 4 epochs
+Epoch 69
+  batch 100 loss = 0.783602
+  batch 200 loss = 0.920942
+  batch 300 loss = 0.940799
+  batch 400 loss = 0.838639
+  batch 500 loss = 0.822565
+  batch 600 loss = 0.801737
+  batch 700 loss = 0.935005
+  batch 800 loss = 0.798513
+  batch 900 loss = 0.938326
+  batch 1000 loss = 0.865415
+  batch 1100 loss = 0.933989
+  batch 1200 loss = 0.781411
+  Total batches: 1250, final loss = 0.917807
+Validation loss: 0.879411
+No improvement for 5 epochs
+Epoch 70
+  batch 100 loss = 0.938161
+  batch 200 loss = 0.788145
+  batch 300 loss = 0.841562
+  batch 400 loss = 0.920988
+  batch 500 loss = 0.919303
+  batch 600 loss = 0.762258
+  batch 700 loss = 0.933262
+  batch 800 loss = 0.790726
+  batch 900 loss = 0.860632
+  batch 1000 loss = 0.926636
+  batch 1100 loss = 0.840127
+  batch 1200 loss = 0.779979
+  Total batches: 1250, final loss = 0.827064
+Validation loss: 0.867617
+Saved BEST checkpoint
+Epoch 71
+  batch 100 loss = 0.796765
+  batch 200 loss = 0.867089
+  batch 300 loss = 0.767967
+  batch 400 loss = 0.916709
+  batch 500 loss = 0.913116
+  batch 600 loss = 0.939792
+  batch 700 loss = 0.765089
+  batch 800 loss = 0.886645
+  batch 900 loss = 0.937562
+  batch 1000 loss = 0.783798
+  batch 1100 loss = 0.923219
+  batch 1200 loss = 0.840083
+  Total batches: 1250, final loss = 0.832904
+Validation loss: 0.866932
+Saved BEST checkpoint
+Epoch 72
+  batch 100 loss = 0.743083
+  batch 200 loss = 0.932919
+  batch 300 loss = 0.832806
+  batch 400 loss = 0.756362
+  batch 500 loss = 0.925824
+  batch 600 loss = 0.787760
+  batch 700 loss = 0.830454
+  batch 800 loss = 0.917369
+  batch 900 loss = 0.910260
+  batch 1000 loss = 0.807484
+  batch 1100 loss = 0.772770
+  batch 1200 loss = 0.754743
+  Total batches: 1250, final loss = 0.827621
+Validation loss: 0.866057
+Saved BEST checkpoint
+Epoch 73
+  batch 100 loss = 0.889042
+  batch 200 loss = 0.858488
+  batch 300 loss = 0.799112
+  batch 400 loss = 0.922831
+  batch 500 loss = 0.781484
+  batch 600 loss = 0.829240
+  batch 700 loss = 0.774377
+  batch 800 loss = 0.935645
+  batch 900 loss = 0.757670
+  batch 1000 loss = 0.934918
+  batch 1100 loss = 0.768183
+  batch 1200 loss = 0.912683
+  Total batches: 1250, final loss = 0.932237
+Validation loss: 0.873434
+No improvement for 1 epochs
+Epoch 74
+  batch 100 loss = 0.796470
+  batch 200 loss = 0.768104
+  batch 300 loss = 0.884660
+  batch 400 loss = 0.823647
+  batch 500 loss = 0.913724
+  batch 600 loss = 0.781264
+  batch 700 loss = 0.935853
+  batch 800 loss = 0.921857
+  batch 900 loss = 0.772316
+  batch 1000 loss = 0.831900
+  batch 1100 loss = 0.751876
+  batch 1200 loss = 0.758180
+  Total batches: 1250, final loss = 0.927082
+Validation loss: 0.873630
+No improvement for 2 epochs
+Epoch 75
+  batch 100 loss = 0.846666
+  batch 200 loss = 0.786926
+  batch 300 loss = 0.870767
+  batch 400 loss = 0.785733
+  batch 500 loss = 0.780503
+  batch 600 loss = 0.918523
+  batch 700 loss = 0.763954
+  batch 800 loss = 0.939425
+  batch 900 loss = 0.821552
+  batch 1000 loss = 0.937058
+  batch 1100 loss = 0.759348
+  batch 1200 loss = 0.769603
+  Total batches: 1250, final loss = 0.832228
+Validation loss: 0.866041
+Saved BEST checkpoint
+Epoch 76
+  batch 100 loss = 0.758601
+  batch 200 loss = 0.938402
+  batch 300 loss = 0.937627
+  batch 400 loss = 0.826744
+  batch 500 loss = 0.760516
+  batch 600 loss = 0.785653
+  batch 700 loss = 0.930722
+  batch 800 loss = 0.763765
+  batch 900 loss = 0.938002
+  batch 1000 loss = 0.782478
+  batch 1100 loss = 0.865511
+  batch 1200 loss = 0.789837
+  Total batches: 1250, final loss = 0.936544
+Validation loss: 0.871821
+No improvement for 1 epochs
+Epoch 77
+  batch 100 loss = 0.768642
+  batch 200 loss = 0.931985
+  batch 300 loss = 0.763324
+  batch 400 loss = 0.865610
+  batch 500 loss = 0.930728
+  batch 600 loss = 0.907996
+  batch 700 loss = 0.920143
+  batch 800 loss = 0.751226
+  batch 900 loss = 0.768362
+  batch 1000 loss = 0.797747
+  batch 1100 loss = 0.940006
+  batch 1200 loss = 0.767443
+  Total batches: 1250, final loss = 0.932372
+Validation loss: 0.870518
+No improvement for 2 epochs
+Epoch 78
+  batch 100 loss = 0.859245
+  batch 200 loss = 0.917594
+  batch 300 loss = 0.737435
+  batch 400 loss = 0.886035
+  batch 500 loss = 0.915363
+  batch 600 loss = 0.772132
+  batch 700 loss = 0.762670
+  batch 800 loss = 0.815406
+  batch 900 loss = 0.775987
+  batch 1000 loss = 0.763281
+  batch 1100 loss = 0.786043
+  batch 1200 loss = 0.864697
+  Total batches: 1250, final loss = 0.927141
+Validation loss: 0.866398
+No improvement for 3 epochs
+Epoch 79
+  batch 100 loss = 0.779911
+  batch 200 loss = 0.937321
+  batch 300 loss = 0.830687
+  batch 400 loss = 0.746019
+  batch 500 loss = 0.743471
+  batch 600 loss = 0.774147
+  batch 700 loss = 0.787402
+  batch 800 loss = 0.775140
+  batch 900 loss = 0.858651
+  batch 1000 loss = 0.814866
+  batch 1100 loss = 0.938563
+  batch 1200 loss = 0.935857
+  Total batches: 1250, final loss = 0.886134
+Validation loss: 0.862697
+Saved BEST checkpoint
+Epoch 80
+  batch 100 loss = 0.863508
+  batch 200 loss = 0.774016
+  batch 300 loss = 0.939897
+  batch 400 loss = 0.929609
+  batch 500 loss = 0.758083
+  batch 600 loss = 0.858320
+  batch 700 loss = 0.777717
+  batch 800 loss = 0.889656
+  batch 900 loss = 0.755553
+  batch 1000 loss = 0.936374
+  batch 1100 loss = 0.790059
+  batch 1200 loss = 0.851310
+  Total batches: 1250, final loss = 0.924566
+Validation loss: 0.864866
+No improvement for 1 epochs
+Epoch 81
+  batch 100 loss = 0.923189
+  batch 200 loss = 0.933893
+  batch 300 loss = 0.859146
+  batch 400 loss = 0.747234
+  batch 500 loss = 0.766173
+  batch 600 loss = 0.852397
+  batch 700 loss = 0.928033
+  batch 800 loss = 0.755681
+  batch 900 loss = 0.756572
+  batch 1000 loss = 0.751956
+  batch 1100 loss = 0.937420
+  batch 1200 loss = 0.770870
+  Total batches: 1250, final loss = 0.770604
+Validation loss: 0.868823
+No improvement for 2 epochs
+Epoch 82
+  batch 100 loss = 0.742638
+  batch 200 loss = 0.921825
+  batch 300 loss = 0.880939
+  batch 400 loss = 0.822426
+  batch 500 loss = 0.752773
+  batch 600 loss = 0.775451
+  batch 700 loss = 0.933957
+  batch 800 loss = 0.828257
+  batch 900 loss = 0.937377
+  batch 1000 loss = 0.923195
+  batch 1100 loss = 0.937357
+  batch 1200 loss = 0.936610
+  Total batches: 1250, final loss = 0.756455
+Validation loss: 0.864706
+No improvement for 3 epochs
+Epoch 83
+  batch 100 loss = 0.935643
+  batch 200 loss = 0.929437
+  batch 300 loss = 0.766840
+  batch 400 loss = 0.935698
+  batch 500 loss = 0.933506
+  batch 600 loss = 0.790003
+  batch 700 loss = 0.910683
+  batch 800 loss = 0.912003
+  batch 900 loss = 0.938042
+  batch 1000 loss = 0.778342
+  batch 1100 loss = 0.730565
+  batch 1200 loss = 0.857611
+  Total batches: 1250, final loss = 0.750418
+Validation loss: 0.867119
+No improvement for 4 epochs
+Epoch 84
+  batch 100 loss = 0.759137
+  batch 200 loss = 0.824835
+  batch 300 loss = 0.934736
+  batch 400 loss = 0.921069
+  batch 500 loss = 0.937036
+  batch 600 loss = 0.835239
+  batch 700 loss = 0.935437
+  batch 800 loss = 0.775764
+  batch 900 loss = 0.759254
+  batch 1000 loss = 0.863461
+  batch 1100 loss = 0.932349
+  batch 1200 loss = 0.915457
+  Total batches: 1250, final loss = 0.910443
+Validation loss: 0.864297
+No improvement for 5 epochs
+Epoch 85
+  batch 100 loss = 0.735098
+  batch 200 loss = 0.911704
+  batch 300 loss = 0.943428
+  batch 400 loss = 0.828197
+  batch 500 loss = 0.905929
+  batch 600 loss = 0.841206
+  batch 700 loss = 0.922165
+  batch 800 loss = 0.828865
+  batch 900 loss = 0.931251
+  batch 1000 loss = 0.738235
+  batch 1100 loss = 0.934527
+  batch 1200 loss = 0.782081
+  Total batches: 1250, final loss = 0.757096
+Validation loss: 0.861882
+Saved BEST checkpoint
+Epoch 86
+  batch 100 loss = 0.932134
+  batch 200 loss = 0.758757
+  batch 300 loss = 0.926179
+  batch 400 loss = 0.760165
+  batch 500 loss = 0.758880
+  batch 600 loss = 0.755552
+  batch 700 loss = 0.771720
+  batch 800 loss = 0.935538
+  batch 900 loss = 0.833528
+  batch 1000 loss = 0.797815
+  batch 1100 loss = 0.828741
+  batch 1200 loss = 0.777366
+  Total batches: 1250, final loss = 0.824300
+Validation loss: 0.858266
+Saved BEST checkpoint
+Epoch 87
+  batch 100 loss = 0.741549
+  batch 200 loss = 0.760679
+  batch 300 loss = 0.931058
+  batch 400 loss = 0.762141
+  batch 500 loss = 0.775717
+  batch 600 loss = 0.936911
+  batch 700 loss = 0.819606
+  batch 800 loss = 0.913024
+  batch 900 loss = 0.829743
+  batch 1000 loss = 0.806070
+  batch 1100 loss = 0.760113
+  batch 1200 loss = 0.759078
+  Total batches: 1250, final loss = 0.860627
+Validation loss: 0.860162
+No improvement for 1 epochs
+Epoch 88
+  batch 100 loss = 0.851581
+  batch 200 loss = 0.763462
+  batch 300 loss = 0.912915
+  batch 400 loss = 0.858299
+  batch 500 loss = 0.741482
+  batch 600 loss = 0.774907
+  batch 700 loss = 0.736090
+  batch 800 loss = 0.768516
+  batch 900 loss = 0.842371
+  batch 1000 loss = 0.762474
+  batch 1100 loss = 0.847820
+  batch 1200 loss = 0.767355
+  Total batches: 1250, final loss = 0.930993
+Validation loss: 0.859874
+No improvement for 2 epochs
+Epoch 89
+  batch 100 loss = 0.938770
+  batch 200 loss = 0.817872
+  batch 300 loss = 0.785151
+  batch 400 loss = 0.746715
+  batch 500 loss = 0.848672
+  batch 600 loss = 0.772264
+  batch 700 loss = 0.740868
+  batch 800 loss = 0.808464
+  batch 900 loss = 0.866918
+  batch 1000 loss = 0.738580
+  batch 1100 loss = 0.922213
+  batch 1200 loss = 0.890213
+  Total batches: 1250, final loss = 0.936708
+Validation loss: 0.865148
+No improvement for 3 epochs
+Epoch 90
+  batch 100 loss = 0.759838
+  batch 200 loss = 0.763878
+  batch 300 loss = 0.938916
+  batch 400 loss = 0.833049
+  batch 500 loss = 0.809189
+  batch 600 loss = 0.708788
+  batch 700 loss = 0.780650
+  batch 800 loss = 0.930254
+  batch 900 loss = 0.930824
+  batch 1000 loss = 0.743422
+  batch 1100 loss = 0.825261
+  batch 1200 loss = 0.917185
+  Total batches: 1250, final loss = 0.761676
+Validation loss: 0.858900
+No improvement for 4 epochs
+Epoch 91
+  batch 100 loss = 0.894389
+  batch 200 loss = 0.776481
+  batch 300 loss = 0.863373
+  batch 400 loss = 0.824741
+  batch 500 loss = 0.747038
+  batch 600 loss = 0.784159
+  batch 700 loss = 0.937045
+  batch 800 loss = 0.928487
+  batch 900 loss = 0.931505
+  batch 1000 loss = 0.934162
+  batch 1100 loss = 0.762964
+  batch 1200 loss = 0.786972
+  Total batches: 1250, final loss = 0.841487
+Validation loss: 0.855512
+Saved BEST checkpoint
+Epoch 92
+  batch 100 loss = 0.914225
+  batch 200 loss = 0.922183
+  batch 300 loss = 0.907218
+  batch 400 loss = 0.750720
+  batch 500 loss = 0.733672
+  batch 600 loss = 0.801189
+  batch 700 loss = 0.828514
+  batch 800 loss = 0.748178
+  batch 900 loss = 0.920274
+  batch 1000 loss = 0.718564
+  batch 1100 loss = 0.835423
+  batch 1200 loss = 0.927290
+  Total batches: 1250, final loss = 0.798256
+Validation loss: 0.854976
+Saved BEST checkpoint
+Epoch 93
+  batch 100 loss = 0.814759
+  batch 200 loss = 0.932183
+  batch 300 loss = 0.934503
+  batch 400 loss = 0.726320
+  batch 500 loss = 0.748475
+  batch 600 loss = 0.910972
+  batch 700 loss = 0.907529
+  batch 800 loss = 0.932989
+  batch 900 loss = 0.932635
+  batch 1000 loss = 0.912298
+  batch 1100 loss = 0.938364
+  batch 1200 loss = 0.835688
+  Total batches: 1250, final loss = 0.768111
+Validation loss: 0.856985
+No improvement for 1 epochs
+Epoch 94
+  batch 100 loss = 0.932617
+  batch 200 loss = 0.758611
+  batch 300 loss = 0.916916
+  batch 400 loss = 0.720956
+  batch 500 loss = 0.720824
+  batch 600 loss = 0.751064
+  batch 700 loss = 0.767212
+  batch 800 loss = 0.933519
+  batch 900 loss = 0.877840
+  batch 1000 loss = 0.750720
+  batch 1100 loss = 0.802400
+  batch 1200 loss = 0.915324
+  Total batches: 1250, final loss = 0.904488
+Validation loss: 0.861639
+No improvement for 2 epochs
+Epoch 95
+  batch 100 loss = 0.908785
+  batch 200 loss = 0.758848
+  batch 300 loss = 0.838480
+  batch 400 loss = 0.760885
+  batch 500 loss = 0.749287
+  batch 600 loss = 0.916226
+  batch 700 loss = 0.799233
+  batch 800 loss = 0.731793
+  batch 900 loss = 0.933619
+  batch 1000 loss = 0.937378
+  batch 1100 loss = 0.733594
+  batch 1200 loss = 0.793249
+  Total batches: 1250, final loss = 0.931467
+Validation loss: 0.854597
+Saved BEST checkpoint
+Epoch 96
+  batch 100 loss = 0.902487
+  batch 200 loss = 0.732294
+  batch 300 loss = 0.748942
+  batch 400 loss = 0.928422
+  batch 500 loss = 0.814153
+  batch 600 loss = 0.921164
+  batch 700 loss = 0.797981
+  batch 800 loss = 0.809825
+  batch 900 loss = 0.935268
+  batch 1000 loss = 0.877675
+  batch 1100 loss = 0.934022
+  batch 1200 loss = 0.832092
+  Total batches: 1250, final loss = 0.751034
+Validation loss: 0.857454
+No improvement for 1 epochs
+Epoch 97
+  batch 100 loss = 0.848143
+  batch 200 loss = 0.844466
+  batch 300 loss = 0.779963
+  batch 400 loss = 0.919935
+  batch 500 loss = 0.931837
+  batch 600 loss = 0.925559
+  batch 700 loss = 0.796113
+  batch 800 loss = 0.755537
+  batch 900 loss = 0.933968
+  batch 1000 loss = 0.935019
+  batch 1100 loss = 0.925444
+  batch 1200 loss = 0.834074
+  Total batches: 1250, final loss = 0.704969
+Validation loss: 0.856103
+No improvement for 2 epochs
+Epoch 98
+  batch 100 loss = 0.761292
+  batch 200 loss = 0.761028
+  batch 300 loss = 0.797634
+  batch 400 loss = 0.911876
+  batch 500 loss = 0.834749
+  batch 600 loss = 0.938322
+  batch 700 loss = 0.932450
+  batch 800 loss = 0.933618
+  batch 900 loss = 0.932605
+  batch 1000 loss = 0.746587
+  batch 1100 loss = 0.766660
+  batch 1200 loss = 0.908864
+  Total batches: 1250, final loss = 0.760833
+Validation loss: 0.854280
+Saved BEST checkpoint
+Epoch 99
+  batch 100 loss = 0.722779
+  batch 200 loss = 0.923915
+  batch 300 loss = 0.730181
+  batch 400 loss = 0.754977
+  batch 500 loss = 0.810467
+  batch 600 loss = 0.910907
+  batch 700 loss = 0.896871
+  batch 800 loss = 0.856536
+  batch 900 loss = 0.850978
+  batch 1000 loss = 0.817694
+  batch 1100 loss = 0.712554
+  batch 1200 loss = 0.802226
+  Total batches: 1250, final loss = 0.928418
+Validation loss: 0.852337
+Saved BEST checkpoint
+Epoch 100
+  batch 100 loss = 0.710149
+  batch 200 loss = 0.745713
+  batch 300 loss = 0.942254
+  batch 400 loss = 0.789613
+  batch 500 loss = 0.886156
+  batch 600 loss = 0.932101
+  batch 700 loss = 0.812987
+  batch 800 loss = 0.714862
+  batch 900 loss = 0.846375
+  batch 1000 loss = 0.742004
+  batch 1100 loss = 0.744854
+  batch 1200 loss = 0.749376
+  Total batches: 1250, final loss = 0.723283
+Validation loss: 0.855408
+No improvement for 1 epochs
+
+Training complete!
