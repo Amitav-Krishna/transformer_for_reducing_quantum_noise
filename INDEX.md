@@ -6,7 +6,7 @@ This project compares neural network autoencoders for density-matrix denoising a
 
 **Paper v3 (completed):** MLP vs Transformer comparison
 
-**Paper v4 (in progress):** Hierarchical models + scaling (5-qubit → 8-qubit) with capacity/depth ablations
+**Paper v4 (completed):** Hierarchical models + scaling (5-qubit → 8-qubit) with capacity/depth ablations
 - v3/v4: Cholesky-constrained outputs → **FAILED** (collapsed to maximally mixed state)
 - v5: Row-based tokenization → **FAILED** (stuck at 0.968 val loss)
 - v6: Element-wise tokenization (~120k params each) → MLP destroyed info (0.038 fidelity < baseline)
@@ -14,6 +14,8 @@ This project compares neural network autoencoders for density-matrix denoising a
 - v8: Final training on complete dataset → **Baseline: 0.12, MLP: 0.17 (1.4×), Transformer: 0.28 (2.3×)**
 - v9: Wide MLP capacity control experiment → **1M param MLP still underperforms 119k Transformer**
 - v11: **Pauli representation** → Removes spatial structure, tests algebraic vs spatial learning. **Transformer achieves 0.33 vs MLP 0.19** (1.7× gap)
+- v16: **Float64 Pipeline** → Solved numerical instability in Uhlmann fidelity calculation.
+- v17: **Frobenius Normalization** → **FINAL SUCCESS**. Input normalization stabilizes training. 5-qubit Transformer (0.525) > MLP (0.516). 8-qubit models achieve 3-4x baseline improvement.
 
 ## Project Structure
 
@@ -22,7 +24,8 @@ This project compares neural network autoencoders for density-matrix denoising a
 ├── paper_v2.org            # Paper v2 (Org-mode source) - CNN vs Transformer
 ├── paper_v3.org            # Paper v3 (Org-mode source) - MLP vs Transformer (final: residual MLP)
 ├── paper_v3.pdf            # Paper v3 compiled PDF
-├── paper_v4.org            # Paper v4 (Org-mode source) - Hierarchical + scaling (in progress)
+├── paper_v4.org            # Paper v4 (Org-mode source) - Hierarchical + scaling
+├── paper_v4.pdf            # Paper v4 compiled PDF
 ├── references.bib          # Bibliography
 │
 ├── dataset_smaller/        # Chunked training dataset (100k samples, float32)
@@ -40,6 +43,7 @@ This project compares neural network autoencoders for density-matrix denoising a
 ├── train_v9/               # Wide MLP capacity control (~1M params)
 ├── train_11/               # **PAULI**: Representation without spatial structure
 ├── train_16/               # **CURRENT**: Float64 end-to-end pipeline (5-qubit + 8-qubit)
+├── train_17/               # **FINAL**: Normalized input experiments (5q + 8q) - Paper v4
 ├── losses/                 # Loss functions
 ├── training_loop/          # Training infrastructure
 │
@@ -1039,6 +1043,46 @@ This shows:
 - GPU/disk usage
 - Dataset and checkpoint status
 - Recent log output
+
+---
+
+## train_17: Frobenius Normalization (FINAL SUCCESS)
+
+This experiment introduced **Frobenius Normalization** (pre-processing inputs to unit Frobenius norm), which proved critical for training stability, especially for 8-qubit models.
+
+### Key Results (Paper v4)
+
+| Model | 5-qubit Fidelity | 8-qubit Fidelity |
+|-------|------------------|------------------|
+| Baseline | 0.167 | 0.006 |
+| MLP | 0.516 (3.09x) | **0.024** (3.76x) |
+| Transformer | **0.525** (3.14x) | 0.019 (3.00x) |
+| Wide MLP | 0.344 (worse) | — |
+| Deep MLP | 0.349 (worse) | — |
+
+**Finding**:
+1. **5-qubit**: Transformer maintains advantage over matched MLP. Capacity scaling (Wide/Deep) hurts performance ("Architecture > Capacity").
+2. **8-qubit**: First successful training at this scale (3-4x baseline). MLP slightly outperforms Transformer, likely due to extreme patch compression (2048:1) making attention difficult.
+
+### Directory Structure
+
+| Directory | Description |
+|-----------|-------------|
+| `train_17/train/` | Training scripts (use `HierarchicalMLP` and `HierarchicalTransformer`) |
+| `train_17/results/` | **Downloaded Results**: Logs, checkpoints (`best.pt`), and CSVs from RunPod |
+| `train_17/eval_uhlmann.py` | 5-qubit evaluation script |
+| `train_17/eval_8q_uhlmann.py` | 8-qubit evaluation script |
+| `train_17/eval_ablation.py` | 5-qubit Deep/Wide MLP evaluation script |
+
+### Training Scripts
+
+| Script | Description |
+|--------|-------------|
+| `train_17/train/train.py` | Trains 5-qubit MLP and Transformer |
+| `train_17/train/train_mlp_wide.py` | Trains 5-qubit Wide MLP |
+| `train_17/train/train_mlp_deep.py` | Trains 5-qubit Deep MLP |
+| `train_17/train/train_mlp_8q.py` | Trains 8-qubit MLP |
+| `train_17/train/train_transformer_8q.py` | Trains 8-qubit Transformer |
 
 ---
 
