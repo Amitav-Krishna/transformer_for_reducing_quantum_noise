@@ -100,9 +100,12 @@ def generate_cell(args):
     Generate all samples for one (noise_type, noise_level) cell.
     This function runs in a worker process.
 
-    Returns: (cell_id, samples_list)
+    Now saves directly to disk to avoid OOM with large 8-qubit matrices.
+    Returns: (cell_id, num_samples_generated)
     """
-    cell_id, noise_type, noise_level, num_samples, base_seed = args
+    cell_id, noise_type, noise_level, num_samples, base_seed, output_dir, chunk_size = (
+        args
+    )
 
     # Each cell gets a unique seed
     seed = base_seed + cell_id * 10000
@@ -112,6 +115,8 @@ def generate_cell(args):
     simulator = cirq.DensityMatrixSimulator(dtype=np.complex128)
 
     samples = []
+    chunks_saved = 0
+
     for i in range(num_samples):
         circuit, qubits = generate_circuit_8qubit(num_qubits=8)
 
@@ -143,7 +148,35 @@ def generate_cell(args):
             }
         )
 
-    return (cell_id, samples)
+        # Save chunk when we hit chunk_size
+        if len(samples) >= chunk_size:
+            chunks_saved += 1
+            _save_chunk(samples, output_dir, cell_id, chunks_saved)
+            samples = []  # Clear memory
+
+    # Save remaining samples
+    if samples:
+        chunks_saved += 1
+        _save_chunk(samples, output_dir, cell_id, chunks_saved)
+
+    return (cell_id, num_samples, chunks_saved)
+
+
+def _save_chunk(samples, output_dir, cell_id, chunk_num):
+    """Save a chunk of samples to disk."""
+    X_batch = np.stack([s["X"] for s in samples], axis=0)
+    Y_batch = np.stack([s["Y"] for s in samples], axis=0)
+    meta_batch = [s["meta"] for s in samples]
+
+    fname = f"{output_dir}/cell{cell_id:02d}_chunk{chunk_num:02d}.pt"
+    torch.save(
+        {
+            "X": torch.from_numpy(X_batch),
+            "Y": torch.from_numpy(Y_batch),
+            "meta": meta_batch,
+        },
+        fname,
+    )
 
 
 def generate_8qubit_dataset_parallel(
@@ -196,47 +229,29 @@ def generate_8qubit_dataset_parallel(
                     noise_level,
                     num_samples_per_cell,
                     seed,
+                    output_dir,
+                    chunk_size,
                 )
             )
             cell_id += 1
 
-    # Process cells in parallel
-    all_samples = []
+    # Process cells in parallel - each worker saves its own chunks to disk
+    total_samples = 0
+    total_chunks = 0
 
     with Pool(num_workers) as pool:
         results = pool.imap_unordered(generate_cell, cells)
 
         with tqdm(total=num_cells, desc="Cells completed") as pbar:
-            for cell_id, samples in results:
-                all_samples.extend(samples)
+            for cell_id, num_samples, chunks_saved in results:
+                total_samples += num_samples
+                total_chunks += chunks_saved
                 pbar.update(1)
-                pbar.set_postfix({"samples": len(all_samples)})
-
-    print(f"\nGenerated {len(all_samples)} samples, saving to chunks...")
-
-    # Save in chunks
-    chunk_counter = 0
-    for i in range(0, len(all_samples), chunk_size):
-        chunk_samples = all_samples[i : i + chunk_size]
-        chunk_counter += 1
-
-        X_batch = np.stack([s["X"] for s in chunk_samples], axis=0)
-        Y_batch = np.stack([s["Y"] for s in chunk_samples], axis=0)
-        meta_batch = [s["meta"] for s in chunk_samples]
-
-        fname = f"{output_dir}/chunk_{chunk_counter:04d}.pt"
-        torch.save(
-            {
-                "X": torch.from_numpy(X_batch),
-                "Y": torch.from_numpy(Y_batch),
-                "meta": meta_batch,
-            },
-            fname,
-        )
+                pbar.set_postfix({"samples": total_samples, "chunks": total_chunks})
 
     print(f"\nDataset generation complete!")
-    print(f"Total samples: {len(all_samples)}")
-    print(f"Total chunks: {chunk_counter}")
+    print(f"Total samples: {total_samples}")
+    print(f"Total chunks: {total_chunks}")
     print(f"Output: {output_dir}/")
 
     # Verification

@@ -1,5 +1,7 @@
 # AGENTS.md
 
+**IMPORTANT: Make only a single edit per message. Do not batch multiple edits.**
+
 Guidance for AI coding agents working on this repository.
 
 ## Project Overview
@@ -196,6 +198,53 @@ Root cause: Per-row output projection prevents global Cholesky coordination. See
 | `INDEX.md` | Comprehensive experiment documentation |
 | `paper_v2.org` | CNN vs Transformer paper (Org-mode) |
 | `paper_v3.org` | MLP vs Transformer paper (Org-mode) |
+
+## Monitoring Remote Training
+
+Training runs on RunPod pods. To check experiment status:
+
+```bash
+# Check training progress (grep for key lines)
+ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no -p <PORT> root@<IP> \
+  "grep -E '^Epoch|^Validation|Training complete|Early stopping' /workspace/<LOG_FILE>.log | tail -12"
+```
+
+### Current Pod Assignments (as of 2026-01-03)
+
+| Model | IP | Port | Log File | Status |
+|-------|-----|------|----------|--------|
+| 5q MLP + Transformer | 157.157.221.29 | 20634 | train_17.log | COMPLETE |
+| 5q MLP deep | 205.196.17.100 | 9718 | train_17_mlp_deep.log | COMPLETE (early stop epoch 89) |
+| 5q MLP wide | 157.157.221.29 | 19758 | train_17_mlp_wide.log | COMPLETE (early stop epoch 60) |
+| 8q Transformer | 157.157.221.29 | 19898 | train_17_transformer_8q.log | RUNNING (epoch ~55, val ~0.868) |
+| 8q MLP | 157.157.221.29 | 20778 | train_17_mlp_8q.log | RUNNING (epoch ~72, val ~0.867) |
+
+**Note**: Ports change when pods restart. Check RunPod dashboard for current ports.
+
+### Example: Check all experiments at once
+
+```bash
+echo "--- 5q main ---" && \
+ssh -i ~/.ssh/id_ed25519 -p 20634 root@157.157.221.29 \
+  "grep -E '^Epoch|^Validation|Training complete|Early stopping' /workspace/train_17.log | tail -10"
+
+echo "--- Transformer 8q ---" && \
+ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no -p 19898 root@157.157.221.29 \
+  "grep -E '^Epoch|^Validation|Training complete|Early stopping' /workspace/train_17_transformer_8q.log | tail -10"
+
+echo "--- MLP 8q ---" && \
+ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no -p 20778 root@157.157.221.29 \
+  "grep -E '^Epoch|^Validation|Training complete|Early stopping' /workspace/train_17_mlp_8q.log | tail -10"
+```
+
+### Automated Monitoring
+
+To monitor every 15 minutes:
+```bash
+sleep 900 && ssh ... "grep ..." 
+```
+
+Use `kdeconnect-cli --ring -n "Galaxy A16 5G"` to alert when training completes (requires KDE Connect).
 
 ## Tips
 
