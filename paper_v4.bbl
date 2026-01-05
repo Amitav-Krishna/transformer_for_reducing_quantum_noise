@@ -1,0 +1,71 @@
+\begin{thebibliography}{8}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Choromanski et~al.(2020)Choromanski, Likhosherstov, Dohan, Song, Gane,
+  Sarlos, Athey, Golubin, Weller, Subramanian,
+  et~al.]{choromanski2020rethinking}
+Krzysztof Choromanski, Valerii Likhosherstov, David Dohan, Xingyou Song,
+  Andreea Gane, Tamas Sarlos, Peter Athey, Q~Golubin, Adrian Weller, Ken
+  Subramanian, et~al.
+\newblock Rethinking attention with performers.
+\newblock \emph{arXiv preprint arXiv:2009.14794}, 2020.
+
+\bibitem[Dosovitskiy et~al.(2020)Dosovitskiy, Beyer, Kolesnikov, Weissenborn,
+  Zhai, Unterthiner, Dehghani, Minderer, Heigold, Gelly,
+  et~al.]{dosovitskiy2020image}
+Alexey Dosovitskiy, Lucas Beyer, Alexander Kolesnikov, Dirk Weissenborn,
+  Xiaohua Zhai, Thomas Unterthiner, Mostafa Dehghani, Matthias Minderer, Georg
+  Heigold, Sylvain Gelly, et~al.
+\newblock An image is worth 16x16 words: Transformers for image recognition at
+  scale.
+\newblock \emph{arXiv preprint arXiv:2010.11929}, 2020.
+
+\bibitem[Kendre(2025)]{kendre2025machinelearningquantumnoise}
+Karan Kendre.
+\newblock Machine learning for quantum noise reduction, 2025.
+\newblock URL \url{https://arxiv.org/abs/2509.16242}.
+
+\bibitem[Liu et~al.(2021)Liu, Lin, Cao, Hu, Wei, Zhang, Lin, and
+  Guo]{liu2021swin}
+Ze~Liu, Yutong Lin, Yue Cao, Han Hu, Yixuan Wei, Zheng Zhang, Stephen Lin, and
+  Baining Guo.
+\newblock Swin transformer: Hierarchical vision transformer using shifted
+  windows.
+\newblock \emph{arXiv preprint arXiv:2103.14030}, 2021.
+
+\bibitem[Morgillo et~al.(2024)Morgillo, Mangini, Piastra, and
+  Macchiavello]{Morgillo_2024}
+Angela~Rosy Morgillo, Stefano Mangini, Marco Piastra, and Chiara Macchiavello.
+\newblock Quantum state reconstruction in a noisy environment via deep
+  learning.
+\newblock \emph{Quantum Machine Intelligence}, 6\penalty0 (2), July 2024.
+\newblock ISSN 2524-4914.
+\newblock \doi{10.1007/s42484-024-00168-x}.
+\newblock URL \url{http://dx.doi.org/10.1007/s42484-024-00168-x}.
+
+\bibitem[Wang et~al.(2023)Wang, Liu, Shao, Li, Gu, Pan, Ding, and
+  Han]{wang2023transformerqecquantumerrorcorrection}
+Hanrui Wang, Pengyu Liu, Kevin Shao, Dantong Li, Jiaqi Gu, David~Z. Pan,
+  Yongshan Ding, and Song Han.
+\newblock Transformer-qec: Quantum error correction code decoding with
+  transferable transformers, 2023.
+\newblock URL \url{https://arxiv.org/abs/2311.16082}.
+
+\bibitem[Wang et~al.(2020)Wang, Li, Khabsa, Fang, and Ma]{wang2020linformer}
+Sinong Wang, Belinda~Z Li, Madian Khabsa, Han Fang, and Hao Ma.
+\newblock Linformer: Self-attention with linear complexity.
+\newblock \emph{arXiv preprint arXiv:2006.04768}, 2020.
+
+\bibitem[Zaheer et~al.(2020)Zaheer, Guruganesh, Dubey, Ainslie, Alberti,
+  Ontanon, Pham, Ravula, Wang, Yang, et~al.]{zaheer2020bigbird}
+Manzil Zaheer, Guru Guruganesh, Kumar~Avinava Dubey, Joshua Ainslie, Chris
+  Alberti, Santiago Ontanon, Philip Pham, Anirudh Ravula, Qifan Wang, Li~Yang,
+  et~al.
+\newblock Big bird: Transformers for longer sequences.
+\newblock \emph{arXiv preprint arXiv:2007.14062}, 2020.
+
+\end{thebibliography}

@@ -5,11 +5,11 @@
 #+cite_export: natbib
 #+OPTIONS: toc:nil
 #+TITLE: Hierarchical Attention for Scalable Quantum State Denoising
-#+AUTHOR: Amitav Krishna
-
+#+AUTHOR: Amitav Krishna\thanks{Correspondence: amitavkrishna@proton.me}
 * Abstract
 We apply Transformer architectures to quantum density matrix denoising. A natural tokenization strategy---treating each matrix element as a token---scales quadratically with system size, becoming infeasible beyond 5-6 qubits. We introduce hierarchical patch-based tokenization that maintains a fixed token count (64) regardless of matrix dimension, enabling attention on larger quantum systems. On 5-qubit density matrices ($32\times 32$), our hierarchical Transformer achieves $3.14\times$ improvement over the noisy baseline, outperforming a parameter-matched MLP (0.525 vs 0.516 Uhlmann fidelity). Although proper Frobenius normalization significantly improved both models and narrowed the gap, the Transformer retains a consistent advantage. Ablations with $5\times$ wider and $2\times$ deeper MLPs performed significantly worse (0.344 and 0.349), confirming that the advantage is architectural, not capacity-based. Scaling to 8 qubits ($256\times 256$) with $32\times 32$ patches shows partial success: while the task is exponentially harder, the MLP achieves $3.76\times$ improvement over the baseline (0.024 vs 0.006), demonstrating that hierarchical tokenization can extract signal even at this scale. Our results establish that attention provides useful inductive bias for quantum state denoising, and that Frobenius normalization is critical for training stability.
 
+#+LATEX:\newpage
 * Introduction
 
 Quantum state denoising---reconstructing clean density matrices from noisy measurements---is essential for extracting useful information from near-term quantum devices. While prior work has explored convolutional and feedforward architectures for this task [cite:@Morgillo_2024; @kendre2025machinelearningquantumnoise], the effectiveness of global attention mechanisms for quantum states with non-local entanglement correlations remains underexplored.
@@ -32,7 +32,7 @@ We introduce *hierarchical patch-based tokenization* that maintains a fixed toke
 - 5-qubit: $4\times 4$ patches on $32\times 32$ matrix $\to$ 64 tokens
 - 8-qubit: $32\times 32$ patches on $256\times 256$ matrix $\to$ 64 tokens
 
-This strategy enables attention mechanisms to scale to larger quantum systems while preserving the ability to capture non-local correlations between patches. We compare this Hierarchical Transformer against a "Hierarchical MLP" (MLP-Mixer style) baseline with matched parameter counts and tokenization.
+This strategy enables attention mechanisms to scale to larger quantum systems while preserving the ability to capture non-local correlations between patches. We compare this Hierarchical Transformer against a "Hierarchical MLP" (MLP-Mixer style) baseline with matched parameter counts and tokenization. The repository hosting the experiments, checkpoints, and scripts is available at https://github.com/Amitav-Krishna/transformer_for_reducing_quantum_noise.
 
 Our results demonstrate that this approach is effective:
 1.  **5-qubit Success**: The Hierarchical Transformer achieves $3.14\times$ improvement over the baseline, outperforming the matched MLP.
