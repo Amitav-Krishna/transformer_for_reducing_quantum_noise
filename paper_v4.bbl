@@ -1,71 +1,511 @@
-\begin{thebibliography}{8}
-\providecommand{\natexlab}[1]{#1}
-\providecommand{\url}[1]{\texttt{#1}}
-\expandafter\ifx\csname urlstyle\endcsname\relax
-  \providecommand{\doi}[1]{doi: #1}\else
-  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.3 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
 
-\bibitem[Choromanski et~al.(2020)Choromanski, Likhosherstov, Dohan, Song, Gane,
-  Sarlos, Athey, Golubin, Weller, Subramanian,
-  et~al.]{choromanski2020rethinking}
-Krzysztof Choromanski, Valerii Likhosherstov, David Dohan, Xingyou Song,
-  Andreea Gane, Tamas Sarlos, Peter Athey, Q~Golubin, Adrian Weller, Ken
-  Subramanian, et~al.
-\newblock Rethinking attention with performers.
-\newblock \emph{arXiv preprint arXiv:2009.14794}, 2020.
 
-\bibitem[Dosovitskiy et~al.(2020)Dosovitskiy, Beyer, Kolesnikov, Weissenborn,
-  Zhai, Unterthiner, Dehghani, Minderer, Heigold, Gelly,
-  et~al.]{dosovitskiy2020image}
-Alexey Dosovitskiy, Lucas Beyer, Alexander Kolesnikov, Dirk Weissenborn,
-  Xiaohua Zhai, Thomas Unterthiner, Mostafa Dehghani, Matthias Minderer, Georg
-  Heigold, Sylvain Gelly, et~al.
-\newblock An image is worth 16x16 words: Transformers for image recognition at
-  scale.
-\newblock \emph{arXiv preprint arXiv:2010.11929}, 2020.
+\refsection{0}
+  \datalist[entry]{nty/global//global/global/global}
+    \entry{choromanski2020rethinking}{article}{}{}
+      \true{moreauthor}
+      \true{morelabelname}
+      \name{author}{10}{}{%
+        {{hash=3790fd4d63272e6ab60c1356f8e70d94}{%
+           family={Choromanski},
+           familyi={C\bibinitperiod},
+           given={Krzysztof},
+           giveni={K\bibinitperiod}}}%
+        {{hash=58122b30d513f07d2ac5a6c5181f2aa0}{%
+           family={Likhosherstov},
+           familyi={L\bibinitperiod},
+           given={Valerii},
+           giveni={V\bibinitperiod}}}%
+        {{hash=7369065ea0b748a65621d6b6197996ac}{%
+           family={Dohan},
+           familyi={D\bibinitperiod},
+           given={David},
+           giveni={D\bibinitperiod}}}%
+        {{hash=60a79dda5ef9a874c296fb2fc8d1b80f}{%
+           family={Song},
+           familyi={S\bibinitperiod},
+           given={Xingyou},
+           giveni={X\bibinitperiod}}}%
+        {{hash=659ae64db9cc9965c7cfd1d13328a3ea}{%
+           family={Gane},
+           familyi={G\bibinitperiod},
+           given={Andreea},
+           giveni={A\bibinitperiod}}}%
+        {{hash=ced98ed96624a678d9c6568d2481719a}{%
+           family={Sarlos},
+           familyi={S\bibinitperiod},
+           given={Tamas},
+           giveni={T\bibinitperiod}}}%
+        {{hash=0720af48f78d3171622cb2c4889b9b37}{%
+           family={Athey},
+           familyi={A\bibinitperiod},
+           given={Peter},
+           giveni={P\bibinitperiod}}}%
+        {{hash=6813a42816f73121bca87a8ed552fb9a}{%
+           family={Golubin},
+           familyi={G\bibinitperiod},
+           given={Q},
+           giveni={Q\bibinitperiod}}}%
+        {{hash=89be134d6b955c508c4267860047bdd9}{%
+           family={Weller},
+           familyi={W\bibinitperiod},
+           given={Adrian},
+           giveni={A\bibinitperiod}}}%
+        {{hash=89445d194ad787d4808dbcd1e288bf91}{%
+           family={Subramanian},
+           familyi={S\bibinitperiod},
+           given={Ken},
+           giveni={K\bibinitperiod}}}%
+      }
+      \strng{namehash}{5020442f87bdc8cba2c76b7d1bad5c7d}
+      \strng{fullhash}{d35a2aed6f3b793e8aa7cda7ff70735c}
+      \strng{fullhashraw}{d35a2aed6f3b793e8aa7cda7ff70735c}
+      \strng{bibnamehash}{5020442f87bdc8cba2c76b7d1bad5c7d}
+      \strng{authorbibnamehash}{5020442f87bdc8cba2c76b7d1bad5c7d}
+      \strng{authornamehash}{5020442f87bdc8cba2c76b7d1bad5c7d}
+      \strng{authorfullhash}{d35a2aed6f3b793e8aa7cda7ff70735c}
+      \strng{authorfullhashraw}{d35a2aed6f3b793e8aa7cda7ff70735c}
+      \field{sortinit}{C}
+      \field{sortinithash}{4d103a86280481745c9c897c925753c0}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{arXiv preprint arXiv:2009.14794}
+      \field{title}{Rethinking Attention with Performers}
+      \field{year}{2020}
+    \endentry
+    \entry{dosovitskiy2020image}{article}{}{}
+      \true{moreauthor}
+      \true{morelabelname}
+      \name{author}{10}{}{%
+        {{hash=72308762399d6ab62bbd9391c64c7bfd}{%
+           family={Dosovitskiy},
+           familyi={D\bibinitperiod},
+           given={Alexey},
+           giveni={A\bibinitperiod}}}%
+        {{hash=836254958eac09b30d45dd67a75ce4fa}{%
+           family={Beyer},
+           familyi={B\bibinitperiod},
+           given={Lucas},
+           giveni={L\bibinitperiod}}}%
+        {{hash=6807e3c00242c6bf6a3179905040471b}{%
+           family={Kolesnikov},
+           familyi={K\bibinitperiod},
+           given={Alexander},
+           giveni={A\bibinitperiod}}}%
+        {{hash=b398fca6879fde89a032b8e7de2f26b5}{%
+           family={Weissenborn},
+           familyi={W\bibinitperiod},
+           given={Dirk},
+           giveni={D\bibinitperiod}}}%
+        {{hash=00b950307c7d096765bb6df00c7c5c3a}{%
+           family={Zhai},
+           familyi={Z\bibinitperiod},
+           given={Xiaohua},
+           giveni={X\bibinitperiod}}}%
+        {{hash=1a47640139e63b9b5969c969dfe95def}{%
+           family={Unterthiner},
+           familyi={U\bibinitperiod},
+           given={Thomas},
+           giveni={T\bibinitperiod}}}%
+        {{hash=965baf6fa5686a42b1564330c5e11f2f}{%
+           family={Dehghani},
+           familyi={D\bibinitperiod},
+           given={Mostafa},
+           giveni={M\bibinitperiod}}}%
+        {{hash=06829adce8713f0ace444279dcd7328f}{%
+           family={Minderer},
+           familyi={M\bibinitperiod},
+           given={Matthias},
+           giveni={M\bibinitperiod}}}%
+        {{hash=c95269b4a2e23e1e526be521c7ec6ad4}{%
+           family={Heigold},
+           familyi={H\bibinitperiod},
+           given={Georg},
+           giveni={G\bibinitperiod}}}%
+        {{hash=450963f966620925cb8fecd32f7a6ee1}{%
+           family={Gelly},
+           familyi={G\bibinitperiod},
+           given={Sylvain},
+           giveni={S\bibinitperiod}}}%
+      }
+      \strng{namehash}{d96316bc7578db680aba71d4226354c8}
+      \strng{fullhash}{e2f7b82b6bcaba0b27eef166b225c54a}
+      \strng{fullhashraw}{e2f7b82b6bcaba0b27eef166b225c54a}
+      \strng{bibnamehash}{d96316bc7578db680aba71d4226354c8}
+      \strng{authorbibnamehash}{d96316bc7578db680aba71d4226354c8}
+      \strng{authornamehash}{d96316bc7578db680aba71d4226354c8}
+      \strng{authorfullhash}{e2f7b82b6bcaba0b27eef166b225c54a}
+      \strng{authorfullhashraw}{e2f7b82b6bcaba0b27eef166b225c54a}
+      \field{sortinit}{D}
+      \field{sortinithash}{6f385f66841fb5e82009dc833c761848}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{arXiv preprint arXiv:2010.11929}
+      \field{title}{An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale}
+      \field{year}{2020}
+    \endentry
+    \entry{kendre2025machinelearningquantumnoise}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=ec455575cd03269ef58ea6177bf0b688}{%
+           family={Kendre},
+           familyi={K\bibinitperiod},
+           given={Karan},
+           giveni={K\bibinitperiod}}}%
+      }
+      \strng{namehash}{ec455575cd03269ef58ea6177bf0b688}
+      \strng{fullhash}{ec455575cd03269ef58ea6177bf0b688}
+      \strng{fullhashraw}{ec455575cd03269ef58ea6177bf0b688}
+      \strng{bibnamehash}{ec455575cd03269ef58ea6177bf0b688}
+      \strng{authorbibnamehash}{ec455575cd03269ef58ea6177bf0b688}
+      \strng{authornamehash}{ec455575cd03269ef58ea6177bf0b688}
+      \strng{authorfullhash}{ec455575cd03269ef58ea6177bf0b688}
+      \strng{authorfullhashraw}{ec455575cd03269ef58ea6177bf0b688}
+      \field{sortinit}{K}
+      \field{sortinithash}{c02bf6bff1c488450c352b40f5d853ab}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{eprintclass}{quant-ph}
+      \field{eprinttype}{arXiv}
+      \field{title}{Machine Learning for Quantum Noise Reduction}
+      \field{year}{2025}
+      \verb{eprint}
+      \verb 2509.16242
+      \endverb
+      \verb{file}
+      \verb ./2509.16242v1.pdf
+      \endverb
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/2509.16242
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/2509.16242
+      \endverb
+    \endentry
+    \entry{liu2021swin}{article}{}{}
+      \name{author}{8}{}{%
+        {{hash=19aabf2deb737584450693431af51cc3}{%
+           family={Liu},
+           familyi={L\bibinitperiod},
+           given={Ze},
+           giveni={Z\bibinitperiod}}}%
+        {{hash=3c6a54dc09fe06657a89a749043b2133}{%
+           family={Lin},
+           familyi={L\bibinitperiod},
+           given={Yutong},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=5fde2ec473a5900f24f02ea9a11359ed}{%
+           family={Cao},
+           familyi={C\bibinitperiod},
+           given={Yue},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=f19295c2c8bee05248e05cdbfd48b247}{%
+           family={Hu},
+           familyi={H\bibinitperiod},
+           given={Han},
+           giveni={H\bibinitperiod}}}%
+        {{hash=1d41b11667193fc2d6d720337c963955}{%
+           family={Wei},
+           familyi={W\bibinitperiod},
+           given={Yixuan},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=fcdb4c7704baa79893b29d652aecc77f}{%
+           family={Zhang},
+           familyi={Z\bibinitperiod},
+           given={Zheng},
+           giveni={Z\bibinitperiod}}}%
+        {{hash=eb40fa909f02eebf8c76aedeab111038}{%
+           family={Lin},
+           familyi={L\bibinitperiod},
+           given={Stephen},
+           giveni={S\bibinitperiod}}}%
+        {{hash=5635e5718e86c9052afcaa71d2097959}{%
+           family={Guo},
+           familyi={G\bibinitperiod},
+           given={Baining},
+           giveni={B\bibinitperiod}}}%
+      }
+      \strng{namehash}{009ce81df9957b336af5b72e75724e0c}
+      \strng{fullhash}{4573863b62d52acb9c29e180e6f47f26}
+      \strng{fullhashraw}{4573863b62d52acb9c29e180e6f47f26}
+      \strng{bibnamehash}{009ce81df9957b336af5b72e75724e0c}
+      \strng{authorbibnamehash}{009ce81df9957b336af5b72e75724e0c}
+      \strng{authornamehash}{009ce81df9957b336af5b72e75724e0c}
+      \strng{authorfullhash}{4573863b62d52acb9c29e180e6f47f26}
+      \strng{authorfullhashraw}{4573863b62d52acb9c29e180e6f47f26}
+      \field{sortinit}{L}
+      \field{sortinithash}{7c47d417cecb1f4bd38d1825c427a61a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{arXiv preprint arXiv:2103.14030}
+      \field{title}{Swin Transformer: Hierarchical Vision Transformer using Shifted Windows}
+      \field{year}{2021}
+    \endentry
+    \entry{Morgillo_2024}{article}{}{}
+      \name{author}{4}{}{%
+        {{hash=d419adfad09a9d9324eb735214f12b5a}{%
+           family={Morgillo},
+           familyi={M\bibinitperiod},
+           given={Angela\bibnamedelima Rosy},
+           giveni={A\bibinitperiod\bibinitdelim R\bibinitperiod}}}%
+        {{hash=7b165fe2cc93af0cf9dea2c1e844a39d}{%
+           family={Mangini},
+           familyi={M\bibinitperiod},
+           given={Stefano},
+           giveni={S\bibinitperiod}}}%
+        {{hash=88cf83b591bddc29b8fbf61192eaca72}{%
+           family={Piastra},
+           familyi={P\bibinitperiod},
+           given={Marco},
+           giveni={M\bibinitperiod}}}%
+        {{hash=fa8ecd6f771849c9a17bd4d6ab7a508d}{%
+           family={Macchiavello},
+           familyi={M\bibinitperiod},
+           given={Chiara},
+           giveni={C\bibinitperiod}}}%
+      }
+      \list{publisher}{2}{%
+        {Springer Science}%
+        {Business Media LLC}%
+      }
+      \strng{namehash}{1bc7e120605ad2c79a2415d613dedaa4}
+      \strng{fullhash}{bd7c33918a163ab252e4366717c7e4bf}
+      \strng{fullhashraw}{bd7c33918a163ab252e4366717c7e4bf}
+      \strng{bibnamehash}{1bc7e120605ad2c79a2415d613dedaa4}
+      \strng{authorbibnamehash}{1bc7e120605ad2c79a2415d613dedaa4}
+      \strng{authornamehash}{1bc7e120605ad2c79a2415d613dedaa4}
+      \strng{authorfullhash}{bd7c33918a163ab252e4366717c7e4bf}
+      \strng{authorfullhashraw}{bd7c33918a163ab252e4366717c7e4bf}
+      \field{sortinit}{M}
+      \field{sortinithash}{4625c616857f13d17ce56f7d4f97d451}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{issn}{2524-4914}
+      \field{journaltitle}{Quantum Machine Intelligence}
+      \field{month}{7}
+      \field{number}{2}
+      \field{title}{Quantum state reconstruction in a noisy environment via deep learning}
+      \field{volume}{6}
+      \field{year}{2024}
+      \verb{doi}
+      \verb 10.1007/s42484-024-00168-x
+      \endverb
+      \verb{file}
+      \verb ./2309.11949v1.pdf
+      \endverb
+      \verb{urlraw}
+      \verb http://dx.doi.org/10.1007/s42484-024-00168-x
+      \endverb
+      \verb{url}
+      \verb http://dx.doi.org/10.1007/s42484-024-00168-x
+      \endverb
+    \endentry
+    \entry{wang2023transformerqecquantumerrorcorrection}{misc}{}{}
+      \name{author}{8}{}{%
+        {{hash=2f433fe6a0bc850a3ffbcce2ce293ac4}{%
+           family={Wang},
+           familyi={W\bibinitperiod},
+           given={Hanrui},
+           giveni={H\bibinitperiod}}}%
+        {{hash=07e38c6b55a4d18dd3cba9a88f2a257d}{%
+           family={Liu},
+           familyi={L\bibinitperiod},
+           given={Pengyu},
+           giveni={P\bibinitperiod}}}%
+        {{hash=14ac527b553eec6b334d711413abe65f}{%
+           family={Shao},
+           familyi={S\bibinitperiod},
+           given={Kevin},
+           giveni={K\bibinitperiod}}}%
+        {{hash=c8da10d3c0d3ec072ff7e0f3cbd23156}{%
+           family={Li},
+           familyi={L\bibinitperiod},
+           given={Dantong},
+           giveni={D\bibinitperiod}}}%
+        {{hash=9025653832977d49b3b2fc578bde15bd}{%
+           family={Gu},
+           familyi={G\bibinitperiod},
+           given={Jiaqi},
+           giveni={J\bibinitperiod}}}%
+        {{hash=fe3ff3e0189ebb1651ab0a237ea3064c}{%
+           family={Pan},
+           familyi={P\bibinitperiod},
+           given={David\bibnamedelima Z.},
+           giveni={D\bibinitperiod\bibinitdelim Z\bibinitperiod}}}%
+        {{hash=42c19e7d8e4f58481c6b4e4d73a06715}{%
+           family={Ding},
+           familyi={D\bibinitperiod},
+           given={Yongshan},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=873e4e07ff73d563d2651d20ffaf99e0}{%
+           family={Han},
+           familyi={H\bibinitperiod},
+           given={Song},
+           giveni={S\bibinitperiod}}}%
+      }
+      \strng{namehash}{a4fd679cad4c34ca6057f6363aca8a1c}
+      \strng{fullhash}{ab6bdd446ab027ea03225747fd3d7ed8}
+      \strng{fullhashraw}{ab6bdd446ab027ea03225747fd3d7ed8}
+      \strng{bibnamehash}{a4fd679cad4c34ca6057f6363aca8a1c}
+      \strng{authorbibnamehash}{a4fd679cad4c34ca6057f6363aca8a1c}
+      \strng{authornamehash}{a4fd679cad4c34ca6057f6363aca8a1c}
+      \strng{authorfullhash}{ab6bdd446ab027ea03225747fd3d7ed8}
+      \strng{authorfullhashraw}{ab6bdd446ab027ea03225747fd3d7ed8}
+      \field{extraname}{1}
+      \field{sortinit}{W}
+      \field{sortinithash}{4315d78024d0cea9b57a0c6f0e35ed0d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{eprintclass}{quant-ph}
+      \field{eprinttype}{arXiv}
+      \field{title}{Transformer-QEC: Quantum Error Correction Code Decoding with Transferable Transformers}
+      \field{year}{2023}
+      \verb{eprint}
+      \verb 2311.16082
+      \endverb
+      \verb{file}
+      \verb ./2311.16082.pdf
+      \endverb
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/2311.16082
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/2311.16082
+      \endverb
+    \endentry
+    \entry{wang2020linformer}{article}{}{}
+      \name{author}{5}{}{%
+        {{hash=27edaeac6106fc95a1e9855b71069c26}{%
+           family={Wang},
+           familyi={W\bibinitperiod},
+           given={Sinong},
+           giveni={S\bibinitperiod}}}%
+        {{hash=bee62bc481945d9a79ffe70c92c36389}{%
+           family={Li},
+           familyi={L\bibinitperiod},
+           given={Belinda\bibnamedelima Z},
+           giveni={B\bibinitperiod\bibinitdelim Z\bibinitperiod}}}%
+        {{hash=2118ff6f53e7a26f72795cd86e0272e3}{%
+           family={Khabsa},
+           familyi={K\bibinitperiod},
+           given={Madian},
+           giveni={M\bibinitperiod}}}%
+        {{hash=31b601ca0becd0697b1237e03ec8427f}{%
+           family={Fang},
+           familyi={F\bibinitperiod},
+           given={Han},
+           giveni={H\bibinitperiod}}}%
+        {{hash=dad8cf0d5793bb3e0ae7f24739898972}{%
+           family={Ma},
+           familyi={M\bibinitperiod},
+           given={Hao},
+           giveni={H\bibinitperiod}}}%
+      }
+      \strng{namehash}{1ae05c938f0e3a45f2258da80b7f62fd}
+      \strng{fullhash}{3008c609f9a781a37d9036011c8ee599}
+      \strng{fullhashraw}{3008c609f9a781a37d9036011c8ee599}
+      \strng{bibnamehash}{1ae05c938f0e3a45f2258da80b7f62fd}
+      \strng{authorbibnamehash}{1ae05c938f0e3a45f2258da80b7f62fd}
+      \strng{authornamehash}{1ae05c938f0e3a45f2258da80b7f62fd}
+      \strng{authorfullhash}{3008c609f9a781a37d9036011c8ee599}
+      \strng{authorfullhashraw}{3008c609f9a781a37d9036011c8ee599}
+      \field{extraname}{2}
+      \field{sortinit}{W}
+      \field{sortinithash}{4315d78024d0cea9b57a0c6f0e35ed0d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{arXiv preprint arXiv:2006.04768}
+      \field{title}{Linformer: Self-Attention with Linear Complexity}
+      \field{year}{2020}
+    \endentry
+    \entry{zaheer2020bigbird}{article}{}{}
+      \true{moreauthor}
+      \true{morelabelname}
+      \name{author}{10}{}{%
+        {{hash=c4c46d2d2e84c4fd611f22d52ad6b782}{%
+           family={Zaheer},
+           familyi={Z\bibinitperiod},
+           given={Manzil},
+           giveni={M\bibinitperiod}}}%
+        {{hash=db8ef577871b1d68026b8ca2035d3053}{%
+           family={Guruganesh},
+           familyi={G\bibinitperiod},
+           given={Guru},
+           giveni={G\bibinitperiod}}}%
+        {{hash=78119dda5aa6f7a031af2b9bdc0a833b}{%
+           family={Dubey},
+           familyi={D\bibinitperiod},
+           given={Kumar\bibnamedelima Avinava},
+           giveni={K\bibinitperiod\bibinitdelim A\bibinitperiod}}}%
+        {{hash=c9e841fff6d89d0371c79b8b1eabe203}{%
+           family={Ainslie},
+           familyi={A\bibinitperiod},
+           given={Joshua},
+           giveni={J\bibinitperiod}}}%
+        {{hash=fa37075160e66d797f5e4c74f499e499}{%
+           family={Alberti},
+           familyi={A\bibinitperiod},
+           given={Chris},
+           giveni={C\bibinitperiod}}}%
+        {{hash=061a7410b9b96cc58ce8e08776b4b47a}{%
+           family={Ontanon},
+           familyi={O\bibinitperiod},
+           given={Santiago},
+           giveni={S\bibinitperiod}}}%
+        {{hash=3bf5b537ee92b51378dd1aaa85039091}{%
+           family={Pham},
+           familyi={P\bibinitperiod},
+           given={Philip},
+           giveni={P\bibinitperiod}}}%
+        {{hash=6e408c7511ca85c078f86a378abd91a7}{%
+           family={Ravula},
+           familyi={R\bibinitperiod},
+           given={Anirudh},
+           giveni={A\bibinitperiod}}}%
+        {{hash=7ac5ab242099a6000a9154bf6d51bf84}{%
+           family={Wang},
+           familyi={W\bibinitperiod},
+           given={Qifan},
+           giveni={Q\bibinitperiod}}}%
+        {{hash=7f8a6256a19361714c6f6a011671f17d}{%
+           family={Yang},
+           familyi={Y\bibinitperiod},
+           given={Li},
+           giveni={L\bibinitperiod}}}%
+      }
+      \strng{namehash}{7f3a8d6a5ab04df1d1a78a8f34f95ea4}
+      \strng{fullhash}{82c0c9ec0fddbdbb9f2d2fd728910f11}
+      \strng{fullhashraw}{82c0c9ec0fddbdbb9f2d2fd728910f11}
+      \strng{bibnamehash}{7f3a8d6a5ab04df1d1a78a8f34f95ea4}
+      \strng{authorbibnamehash}{7f3a8d6a5ab04df1d1a78a8f34f95ea4}
+      \strng{authornamehash}{7f3a8d6a5ab04df1d1a78a8f34f95ea4}
+      \strng{authorfullhash}{82c0c9ec0fddbdbb9f2d2fd728910f11}
+      \strng{authorfullhashraw}{82c0c9ec0fddbdbb9f2d2fd728910f11}
+      \field{sortinit}{Z}
+      \field{sortinithash}{96892c0b0a36bb8557c40c49813d48b3}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{arXiv preprint arXiv:2007.14062}
+      \field{title}{Big Bird: Transformers for Longer Sequences}
+      \field{year}{2020}
+    \endentry
+  \enddatalist
+\endrefsection
+\endinput
 
-\bibitem[Kendre(2025)]{kendre2025machinelearningquantumnoise}
-Karan Kendre.
-\newblock Machine learning for quantum noise reduction, 2025.
-\newblock URL \url{https://arxiv.org/abs/2509.16242}.
-
-\bibitem[Liu et~al.(2021)Liu, Lin, Cao, Hu, Wei, Zhang, Lin, and
-  Guo]{liu2021swin}
-Ze~Liu, Yutong Lin, Yue Cao, Han Hu, Yixuan Wei, Zheng Zhang, Stephen Lin, and
-  Baining Guo.
-\newblock Swin transformer: Hierarchical vision transformer using shifted
-  windows.
-\newblock \emph{arXiv preprint arXiv:2103.14030}, 2021.
-
-\bibitem[Morgillo et~al.(2024)Morgillo, Mangini, Piastra, and
-  Macchiavello]{Morgillo_2024}
-Angela~Rosy Morgillo, Stefano Mangini, Marco Piastra, and Chiara Macchiavello.
-\newblock Quantum state reconstruction in a noisy environment via deep
-  learning.
-\newblock \emph{Quantum Machine Intelligence}, 6\penalty0 (2), July 2024.
-\newblock ISSN 2524-4914.
-\newblock \doi{10.1007/s42484-024-00168-x}.
-\newblock URL \url{http://dx.doi.org/10.1007/s42484-024-00168-x}.
-
-\bibitem[Wang et~al.(2023)Wang, Liu, Shao, Li, Gu, Pan, Ding, and
-  Han]{wang2023transformerqecquantumerrorcorrection}
-Hanrui Wang, Pengyu Liu, Kevin Shao, Dantong Li, Jiaqi Gu, David~Z. Pan,
-  Yongshan Ding, and Song Han.
-\newblock Transformer-qec: Quantum error correction code decoding with
-  transferable transformers, 2023.
-\newblock URL \url{https://arxiv.org/abs/2311.16082}.
-
-\bibitem[Wang et~al.(2020)Wang, Li, Khabsa, Fang, and Ma]{wang2020linformer}
-Sinong Wang, Belinda~Z Li, Madian Khabsa, Han Fang, and Hao Ma.
-\newblock Linformer: Self-attention with linear complexity.
-\newblock \emph{arXiv preprint arXiv:2006.04768}, 2020.
-
-\bibitem[Zaheer et~al.(2020)Zaheer, Guruganesh, Dubey, Ainslie, Alberti,
-  Ontanon, Pham, Ravula, Wang, Yang, et~al.]{zaheer2020bigbird}
-Manzil Zaheer, Guru Guruganesh, Kumar~Avinava Dubey, Joshua Ainslie, Chris
-  Alberti, Santiago Ontanon, Philip Pham, Anirudh Ravula, Qifan Wang, Li~Yang,
-  et~al.
-\newblock Big bird: Transformers for longer sequences.
-\newblock \emph{arXiv preprint arXiv:2007.14062}, 2020.
-
-\end{thebibliography}
