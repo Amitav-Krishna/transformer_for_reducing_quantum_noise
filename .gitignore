@@ -17,3 +17,6 @@ train_v9/mlp_wide_wd1e-04/best.pt
 nohup.out
 
 quantum_denoising_dataset.pt
+
+# Ignore all checkpoints and PT artifacts
+*.pt
