@@ -206,7 +206,7 @@ Table [[tab:5qubit-baselines]] presents our primary comparison between hierarchi
 | MLP (hierarchical)         | 1.09M  |            0.516 | $3.09\times$ |
 | Transformer (hierarchical) | 1.09M  |            0.525 | $3.14\times$ |
 
-Both architectures achieve substantial improvements over the noisy baseline, with the MLP achieving $3.09\times$ improvement and the Transformer achieving $3.14\times$ improvement. Notably, with proper input normalization, the gap between MLP and Transformer narrows considerably---the Transformer's advantage is ~1.7% relative (0.525 vs 0.516). (*NOTE*: Direct the reader to the appendix in which we present the results from the unnormalized modles.)
+Both architectures achieve substantial improvements over the noisy baseline, with the MLP achieving $3.09\times$ improvement and the Transformer achieving $3.14\times$ improvement. Notably, with proper input normalization, the gap between MLP and Transformer narrows considerably---the Transformer's advantage is ~1.7% relative (0.525 vs 0.516). For the unnormalized experiments and the full comparison, see Appendix [[#app:pre-norm-ablations]].
 
 This suggests that when the optimization landscape is well-conditioned through normalization, the MLP can learn effective denoising mappings that nearly match attention-based models. However, the Transformer consistently maintains the lead, confirming that its ability to dynamically weight patch interactions provides a real architectural advantage.
 
