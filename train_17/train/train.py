@@ -224,7 +224,7 @@ def main():
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     # Load and split dataset
-    chunks = load_chunks("dataset_smaller")
+    chunks = load_chunks("dataset_5qubit_float64")
     train_chunks, val_chunks, test_chunks = split_chunks(chunks)
 
     print(f"Train chunks: {len(train_chunks)}")
