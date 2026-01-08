@@ -1,4 +1,4 @@
-% Created 2026-01-06 Tue 22:41
+% Created 2026-01-08 Thu 18:01
 % Intended LaTeX compiler: pdflatex
 \documentclass[11pt]{article}
 \usepackage[utf8]{inputenc}
@@ -32,16 +32,16 @@
 
 \maketitle
 \section{Abstract}
-\label{sec:orge3e0923}
+\label{sec:org7be43b4}
 We identify Frobenius normalization as a critical preprocessing step for training neural networks to denoise quantum density matrices. Decoherence reduces the purity of quantum states, and since Frobenius norm equals the square root of purity, noisy inputs have much lower norm than clean targets (\(\sim\)0.07 vs 1.0 for 5-qubit systems). This forces models to simultaneously learn structural denoising and a \(\sim\)15 times scale correction. By normalizing inputs and targets to unit Frobenius norm, we deliberately discard purity information agnd allow models to focus purely on recovering coherence structure. This is justified because our clean targets are always pure states (purity = 1), so the output purity is known a priori. With normalization, we achieve a 25\% reduction in validation loss (0.458 \(\to\) 0.340) and stable convergence where unnormalized training fails. On 5-qubit density matrices, normalized models achieve 3.14 times improvement over the noisy baseline (0.525 Uhlmann fidelity). Crucially, normalization enables scaling to 8-qubit systems (\(256\times 256\) matrices), where unnormalized models failed completely but normalized models achieve 3.76 times improvement over baseline. We further demonstrate that with proper normalization, the gap between Transformer and MLP architectures narrows considerably (0.525 vs 0.516), suggesting that input conditioning is more important than architectural choice for this task. Ablations confirm that capacity scaling (5 times wider, 2 times deeper MLPs) hurts performance without normalization, while normalized models of all sizes converge reliably. Our results establish Frobenius normalization as essential for quantum state denoising and provide a foundation for scaling neural denoising to larger quantum systems.
 \section{Introduction}
-\label{sec:org2ef5b55}
+\label{sec:org199b960}
 
 Approaches to managing quantum hardware noise broadly fall into three categories: quantum error correction (QEC), quantum error mitigation (QEM), and state-level denoising. QEC provides a principled route to fault-tolerant computation by encoding logical information into larger composite systems and continuously detecting and correcting physical errors via syndrome measurements \autocites{Bravyi_2024}[][]{202509.2149}. However, current devices remain far above fault-tolerance thresholds, and the overhead of large code distances limits near-term applicability. QEM targets near-term hardware by reducing noise impact through circuit-level extrapolation and statistical post-processing, recovering accurate expectation values rather than full quantum states \autocites{RevModPhys.95.045005}[][]{Bultrini_2023}.
 
-This work focuses on a distinct problem: \textbf{state-level denoising of density matrices}, which aims to reconstruct full quantum states rather than correct logical qubits (QEC) or recover expectation values (QEM). Prior work has explored convolutional \autocite{kendre2025machinelearningquantumnoise} and feedforward \autocite{Morgillo_2024} architectures for this task, but has not systematically addressed input preprocessing for the unique properties of quantum density matrices. We identify a fundamental challenge that has been overlooked: the dramatic scale mismatch between noisy inputs and clean targets caused by decoherence.
+This work focuses on a distinct problem: \textbf{state-level denoising of density matrices}, which aims to reconstruct full quantum states rather than correct logical qubits (QEC) or recover expectation values (QEM). Prior work has explored convolutional \autocite{kendre2025machinelearningquantumnoise} and feedforward \autocite{Morgillo_2024} architectures for this task, but has not systematically addressed input preprocessing for the unique properties of quantum density matrices. We identify a fundamental challenge that has been overlooked: the dramatic scale mismatch between noisy inputs and clean targets caused by decoherence in large circuits.
 \subsection{The Scale Mismatch Problem}
-\label{sec:org5edb39f}
+\label{sec:org1ebfcb3}
 
 A fundamental challenge in training neural networks for quantum state denoising is the dramatic scale mismatch between noisy inputs and clean targets. Quantum noise channels (depolarizing, amplitude damping, phase damping) drive density matrices toward the maximally mixed state \(I/d\), significantly reducing their Frobenius norm. For a 5-qubit system:
 \begin{itemize}
@@ -51,7 +51,7 @@ A fundamental challenge in training neural networks for quantum state denoising 
 
 This \(\sim\)15 times scale difference forces the model to simultaneously learn two distinct tasks: (1) structural denoising by recovering coherence patterns and (2) global rescaling---predicting the output magnitude. We find that models struggle to learn both tasks jointly, leading to unstable training dynamics and suboptimal convergence.
 \subsection{Our Contribution}
-\label{sec:org2f5c0d8}
+\label{sec:orgadda237}
 
 We demonstrate that \textbf{Frobenius normalization}---normalizing inputs and targets to unit norm before training---is critical for stable and effective quantum state denoising:
 
@@ -71,29 +71,29 @@ Our results demonstrate:
 
 We additionally use hierarchical patch-based tokenization to enable scaling to larger quantum systems while maintaining computational tractability.
 \section{Related Work}
-\label{sec:orgc78924e}
+\label{sec:org8a69d9d}
 
 \subsection{Input Normalization in Deep Learning}
-\label{sec:orgf1af51e}
+\label{sec:org5f5c035}
 
 Input normalization is well-established in deep learning. Batch normalization \autocite{ioffe2015batch} and layer normalization \autocite{ba2016layer} address internal covariate shift, while input standardization (zero mean, unit variance) is standard practice for feedforward networks. However, quantum density matrices present a unique challenge: the \textbf{inherent} scale difference between noisy and clean states is not statistical variation but a physical consequence of decoherence. Our work identifies Frobenius normalization as the appropriate preprocessing for this domain, demonstrating that it is not merely helpful but \textbf{essential} for stable training and scaling.
 \subsection{Quantum Machine Learning for Error Correction}
-\label{sec:org967876b}
+\label{sec:org994388c}
 
 Machine learning has been widely applied to quantum error correction (QEC). Recent work such as Transformer-QEC \autocite{wang2023transformerqecquantumerrorcorrection} demonstrates that attention mechanisms outperform local decoders (like CNNs) for syndrome decoding by capturing non-local error chains. Work by Morgillo et al. \autocite{Morgillo_2024} and Kendre et al. \autocite{kendre2025machinelearningquantumnoise} has explored neural approaches to quantum state reconstruction, though without addressing the input normalization challenge we identify here.
 \subsection{Hierarchical Vision Transformers}
-\label{sec:org2d70035}
+\label{sec:org75881b6}
 
 For computational tractability at larger qubit counts, we adopt patch-based tokenization inspired by Vision Transformers (ViT) \autocite{dosovitskiy2020image} and hierarchical variants like the Swin Transformer \autocite{liu2021swin}. We maintain a fixed token count (64) by adjusting patch size with matrix dimension, enabling scaling to 8-qubit systems where element-wise processing is infeasible.
 \section{Methods}
-\label{sec:orga31354a}
+\label{sec:orgf8bde03}
 
 \subsection{Dataset Generation}
-\label{sec:orgfec7e61}
+\label{sec:org5b56625}
 
 We generate synthetic datasets of quantum density matrices by simulating random quantum circuits. Each sample consists of a pair \((\rho_{\text{clean}}, \rho_{\text{noisy}})\), where \(\rho_{\text{clean}}\) results from an ideal circuit simulation and \(\rho_{\text{noisy}}\) results from simulating the same circuit with noise channels inserted.
 \subsubsection{Circuit Construction}
-\label{sec:org2310454}
+\label{sec:orgdb1810d}
 
 Random quantum circuits are generated with depths varying uniformly between 6 and 9 layers. Each layer consists of:
 \begin{enumerate}
@@ -103,7 +103,7 @@ Random quantum circuits are generated with depths varying uniformly between 6 an
 
 This structure ensures the generation of complex, entangled quantum states that span the Hilbert space.
 \subsubsection{Noise Injection Model}
-\label{sec:org6b84a23}
+\label{sec:org74d256c}
 
 Noise is modeled as a Markovian process applied after every time step. Specifically, after each layer of unitary gates (a "moment"), a quantum noise channel \(\mathcal{N}\) is applied independently to \textbf{every} qubit in the circuit. We simulate four distinct noise channels and one mixed channel:
 
@@ -117,7 +117,7 @@ Noise is modeled as a Markovian process applied after every time step. Specifica
 
 We generate datasets for four noise intensities \(p \in \{0.05, 0.10, 0.15, 0.20\}\). The result is a dataset stratified into 20 "noise cells" (5 types \(\times\) 4 levels), with equal representation.
 \subsubsection{5-Qubit Dataset}
-\label{sec:orga11c2ac}
+\label{sec:orge3c8271}
 
 \begin{itemize}
 \item Matrix size: \(32 \times 32\) (1024 complex elements)
@@ -126,7 +126,7 @@ We generate datasets for four noise intensities \(p \in \{0.05, 0.10, 0.15, 0.20
 \item Storage: \(\sim 3.3\ \mathrm{GB}\) (pre-loaded into memory)
 \end{itemize}
 \subsubsection{8-Qubit Dataset}
-\label{sec:orgcb766bb}
+\label{sec:org6eecae5}
 
 \begin{itemize}
 \item Matrix size: \(256 \times 256\) (65,536 complex elements)
@@ -135,11 +135,11 @@ We generate datasets for four noise intensities \(p \in \{0.05, 0.10, 0.15, 0.20
 \item Storage: \(\sim 50\ \mathrm{GB}\) (streamed from disk during training)
 \end{itemize}
 \subsubsection{Data Split}
-\label{sec:org5997826}
+\label{sec:orgebe55ff}
 
 For both datasets we use an 80/10/10 split for training, validation, and testing stratified by noise cell to ensure balanced evaluation across all noise types and intensities.
 \subsubsection{Frobenius Normalization}
-\label{sec:org74399e2}
+\label{sec:org774db71}
 
 Each density matrix is normalized to unit Frobenius norm before training:
 
@@ -155,14 +155,14 @@ Without normalization, the model must simultaneously perform two distinct tasks:
 
 \textbf{Note on validity}: Frobenius-normalized matrices are not valid density matrices---they have trace \(\neq 1\). We use them only as a convenient representation during training. At evaluation time, we project outputs back to valid density matrices (Hermitianize, clamp negative eigenvalues, normalize trace) before computing Uhlmann fidelity.
 \subsubsection{Frobenius vs. Uhlmann Fidelity}
-\label{sec:orgcf9da53}
+\label{sec:orgdeac9bd}
 
-While we train on Frobenius fidelity (cosine similarity) for computational efficiency, our final evaluation metric is Uhlmann fidelity. The two metrics are strongly correlated in the domain of our dataset. On a random subset of 100 samples from the 5-qubit dataset, we measured a Spearman rank correlation of \(\rho = 0.93\) and a Pearson correlation of \(r = 0.91\) between the Frobenius fidelity of normalized density matrices and the Uhlmann fidelity of the corresponding physical states. This validates Frobenius fidelity as an effective proxy for training. (See Appendix \ref{sec:org54a542a} for details and visualization).
+While we train on Frobenius fidelity (cosine similarity) for computational efficiency, our final evaluation metric is Uhlmann fidelity. The two metrics are strongly correlated in the domain of our dataset. On a random subset of 100 samples from the 5-qubit dataset, we measured a Spearman rank correlation of \(\rho = 0.93\) and a Pearson correlation of \(r = 0.91\) between the Frobenius fidelity of normalized density matrices and the Uhlmann fidelity of the corresponding physical states. This validates Frobenius fidelity as an effective proxy for training. (See Appendix \ref{sec:orga52eace} for details and visualization).
 \subsection{Hierarchical Transformer Architecture}
-\label{sec:orgd699e2b}
+\label{sec:orgd243c95}
 
 \subsubsection{Patch Embedding}
-\label{sec:orgc0a2cc5}
+\label{sec:org072756a}
 
 The input density matrix is divided into non-overlapping patches, each embedded via a linear projection:
 
@@ -173,7 +173,7 @@ The input density matrix is divided into non-overlapping patches, each embedded 
 
 Embedding dimension: 128 for both scales.
 \subsubsection{Encoder-Decoder Structure}
-\label{sec:org76f3dc9}
+\label{sec:orgf2aaf78}
 
 \begin{itemize}
 \item Encoder: 4 transformer layers, 8 attention heads, FFN dimension 512
@@ -183,11 +183,11 @@ Embedding dimension: 128 for both scales.
 
 The parameter difference comes from the patch embedding/unembedding layers, which scale with patch size.
 \subsubsection{Patch Unembedding}
-\label{sec:org5ed300e}
+\label{sec:orgc81ee92}
 
 Each decoder token is projected back to its corresponding patch via a linear layer, then patches are reassembled into the full matrix.
 \subsection{Hierarchical MLP Architecture (MLP-Mixer Style)}
-\label{sec:org345922d}
+\label{sec:org12f0ed9}
 
 For fair comparison, we use an MLP with identical patch embedding/unembedding as the Transformer, replacing only the attention mechanism:
 
@@ -200,21 +200,21 @@ This isolates the effect of attention vs. fixed learned mixing weights.
 
 Parameter counts matched to Transformer: \(\sim 1.09\,\mathrm{M}\) (5-qubit), \(\sim 1.61\,\mathrm{M}\) (8-qubit).
 \subsection{Ablation Models}
-\label{sec:org6d5a544}
+\label{sec:org2f91dde}
 To verify that the performance gap between the Transformer and MLP is driven by architectural inductive bias rather than model capacity, we trained two larger MLP variants. If the standard MLP's underperformance were due to a lack of parameters or depth, these larger models should close the gap. We maintained identical optimization hyperparameters (learning rate, weight decay, batch size) to the baseline MLP to ensure a fair comparison. Both ablation models converged stably but to higher loss values, ruling out overfitting (where validation loss would diverge) or instability as primary causes for their underperformance.
 \subsubsection{Wide MLP (\(\sim 5.2\,\mathrm{M}\) params)}
-\label{sec:org69858ff}
+\label{sec:org63ae593}
 
 We trained a "Wide" variant with hidden dimensions scaled by four times (token hidden dim 1536, channel hidden dim 1280), resulting in \(\sim 5.29\,\mathrm{M}\) parameters---nearly five times the parameter count of the baseline MLP and Transformer. This tests the hypothesis that the baseline MLP (1.09M params) is simply under-parameterized for the complexity of the denoising task.
 \subsubsection{Deep MLP (8+8 layers, \(\sim 2.15\,\mathrm{M}\) params)}
-\label{sec:org691b62a}
+\label{sec:org3591bb0}
 
 We trained a "Deep" variant with double the number of layers (8 encoder blocks + 8 decoder blocks), resulting in \(\sim 2.15\,\mathrm{M}\) parameters. This tests the hypothesis that the MLP requires greater depth to compose the necessary features for quantum state reconstruction, given that it lacks the global context mixing provided by self-attention.
 \subsection{Training Protocol}
-\label{sec:org16182c3}
+\label{sec:org834fb6f}
 
 \subsubsection{Shared Hyperparameters}
-\label{sec:org3c17bb4}
+\label{sec:orge471ca9}
 
 \begin{center}
 \begin{tabular}{ll}
@@ -231,7 +231,7 @@ Dataset size & 100,000 pairs (80/10/10 split)\\
 \end{tabular}
 \end{center}
 \subsubsection{Architecture-Specific Hyperparameters}
-\label{sec:org2dac4e9}
+\label{sec:org4dc5623}
 
 \begin{center}
 \begin{tabular}{lll}
@@ -248,21 +248,21 @@ Parameters & \(\sim 1.09\,\mathrm{M}\) & \(\sim 1.61\,\mathrm{M}\)\\
 \end{tabular}
 \end{center}
 \subsection{Evaluation Metric}
-\label{sec:org66bccbd}
+\label{sec:org23928a1}
 
 Uhlmann fidelity: \(F(\rho, \sigma) = (\mathrm{Tr}[\sqrt{\sqrt{\rho}\sigma\sqrt{\rho}}])^2\)
 
 Computed on test set after projecting outputs to valid density matrices (Hermitianize \(\to\) clamp negative eigenvalues \(\to\) normalize trace).
 \section{Results}
-\label{sec:org351f3e4}
+\label{sec:org1019d7f}
 
 \subsection{Effect of Frobenius Normalization}
-\label{sec:orgb3fd041}
+\label{sec:org589b4dd}
 
-Our central finding is that Frobenius normalization dramatically improves training stability and final model performance. Table \ref{tab:org805786e} compares validation loss with and without normalization on the 5-qubit dataset.
+Our central finding is that Frobenius normalization dramatically improves training stability and final model performance. Table \ref{tab:org0cc6178} compares validation loss with and without normalization on the 5-qubit dataset.
 
 \begin{table}[htbp]
-\caption{\label{tab:org805786e}Effect of Frobenius normalization on 5-qubit MLP training. Normalization reduces validation loss by 25\% and enables stable convergence. *Unstable: capacity scaling hurts performance; see Appendix \ref{sec:org2c0345f}.}
+\caption{\label{tab:org0cc6178}Effect of Frobenius normalization on 5-qubit MLP training. Normalization reduces validation loss by 25\% and enables stable convergence. *Unstable: capacity scaling hurts performance; see Appendix \ref{sec:orgd4415b5}.}
 \centering
 \begin{tabular}{lrl}
 Condition & Val Loss (epoch 100) & Convergence\\
@@ -275,12 +275,12 @@ Normalized & 0.340 & Stable\\
 
 Without normalization, the model must learn a \(\sim\)15 times scale correction (noisy norm \(\approx\) 0.07, clean norm = 1.0) simultaneously with structural denoising. This dual objective creates optimization difficulties: gradients from the scale mismatch dominate early training, preventing the model from learning fine-grained coherence recovery.
 \subsection{Normalization Enables Capacity Scaling}
-\label{sec:orgc650abe}
+\label{sec:orgffa8c28}
 
 A striking demonstration of normalization's importance comes from capacity ablations. Without normalization, scaling model capacity \textbf{hurts} performance:
 
 \begin{table}[htbp]
-\caption{\label{tab:org0c936c4}Capacity ablations on unnormalized 5-qubit data. Larger models perform worse, indicating optimization pathology rather than underfitting.}
+\caption{\label{tab:org37a5685}Capacity ablations on unnormalized 5-qubit data. Larger models perform worse, indicating optimization pathology rather than underfitting.}
 \centering
 \begin{tabular}{llrl}
 Model & Params & Uhlmann Fidelity & vs Baseline\\
@@ -293,12 +293,12 @@ MLP (deep) & 2.15M & 0.349 & 2.09 times\\
 
 The wide MLP (5 times parameters) and deep MLP (2 times layers) both perform \textbf{significantly worse} than the matched-capacity baseline. This counter-intuitive result---more capacity leading to worse performance---is a hallmark of optimization pathology rather than underfitting. With proper normalization, all model sizes converge stably to similar performance levels.
 \subsection{5-Qubit Results with Normalization}
-\label{sec:org555b8f5}
+\label{sec:org3a57936}
 
 With Frobenius normalization, both architectures achieve substantial improvements over the noisy baseline:
 
 \begin{table}[htbp]
-\caption{\label{tab:orgae69f4b}5-qubit model performance with Frobenius normalization. Both models use identical patch tokenization (\(4\times 4\) patches, 64 tokens) and matched parameter counts.}
+\caption{\label{tab:orge7e664e}5-qubit model performance with Frobenius normalization. Both models use identical patch tokenization (\(4\times 4\) patches, 64 tokens) and matched parameter counts.}
 \centering
 \begin{tabular}{llrl}
 Model & Params & Uhlmann Fidelity & vs Baseline\\
@@ -311,12 +311,12 @@ Transformer (hierarchical) & 1.09M & 0.525 & 3.14 times\\
 
 Notably, with proper normalization, the gap between MLP and Transformer narrows to \(\sim\)1.7\% relative (0.525 vs 0.516). This suggests that input conditioning is more important than architectural choice: once the optimization landscape is well-conditioned, even simple architectures can learn effective denoising mappings.
 \subsection{Normalization Enables 8-Qubit Scaling}
-\label{sec:org83ee95f}
+\label{sec:org846e630}
 
 The most dramatic demonstration of normalization's importance is at 8 qubits. Previous attempts to train on 8-qubit density matrices (\(256\times 256\), 65,536 complex elements) without normalization failed completely---models produced outputs no better than the noisy input. With normalization, both architectures achieve significant improvement:
 
 \begin{table}[htbp]
-\caption{\label{tab:orgc1f2ea9}8-qubit scaling results with Frobenius normalization. Despite the exponentially harder task (baseline 0.006), both models achieve more than 3 times improvement.}
+\caption{\label{tab:org45b6ae5}8-qubit scaling results with Frobenius normalization. Despite the exponentially harder task (baseline 0.006), both models achieve more than 3 times improvement.}
 \centering
 \begin{tabular}{lrl}
 Model & Uhlmann Fidelity & vs Baseline\\
@@ -329,22 +329,22 @@ Transformer (hierarchical) & 0.01901 & 3.00 times\\
 
 The 8-qubit task is exponentially harder: the baseline fidelity drops from 0.167 to 0.006, and the density matrix has 64 times more elements. Yet with normalization, the MLP achieves 3.76 times improvement over baseline---comparable relative improvement to the 5-qubit case. This would have been impossible without decoupling the scale prediction from structural denoising.
 \subsection{Training Dynamics}
-\label{sec:org55684b4}
+\label{sec:org0fe66e8}
 
-Figure \ref{fig:org4f214a2} visualizes the validation loss progression, illustrating the stable convergence enabled by normalization.
+Figure \ref{fig:org262f5b0} visualizes the validation loss progression, illustrating the stable convergence enabled by normalization.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=.9\linewidth]{figures/val_loss_curves.pdf}
-\caption{\label{fig:org4f214a2}Validation loss curves with Frobenius normalization. 5-qubit models (solid lines) show rapid initial improvement followed by gradual convergence. 8-qubit models (dashed lines) learn more slowly but maintain steady progress.}
+\caption{\label{fig:org262f5b0}Validation loss curves with Frobenius normalization. 5-qubit models (solid lines) show rapid initial improvement followed by gradual convergence. 8-qubit models (dashed lines) learn more slowly but maintain steady progress.}
 \end{figure}
 
 The 5-qubit curves show the expected pattern: rapid early improvement as models learn the dominant denoising structure, followed by gradual refinement. The 8-qubit curves progress more slowly, reflecting the massive increase in problem dimensionality, but crucially they \textbf{do} progress---in contrast to unnormalized training which plateaus immediately.
 \section{Discussion}
-\label{sec:orged85e12}
+\label{sec:org0461921}
 
 \subsection{Why Normalization Matters}
-\label{sec:org1862407}
+\label{sec:org143fd61}
 
 The physical origin of the scale mismatch is fundamental to quantum decoherence. The Frobenius norm of a density matrix equals the square root of its purity: \(\|\rho\|_F = \sqrt{\mathrm{Tr}(\rho^2)}\). Pure states have purity 1, while maximally mixed states have purity \(1/d\) (where \(d = 2^n\) for \(n\) qubits). Noise channels drive quantum states toward the maximally mixed state, systematically reducing their Frobenius norm.
 
@@ -352,7 +352,7 @@ For a 5-qubit system (\(d = 32\)), the maximally mixed state has \(\|\rho\|_F = 
 
 By normalizing to unit Frobenius norm, we remove this physically-determined but task-irrelevant scale variation, allowing models to focus on the coherence structure that distinguishes different quantum states.
 \subsection{Architecture vs. Conditioning}
-\label{sec:org4c82e8a}
+\label{sec:org1fdbc2e}
 
 Our results challenge the conventional focus on architectural innovation. With proper normalization:
 \begin{itemize}
@@ -363,11 +363,11 @@ Our results challenge the conventional focus on architectural innovation. With p
 
 This suggests that for quantum state denoising, \textbf{input conditioning is more important than architectural choice}. The dramatic performance gap observed in unnormalized experiments (wide/deep MLPs performing 35\% worse than baseline) was not due to architectural limitations but to optimization pathology caused by the scale mismatch.
 \subsection{Numerical Precision}
-\label{sec:org9b4490c}
+\label{sec:org52231aa}
 
-Earlier experiments used single precision (float32), but we observed numerical instability when computing Uhlmann fidelity due to small negative eigenvalues arising from floating-point errors during eigendecomposition. Switching to double precision (float64) throughout the pipeline resolved these issues. We recommend float64 for quantum state computations where eigendecomposition is required (see Appendix \ref{sec:org6d2af84}).
+Earlier experiments used single precision (float32), but we observed numerical instability when computing Uhlmann fidelity due to small negative eigenvalues arising from floating-point errors during eigendecomposition. Switching to double precision (float64) throughout the pipeline resolved these issues. We recommend float64 for quantum state computations where eigendecomposition is required (see Appendix \ref{sec:org5c331e8}).
 \subsection{Hierarchical Tokenization}
-\label{sec:orgc60494b}
+\label{sec:orge2f77b1}
 
 For computational tractability at larger qubit counts, we use patch-based tokenization that maintains a fixed token count (64) regardless of system size. This trades spatial resolution for scalability:
 \begin{itemize}
@@ -377,28 +377,28 @@ For computational tractability at larger qubit counts, we use patch-based tokeni
 
 The 8-qubit results validate this approach: despite extreme compression (2048:1), both models achieve more than 3 times baseline improvement. This would not have been possible without normalization enabling stable optimization in the first place.
 \subsection{Limitations}
-\label{sec:org4c9907a}
+\label{sec:org62540e8}
 
 \subsubsection{Patch Size Ceiling}
-\label{sec:org12ce0b2}
+\label{sec:org9229ae5}
 
 Our 8-qubit results expose a fundamental limitation: when patches become too large (\(32\times 32\) = 2048 complex values), the information loss at embedding overwhelms any benefit from attention. The hierarchical approach requires patches small enough to preserve local structure while remaining computationally tractable.
 
 For intermediate scales (6-7 qubits), smaller patches with more tokens may work---e.g., \(8\times 8\) patches on a \(64\times 64\) matrix yields 64 tokens with only 128 values per patch. We leave this exploration to future work.
 \subsubsection{Noise Model Simplicity}
-\label{sec:org82a0dd3}
+\label{sec:orgaf47c2a}
 
 Our synthetic noise model assumes independent, Markovian noise channels acting on each qubit (depolarizing, amplitude damping, phase damping). Real quantum processors exhibit significant \textbf{crosstalk} (correlated errors between qubits) and \textbf{non-Markovian} memory effects. While our current dataset does not capture these complexities, the Transformer's attention mechanism is theoretically well-suited to model such long-range noise correlations, potentially offering even greater advantages over local or independent processing methods in realistic settings.
 \subsubsection{Generalization to Real Hardware}
-\label{sec:org36d8387}
+\label{sec:org446a566}
 
 All experiments in this work rely on classical simulation of quantum states and noise. Deploying these models on actual hardware introduces challenges such as \textbf{calibration drift}, where the noise characteristics of the device change over time. A model trained on a static distribution of noise levels may degrade as the hardware drifts. Future work will investigate strategies for online adaptation or robust training across a wider envelope of noise parameters to mitigate this issue.
 \subsubsection{Physical Constraints on Intermediate Representations}
-\label{sec:org4cb4d1d}
+\label{sec:org057fe79}
 
 Our current approach enforces physical validity (Hermiticity, positive semi-definiteness, unit trace) only at evaluation time via post-hoc projection. An alternative would be to enforce these constraints on intermediate representations during training, potentially providing stronger inductive bias. However, our earlier experiments with Cholesky-constrained outputs---which guarantee valid density matrices by construction---caused models to collapse to trivial solutions (see Appendix, Failed Approaches). Future work could explore softer constraint mechanisms, such as physics-informed loss terms on intermediate layers or differentiable projections that maintain gradient flow while encouraging physically plausible representations throughout the network.
 \section{Conclusion}
-\label{sec:org1781c09}
+\label{sec:orgf1801ad}
 
 We identify Frobenius normalization as a critical preprocessing step for training neural networks to denoise quantum density matrices. This simple technique---normalizing inputs and targets to unit Frobenius norm---addresses the fundamental scale mismatch between noisy and clean quantum states caused by decoherence.
 
@@ -416,12 +416,12 @@ We identify Frobenius normalization as a critical preprocessing step for trainin
 
 \textbf{Implications.} Our results suggest that future work on quantum state denoising should prioritize input conditioning over architectural innovation. The physical scale mismatch caused by decoherence is a domain-specific challenge that requires domain-specific preprocessing. We recommend Frobenius normalization as a standard preprocessing step for any neural approach to quantum state reconstruction.
 \section{Appendix}
-\label{sec:orgf32ed3d}
+\label{sec:org52fe176}
 
 \subsection{Model Parameter Counts}
-\label{sec:org01012c5}
+\label{sec:orge215033}
 \begin{table}[htbp]
-\caption{\label{tab:orge59a5ff}Detailed parameter breakdown.}
+\caption{\label{tab:orgdd4f767}Detailed parameter breakdown.}
 \centering
 \begin{tabular}{lllll}
 Component & 5-qubit Transformer & 8-qubit Transformer & 5-qubit MLP & 8-qubit MLP\\
@@ -434,29 +434,29 @@ Total & \(\sim 1.09\,\mathrm{M}\) & \(\sim 1.61\,\mathrm{M}\) & \(\sim 1.09\,\ma
 \end{tabular}
 \end{table}
 \subsection{Frobenius vs. Uhlmann Correlation}
-\label{sec:org54a542a}
-To validate Frobenius fidelity as a training proxy, we analyzed its correlation with the ground-truth Uhlmann fidelity. Figure \ref{fig:orgb64cbd0} shows the relationship for 100 randomly sampled 5-qubit density matrices.
+\label{sec:orga52eace}
+To validate Frobenius fidelity as a training proxy, we analyzed its correlation with the ground-truth Uhlmann fidelity. Figure \ref{fig:org5f6f537} shows the relationship for 100 randomly sampled 5-qubit density matrices.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=.9\linewidth]{figures/frob_vs_uhlmann_correlation.pdf}
-\caption{\label{fig:orgb64cbd0}Correlation between Frobenius fidelity (normalized) and Uhlmann fidelity (physical) on a random subset of the 5-qubit dataset. The strong correlation (\(r=0.91\)) justifies using Frobenius fidelity as a training proxy.}
+\caption{\label{fig:org5f6f537}Correlation between Frobenius fidelity (normalized) and Uhlmann fidelity (physical) on a random subset of the 5-qubit dataset. The strong correlation (\(r=0.91\)) justifies using Frobenius fidelity as a training proxy.}
 \end{figure}
 \subsection{Single vs Double Precision}
-\label{sec:org6d2af84}
+\label{sec:org5c331e8}
 Early experiments used single precision (float32) for computational efficiency. However, we encountered numerical instability when computing Uhlmann fidelity, which requires eigendecomposition of density matrices. Small negative eigenvalues (order \(10^{-7}\) to \(10^{-8}\)) appeared due to floating-point accumulation errors, causing the square root operation in \(F(\rho, \sigma) = (\mathrm{Tr}[\sqrt{\sqrt{\rho}\sigma\sqrt{\rho}}])^2\) to produce NaN values.
 
 Switching to double precision (float64) eliminated these issues. While this doubles memory usage and slightly increases computation time, the improved numerical stability is essential for reliable fidelity evaluation. All results in this paper use float64.
 \subsection{Unnormalized Training Ablations}
-\label{sec:org2c0345f}
+\label{sec:orgd4415b5}
 The following ablations demonstrate the optimization pathology that occurs without Frobenius normalization. With unnormalized inputs (noisy matrices \(\sim\)15 times smaller norm than clean targets), increasing model capacity \textbf{hurts} performance---a clear signature of optimization difficulties rather than underfitting.
 \subsubsection{Capacity Ablation}
-\label{sec:orgd75f7c8}
+\label{sec:org5cc64da}
 
 We scaled MLP hidden dimensions by 4 times, increasing parameters from 1.09M to 5.29M.
 
 \begin{table}[htbp]
-\caption{\label{tab:orge2da87c}Capacity ablation without normalization: wider MLP performs worse, confirming optimization pathology.}
+\caption{\label{tab:org80b8f8c}Capacity ablation without normalization: wider MLP performs worse, confirming optimization pathology.}
 \centering
 \begin{tabular}{llrl}
 Model & Params & Uhlmann Fidelity & Notes\\
@@ -469,12 +469,12 @@ Transformer & 1.09M & 0.525 & Comparison\\
 
 The wide MLP performed 33\% \textbf{worse} than the matched MLP (0.344 vs 0.516), despite having nearly 5 times more parameters. This counter-intuitive result indicates severe optimization difficulties: the model has sufficient capacity but cannot find a good solution due to the ill-conditioned loss landscape.
 \subsubsection{Depth Ablation}
-\label{sec:orgb8b4022}
+\label{sec:org93a6b78}
 
 We doubled the number of layers from 4+4 to 8+8.
 
 \begin{table}[htbp]
-\caption{\label{tab:orgfcaeb39}Depth ablation without normalization: deeper MLP performs worse, confirming optimization pathology.}
+\caption{\label{tab:orgc2f96d6}Depth ablation without normalization: deeper MLP performs worse, confirming optimization pathology.}
 \centering
 \begin{tabular}{lrlrl}
 Model & Layers & Params & Uhlmann Fidelity & Notes\\
@@ -487,7 +487,7 @@ Transformer & 4+4 & 1.09M & 0.525 & Comparison\\
 
 The deep MLP also performed 32\% \textbf{worse} than the matched MLP (0.349 vs 0.516). Together, these ablations confirm that the performance limitations in unnormalized training stem from optimization difficulties, not insufficient model capacity. With proper Frobenius normalization, we expect these larger models to converge to similar performance as the matched baseline.
 \subsection{Failed Approaches}
-\label{sec:org2cadf2e}
+\label{sec:orgdadaa65}
 
 During development, we explored several approaches that failed:
 
@@ -496,4 +496,5 @@ During development, we explored several approaches that failed:
 \item \textbf{Row-based tokenization}: Treating each matrix row as a token (32 tokens for 5-qubit) underperformed element-wise and patch-based approaches.
 \item \textbf{Non-residual MLP}: Removing residual connections from the MLP caused catastrophic information loss, with performance worse than baseline.
 \end{itemize}
+\printbibliography
 \end{document}
