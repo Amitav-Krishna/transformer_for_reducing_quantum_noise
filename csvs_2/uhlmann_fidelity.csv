@@ -1,5 +1,0 @@
-model,mean_fidelity,std_fidelity
-cnn_frob,0.3048,0.2843
-cnn_physics,0.0585,0.0505
-transformer_frob,0.9495,0.1242
-transformer_physics,0.3318,0.3344

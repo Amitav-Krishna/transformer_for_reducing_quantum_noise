@@ -1,0 +1,121 @@
+\begin{thebibliography}{13}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Bravyi et~al.(2024)Bravyi, Cross, Gambetta, Maslov, Rall, and
+  Yoder]{Bravyi_2024}
+Sergey Bravyi, Andrew~W. Cross, Jay~M. Gambetta, Dmitri Maslov, Patrick Rall,
+  and Theodore~J. Yoder.
+\newblock High-threshold and low-overhead fault-tolerant quantum memory.
+\newblock \emph{Nature}, 627\penalty0 (8005):\penalty0 778–782, March 2024.
+\newblock ISSN 1476-4687.
+\newblock \doi{10.1038/s41586-024-07107-7}.
+\newblock URL \url{http://dx.doi.org/10.1038/s41586-024-07107-7}.
+
+\bibitem[Breuckmann and Ni(2018)]{breuckmann_scalable_2018}
+Nikolas~P. Breuckmann and Xiaotong Ni.
+\newblock Scalable {Neural} {Network} {Decoders} for {Higher} {Dimensional}
+  {Quantum} {Codes}.
+\newblock \emph{Quantum}, 2:\penalty0 68, May 2018.
+\newblock ISSN 2521-327X.
+\newblock \doi{10.22331/q-2018-05-24-68}.
+\newblock URL \url{https://quantum-journal.org/papers/q-2018-05-24-68/}.
+
+\bibitem[Bultrini et~al.(2023)Bultrini, Gordon, Czarnik, Arrasmith, Cerezo,
+  Coles, and Cincio]{Bultrini_2023}
+Daniel Bultrini, Max~Hunter Gordon, Piotr Czarnik, Andrew Arrasmith, M.~Cerezo,
+  Patrick~J. Coles, and Lukasz Cincio.
+\newblock Unifying and benchmarking state-of-the-art quantum error mitigation
+  techniques.
+\newblock \emph{Quantum}, 7:\penalty0 1034, June 2023.
+\newblock ISSN 2521-327X.
+\newblock \doi{10.22331/q-2023-06-06-1034}.
+\newblock URL \url{http://dx.doi.org/10.22331/q-2023-06-06-1034}.
+
+\bibitem[Cai et~al.(2023)Cai, Babbush, Benjamin, Endo, Huggins, Li, McClean,
+  and O'Brien]{RevModPhys.95.045005}
+Zhenyu Cai, Ryan Babbush, Simon~C. Benjamin, Suguru Endo, William~J. Huggins,
+  Ying Li, Jarrod~R. McClean, and Thomas~E. O'Brien.
+\newblock Quantum error mitigation.
+\newblock \emph{Rev. Mod. Phys.}, 95:\penalty0 045005, Dec 2023.
+\newblock \doi{10.1103/RevModPhys.95.045005}.
+\newblock URL \url{https://link.aps.org/doi/10.1103/RevModPhys.95.045005}.
+
+\bibitem[Chamberland and Ronagh(2018)]{chamberland_deep_2018}
+Christopher Chamberland and Pooya Ronagh.
+\newblock Deep neural decoders for near term fault-tolerant experiments.
+\newblock \emph{Quantum Science and Technology}, 3\penalty0 (4):\penalty0
+  044002, July 2018.
+\newblock ISSN 2058-9565.
+\newblock \doi{10.1088/2058-9565/aad1f7}.
+\newblock URL
+  \url{https://iopscience.iop.org/article/10.1088/2058-9565/aad1f7}.
+
+\bibitem[Erol(2025)]{202509.2149}
+Volkan Erol.
+\newblock Quantum error correction and fault-tolerant computing: Recent
+  progress in codes, decoders, and architectures.
+\newblock \emph{Preprints}, September 2025.
+\newblock \doi{10.20944/preprints202509.2149.v1}.
+\newblock URL \url{https://doi.org/10.20944/preprints202509.2149.v1}.
+
+\bibitem[Filippov et~al.(2024)Filippov, Maniscalco, and
+  García-Pérez]{filippov2024scalabilityquantumerrormitigation}
+Sergey~N. Filippov, Sabrina Maniscalco, and Guillermo García-Pérez.
+\newblock Scalability of quantum error mitigation techniques: from utility to
+  advantage, 2024.
+\newblock URL \url{https://arxiv.org/abs/2403.13542}.
+
+\bibitem[Kendre(2025)]{kendre2025machinelearningquantumnoise}
+Karan Kendre.
+\newblock Machine learning for quantum noise reduction, 2025.
+\newblock URL \url{https://arxiv.org/abs/2509.16242}.
+
+\bibitem[Koutn\'y et~al.(2022)Koutn\'y, Motka, Hradil, \ifmmode \check{R}\else
+  \v{R}\fi{}eh\'a\ifmmode~\check{c}\else \v{c}\fi{}ek, and
+  S\'anchez-Soto]{PhysRevA.106.012409}
+Dominik Koutn\'y, Libor Motka, Zden\ifmmode \check{e}\else~\v{e}\fi{}k Hradil,
+  Jaroslav \ifmmode \check{R}\else \v{R}\fi{}eh\'a\ifmmode~\check{c}\else
+  \v{c}\fi{}ek, and Luis~L. S\'anchez-Soto.
+\newblock Neural-network quantum state tomography.
+\newblock \emph{Phys. Rev. A}, 106:\penalty0 012409, Jul 2022.
+\newblock \doi{10.1103/PhysRevA.106.012409}.
+\newblock URL \url{https://link.aps.org/doi/10.1103/PhysRevA.106.012409}.
+
+\bibitem[Ma et~al.(2025)Ma, Qi, Petersen, Wu, Rabitz, and Dong]{Ma_2025}
+Hailan Ma, Bo~Qi, Ian~R Petersen, Re-Bing Wu, Herschel Rabitz, and Daoyi Dong.
+\newblock Machine learning for estimation and control of quantum systems.
+\newblock \emph{National Science Review}, 12\penalty0 (8), July 2025.
+\newblock ISSN 2053-714X.
+\newblock \doi{10.1093/nsr/nwaf269}.
+\newblock URL \url{http://dx.doi.org/10.1093/nsr/nwaf269}.
+
+\bibitem[Morgillo et~al.(2024)Morgillo, Mangini, Piastra, and
+  Macchiavello]{Morgillo_2024}
+Angela~Rosy Morgillo, Stefano Mangini, Marco Piastra, and Chiara Macchiavello.
+\newblock Quantum state reconstruction in a noisy environment via deep
+  learning.
+\newblock \emph{Quantum Machine Intelligence}, 6\penalty0 (2), July 2024.
+\newblock ISSN 2524-4914.
+\newblock \doi{10.1007/s42484-024-00168-x}.
+\newblock URL \url{http://dx.doi.org/10.1007/s42484-024-00168-x}.
+
+\bibitem[Nielsen and Chuang(2010)]{nielsen_chuang_2010}
+Michael~A. Nielsen and Isaac~L. Chuang.
+\newblock \emph{Quantum Computation and Quantum Information: 10th Anniversary
+  Edition}.
+\newblock Cambridge University Press, Cambridge, 2010.
+\newblock ISBN 9780521635035.
+
+\bibitem[Wang et~al.(2023)Wang, Liu, Shao, Li, Gu, Pan, Ding, and
+  Han]{wang2023transformerqecquantumerrorcorrection}
+Hanrui Wang, Pengyu Liu, Kevin Shao, Dantong Li, Jiaqi Gu, David~Z. Pan,
+  Yongshan Ding, and Song Han.
+\newblock Transformer-qec: Quantum error correction code decoding with
+  transferable transformers, 2023.
+\newblock URL \url{https://arxiv.org/abs/2311.16082}.
+
+\end{thebibliography}

@@ -1,0 +1,53 @@
+This is a **self-review**. Do note that some of this may be somewhat incoherent and some terminology may be off, as these are ad-hoc notes. Most emphases will be mine. There may also be some typos within citations and without, as this was, again, ad hoc. Some points may be repeated, again, ad hoc.
+
+* Table of contents is annoying :style:
+* Em-dashes, em-dashes everywhere. :style:
+* "The question of whether _global attention mechanisms_ provide systemic advantages for _quantum states_ with _non-local entanglement correlations_" 
+** Is this a giant question? This seems to overestimate how prevelent these sorts of problems are. Rephrasing to somoething like "the effectiveness of global attention mechanisms for the denoising of quantum states with non-local entanglement correlations remains underexplore". AFAIK it's unexplored, but that's begging to be torn to pieces by a peer reviewer with too much time on their hands. :content:
+** Is entanglement necessarily non-local? Our argument hdepends heavily on this fact, so it'd better be right. I'd lean towards a citation / justification if possible, because that's a pretty specific thing to take as axiomatic. :content:
+* "we present a _controlled comparison_ of multilayer perceptron and Transfiormer autoencder for density matrix denoising using matched parameter counts (~120k) to isolate the effect of architectural bias"
+** Is it /really/ controlled? :content:
+*** Activation functions (GELU vs. ReLU)
+*** MLP is residual but not the transformer.
+** "matched" is too strong and too imprecise. I'd prefer something like "close" or "similar" or something along those lines.
+* "our experiments also demonstrate that [...] hard constraints [...] induce pathological optimization landscapes."
+** I'm going to assume that "pathological optimization landscapes" translates to "sucks ass" in regular english" 
+** Are we sure that it's not a skill issue with our model configuration? That's a pretty strong statement if not. :content:
+* Citations should be (Smith et al. 1984) instead of (John Smith and JOhn Doe and John Blogs, 1984) or whatever menagerie we have with our in-text citations right now :style:
+* "approaches to managing hardware noise broadly fall into quantum error correction (QEC) and quantum error mitigation (QEM). [...] In contrast to syndrome decoding and observable-level mitigation, this work focuses specifcially on *state-level denoising of density matrices*"
+** Emphasis not mine
+** Just as a storytelling critique, I feel sort of let down by that last sentence. I was waiting for the reveal of into which of these neatly-divided categories this work falls into, only to be betrayed by the sudden appearance of a /third/ category.
+* Verify :content:
+** All 20 noise cells are actually used. Check the dataset generation + partition scripts.
+** Kraus operator definitions of noise. Add citations
+** Numerical stability for eigendecomposition used in post-hoc projection
+*** idk if numerical stability is the right word, but I know that careless eigendecomposition can fuck up a lot of stuff.
+** Projection definition. Check against the script. Remember, *the code is the source of truth*.
+** Transformer specs
+*** 4 attention heads
+*** 4 transformer layers
+*** 32 embedding dimension
+*** 64 fast-forward dimension
+*** (32 -> 16 -> 32) bottleneck, mirrrored by decoder
+* Why not make the transformer residual as well? Are these really comparable models? You should be defend yourself on the fact that these are, in fact, comparable. :content:
+* What does each element of a density matrix represent? Why is element-wise a "natural fit for quantum states where entanglement induces non-local dependencies"? You still haven't convinced me that entanglement induces non-local dependencies. :content:
+* /O/\(1024^2) is monstorous. How does this scale? I guess that it probably doesn't, which is proably something to tackle in the conclusion. :content:
+* Citation needed for frobenius inner product similarity :content:
+* "Comparable" and "comparison" used a lot in quick succession :style:
+* "Comparable" used a lot. Some synonyms would be nice :style:
+* Mention how expensive Uhlmann fidelity is due to matrix square roots :content:
+* Specifics on compute :content:
+** 1 RTX A4000
+** 16 vCPUs
+** 62 GBs of memory
+** 5 GBs of /container/ storage
+** 20 GBs of /volume storage
+** Hosted on RunPod
+* Figures :content:
+** Validation loss per epoch of MLP vs. Transformer, overlaid.
+** Uhlmann fidelity per noise cell
+*** Baseline
+*** MLP
+*** Transformer
+* Uhlmann vs. Frobenius rank correlation
+** Can probably rip mostly verbatim from paper_v2, along with the chart.

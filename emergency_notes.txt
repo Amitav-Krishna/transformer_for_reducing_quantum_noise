@@ -1,1 +1,0 @@
-I am supposed to be upstairs for a potluck. checkpoints_3_new and csvs_3_new are the newest iterations of the training. There are some checkpoints left in checkpoints_3_new that are from older trains, see nohup.out for more details and for some reason I can't explain csvs_3 is missing csvs in both of the files note to self copy over training scripts for scrutiny

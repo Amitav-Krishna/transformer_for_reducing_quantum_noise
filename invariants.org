@@ -1,7 +1,0 @@
-* Results must scale.
-* The model input must be a valid noisy density matrix.
-* The model output *must* have higher Uhlmann fidelity to the clean state than the noisy input.
-* We do *not* claim element-wise or local observable preservation; we only optimize global fidelity metrics.
-Still goes over my head
-* Data representations must preserve spectral structure.
-What the fuck does "spectral" 
