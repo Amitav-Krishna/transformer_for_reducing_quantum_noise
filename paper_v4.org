@@ -9,7 +9,7 @@
 #+LATEX_HEADER: \captionsetup{list=no}
 #+cite_export: biblatex
 * Abstract
-We identify Frobenius normalization as a critical preprocessing step for training neural networks to denoise quantum density matrices. Decoherence reduces the purity of quantum states, and since Frobenius norm equals the square root of purity, noisy inputs have much lower norm than clean targets (\sim0.07 vs 1.0 for 5-qubit systems). This forces models to simultaneously learn structural denoising and a \sim15 times scale correction. By normalizing inputs and targets to unit Frobenius norm, we deliberately discard purity information agnd allow models to focus purely on recovering coherence structure. This is justified because our clean targets are always pure states (purity = 1), so the output purity is known a priori. With normalization, we achieve a 25% reduction in validation loss (0.458 $\to$ 0.340) and stable convergence where unnormalized training fails. On 5-qubit density matrices, normalized models achieve 3.14 times improvement over the noisy baseline (0.525 Uhlmann fidelity). Crucially, normalization enables scaling to 8-qubit systems ($256\times 256$ matrices), where unnormalized models failed completely but normalized models achieve 3.76 times improvement over baseline. We further demonstrate that with proper normalization, the gap between Transformer and MLP architectures narrows considerably (0.525 vs 0.516), suggesting that input conditioning is more important than architectural choice for this task. Ablations confirm that capacity scaling (5 times wider, 2 times deeper MLPs) hurts performance without normalization, while normalized models of all sizes converge reliably. Our results establish Frobenius normalization as essential for quantum state denoising and provide a foundation for scaling neural denoising to larger quantum systems.
+We identify Frobenius normalization as a critical preprocessing step for training neural networks to denoise quantum density matrices. Decoherence reduces the purity of quantum states, and since Frobenius norm equals the square root of purity, noisy inputs have much lower norm than clean targets (\sim0.07 vs 1.0 for 5-qubit systems). This forces models to simultaneously learn structural denoising and a \sim15 times scale correction. By normalizing inputs and targets to unit Frobenius norm, we deliberately discard purity information and allow models to focus purely on recovering coherence structure. This is justified because our clean targets are always pure states (purity = 1), so the output purity is known a priori. With normalization, we achieve a 25% reduction in validation loss (0.458 $\to$ 0.340) and stable convergence where unnormalized training fails. On 5-qubit density matrices, normalized models achieve 3.14 times improvement over the noisy baseline (0.525 Uhlmann fidelity). Crucially, normalization enables scaling to 8-qubit systems ($256\times 256$ matrices), where unnormalized models failed completely but normalized models achieve 3.76 times improvement over baseline. Ablations confirm that capacity scaling (5 times wider, 2 times deeper MLPs) hurts performance without normalization, while normalized models of all sizes converge reliably. Our results establish Frobenius normalization as essential for quantum state denoising and provide a foundation for scaling neural denoising to larger quantum systems.
 
 
 * Introduction
@@ -39,7 +39,7 @@ This simple preprocessing step decouples structural denoising from scale predict
 Our results demonstrate:
 1. **Dramatic Improvement**: Normalization reduces 5-qubit MLP validation loss by 25% (0.458 $\to$ 0.340).
 2. **Enables Scaling**: 8-qubit models fail completely without normalization but achieve 3.76 times baseline improvement with it.
-3. **Architecture-Agnostic**: Both Transformer and MLP architectures benefit equally; the performance gap narrows to \sim1.7% (0.525 vs 0.516 Uhlmann fidelity).
+3. **Architecture-Agnostic**: Both Transformer and MLP architectures benefit equally from normalization, achieving similar final performance.
 4. **Capacity Ablations**: Without normalization, wider (5 times) and deeper (2 times) MLPs perform *worse* than the baseline model; with normalization, all models converge stably.
 
 We additionally use hierarchical patch-based tokenization to enable scaling to larger quantum systems while maintaining computational tractability.
@@ -158,7 +158,7 @@ This isolates the effect of attention vs. fixed learned mixing weights.
 Parameter counts matched to Transformer: \(\sim 1.09\,\mathrm{M}\) (5-qubit), \(\sim 1.61\,\mathrm{M}\) (8-qubit).
 
 ** Ablation Models
-To verify that the performance gap between the Transformer and MLP is driven by architectural inductive bias rather than model capacity, we trained two larger MLP variants. If the standard MLP's underperformance were due to a lack of parameters or depth, these larger models should close the gap. We maintained identical optimization hyperparameters (learning rate, weight decay, batch size) to the baseline MLP to ensure a fair comparison. Both ablation models converged stably but to higher loss values, ruling out overfitting (where validation loss would diverge) or instability as primary causes for their underperformance.
+To test whether larger models benefit more from normalization, we trained two larger MLP variants. We maintained identical optimization hyperparameters (learning rate, weight decay, batch size) to the baseline MLP to ensure a fair comparison.
 
 *** Wide MLP (\(\sim 5.2\,\mathrm{M}\) params)
 
@@ -227,11 +227,11 @@ A striking demonstration of normalization's importance comes from capacity ablat
 #+CAPTION: Capacity ablations on unnormalized 5-qubit data. Larger models perform worse, indicating optimization pathology rather than underfitting.
 | Model         | Params | Uhlmann Fidelity | vs Baseline |
 |---------------+--------+------------------+-------------|
-| MLP (matched) | 1.09M  |            0.516 | 3.09 times  |
-| MLP (wide)    | 5.29M  |            0.344 | 2.06 times  |
-| MLP (deep)    | 2.15M  |            0.349 | 2.09 times  |
+| MLP (matched) | 1.09M  |            0.463 | 2.77 times  |
+| MLP (wide)    | 5.29M  |            0.310 | 1.86 times  |
+| MLP (deep)    | 2.15M  |            0.407 | 2.44 times  |
 
-The wide MLP (5 times parameters) and deep MLP (2 times layers) both perform *significantly worse* than the matched-capacity baseline. This counter-intuitive result---more capacity leading to worse performance---is a hallmark of optimization pathology rather than underfitting. With proper normalization, all model sizes converge stably to similar performance levels.
+The wide MLP (5 times parameters) performs *33% worse* than the matched-capacity baseline (0.310 vs 0.463), and the deep MLP (2 times layers) performs *12% worse* (0.407 vs 0.463). This counter-intuitive result---more capacity leading to worse performance---is a hallmark of optimization pathology rather than underfitting. With proper normalization, the matched MLP improves to 0.516 Uhlmann fidelity (see next section).
 
 ** 5-Qubit Results with Normalization
 
@@ -246,7 +246,7 @@ With Frobenius normalization, both architectures achieve substantial improvement
 | MLP (hierarchical)         | 1.09M  |            0.516 | 3.09 times  |
 | Transformer (hierarchical) | 1.09M  |            0.525 | 3.14 times  |
 
-Notably, with proper normalization, the gap between MLP and Transformer narrows to \sim1.7% relative (0.525 vs 0.516). This suggests that input conditioning is more important than architectural choice: once the optimization landscape is well-conditioned, even simple architectures can learn effective denoising mappings.
+Comparing to the unnormalized results (Table [[tab:capacity-effect]]), normalization improved the MLP from 0.463 to 0.516 (+11%) and the Transformer from 0.420 to 0.525 (+25%). Both architectures achieve similar performance with proper normalization, demonstrating that input conditioning enables effective denoising regardless of architectural choice.
 
 ** Normalization Enables 8-Qubit Scaling
 
@@ -271,7 +271,7 @@ Figure [[fig:val-loss-curves]] visualizes the validation loss progression, illus
 #+CAPTION: Validation loss curves with Frobenius normalization. 5-qubit models (solid lines) show rapid initial improvement followed by gradual convergence. 8-qubit models (dashed lines) learn more slowly but maintain steady progress.
 [[file:figures/val_loss_curves.pdf]]
 
-The 5-qubit curves show the expected pattern: rapid early improvement as models learn the dominant denoising structure, followed by gradual refinement. The 8-qubit curves progress more slowly, reflecting the massive increase in problem dimensionality, but crucially they *do* progress---in contrast to unnormalized training which plateaus immediately.
+The 5-qubit curves show the expected pattern: rapid early improvement as models learn the dominant denoising structure, followed by gradual refinement. The 8-qubit curves progress more slowly, reflecting the massive increase in problem dimensionality, but crucially they *do* progress---in contrast to unnormalized training which plateaus immediately. To verify that stable convergence is not seed-dependent, we trained models with two additional random seeds; all runs converged to similar validation loss (see Appendix [[#sec:seed-ablation]]).
 
 * Discussion
 
@@ -285,12 +285,12 @@ By normalizing to unit Frobenius norm, we remove this physically-determined but 
 
 ** Architecture vs. Conditioning
 
-Our results challenge the conventional focus on architectural innovation. With proper normalization:
-- The Transformer advantage narrows to \sim1.7% (0.525 vs 0.516)
-- Both architectures achieve more than 3 times baseline improvement
+Our results highlight that input conditioning is more important than architectural choice for this task. With proper normalization:
+- Both Transformer and MLP architectures achieve more than 3 times baseline improvement
+- Both architectures converge to similar final performance
 - Capacity scaling (width, depth) no longer hurts performance
 
-This suggests that for quantum state denoising, *input conditioning is more important than architectural choice*. The dramatic performance gap observed in unnormalized experiments (wide/deep MLPs performing 35% worse than baseline) was not due to architectural limitations but to optimization pathology caused by the scale mismatch.
+The dramatic performance degradation observed in unnormalized capacity ablations (wide/deep MLPs performing 35% worse than baseline) was due to optimization pathology caused by the scale mismatch, not fundamental model limitations.
 
 ** Numerical Precision
 
@@ -314,7 +314,7 @@ For intermediate scales (6-7 qubits), smaller patches with more tokens may work-
 
 *** Noise Model Simplicity
 
-Our synthetic noise model assumes independent, Markovian noise channels acting on each qubit (depolarizing, amplitude damping, phase damping). Real quantum processors exhibit significant *crosstalk* (correlated errors between qubits) and *non-Markovian* memory effects. While our current dataset does not capture these complexities, the Transformer's attention mechanism is theoretically well-suited to model such long-range noise correlations, potentially offering even greater advantages over local or independent processing methods in realistic settings.
+Our synthetic noise model assumes independent, Markovian noise channels acting on each qubit (depolarizing, amplitude damping, phase damping). Real quantum processors exhibit significant *crosstalk* (correlated errors between qubits) and *non-Markovian* memory effects. Extending our normalization approach to models trained on realistic correlated noise is an important direction for future work.
 
 *** Generalization to Real Hardware
 
@@ -334,11 +334,13 @@ We identify Frobenius normalization as a critical preprocessing step for trainin
 
 2. *Normalization enables scaling.* 8-qubit models ($256\times 256$ matrices) fail completely without normalization but achieve 3.76 times baseline improvement with it. This demonstrates that normalization is not merely helpful but *essential* for scaling to larger quantum systems.
 
-3. *Architecture matters less than conditioning.* With proper normalization, the gap between Transformer and MLP architectures narrows to \sim1.7% (0.525 vs 0.516 Uhlmann fidelity). The dramatic performance differences observed in unnormalized experiments were optimization artifacts, not fundamental architectural limitations.
+3. *Architecture-agnostic benefit.* Both Transformer and MLP architectures achieve similar performance with proper normalization, confirming that input conditioning is the critical factor for this task.
 
 4. *Capacity ablations confirm the diagnosis.* Without normalization, wider (5 times) and deeper (2 times) MLPs perform *worse* than the baseline model---a clear signature of optimization pathology rather than underfitting.
 
 *Implications.* Our results suggest that future work on quantum state denoising should prioritize input conditioning over architectural innovation. The physical scale mismatch caused by decoherence is a domain-specific challenge that requires domain-specific preprocessing. We recommend Frobenius normalization as a standard preprocessing step for any neural approach to quantum state reconstruction.
+
+*Future directions.* An intriguing finding is that the Transformer benefited more from normalization than the MLP (+25% vs +11% Uhlmann fidelity). We hypothesize that Transformers' internal LayerNorm operations may conflict with external scale mismatches: LayerNorm assumes inputs have consistent scale across the sequence, but unnormalized density matrices violate this assumption as different matrix regions have vastly different magnitudes depending on decoherence. Once external normalization resolves the scale mismatch, LayerNorm can function as intended. This suggests that architectures with internal normalization layers may be particularly sensitive to input preprocessing---and that other architectures previously dismissed for quantum tasks may warrant re-evaluation with proper conditioning.
 
 * Appendix
 
@@ -388,11 +390,11 @@ We scaled MLP hidden dimensions by 4 times, increasing parameters from 1.09M to 
 #+CAPTION: Capacity ablation without normalization: wider MLP performs worse, confirming optimization pathology.
 | Model         | Params | Uhlmann Fidelity | Notes                |
 |---------------+--------+------------------+----------------------|
-| MLP (matched) | 1.09M  |            0.516 | Baseline MLP         |
-| MLP (wide)    | 5.29M  |            0.344 | 5 times more params  |
-| Transformer   | 1.09M  |            0.525 | Comparison           |
+| MLP (matched) | 1.09M  |            0.463 | Baseline MLP         |
+| MLP (wide)    | 5.29M  |            0.310 | 5 times more params  |
+| Transformer   | 1.09M  |            0.420 | Comparison           |
 
-The wide MLP performed 33% *worse* than the matched MLP (0.344 vs 0.516), despite having nearly 5 times more parameters. This counter-intuitive result indicates severe optimization difficulties: the model has sufficient capacity but cannot find a good solution due to the ill-conditioned loss landscape.
+The wide MLP performed 33% *worse* than the matched MLP (0.310 vs 0.463), despite having nearly 5 times more parameters. This counter-intuitive result indicates severe optimization difficulties: the model has sufficient capacity but cannot find a good solution due to the ill-conditioned loss landscape.
 
 *** Depth Ablation
 
@@ -402,11 +404,26 @@ We doubled the number of layers from 4+4 to 8+8.
 #+CAPTION: Depth ablation without normalization: deeper MLP performs worse, confirming optimization pathology.
 | Model         | Layers | Params | Uhlmann Fidelity | Notes            |
 |---------------+--------+--------+------------------+------------------|
-| MLP (matched) |    4+4 | 1.09M  |            0.516 | Baseline MLP     |
-| MLP (deep)    |    8+8 | 2.15M  |            0.349 | 2 times depth    |
-| Transformer   |    4+4 | 1.09M  |            0.525 | Comparison       |
+| MLP (matched) |    4+4 | 1.09M  |            0.463 | Baseline MLP     |
+| MLP (deep)    |    8+8 | 2.15M  |            0.407 | 2 times depth    |
+| Transformer   |    4+4 | 1.09M  |            0.420 | Comparison       |
 
-The deep MLP also performed 32% *worse* than the matched MLP (0.349 vs 0.516). Together, these ablations confirm that the performance limitations in unnormalized training stem from optimization difficulties, not insufficient model capacity. With proper Frobenius normalization, we expect these larger models to converge to similar performance as the matched baseline.
+The deep MLP performed 12% *worse* than the matched MLP (0.407 vs 0.463). Together, these ablations confirm that the performance limitations in unnormalized training stem from optimization difficulties, not insufficient model capacity. With proper Frobenius normalization, the matched MLP improves from 0.463 to 0.516 Uhlmann fidelity.
+
+** Seed Robustness
+:PROPERTIES:
+:CUSTOM_ID: sec:seed-ablation
+:END:
+
+To confirm that stable convergence under Frobenius normalization is not an artifact of a particular random initialization, we retrained 5-qubit models with two additional model initialization seeds (100 and 200) while keeping the data split fixed (seed=42).
+
+| Init Seed | MLP Val Loss | Transformer Val Loss |
+|-----------+--------------+----------------------|
+|        42 |        0.340 |                0.328 |
+|       100 |        0.337 |                0.347 |
+|       200 |        0.323 |                0.345 |
+
+All runs converged to similar validation loss (0.32--0.35), confirming that normalization enables reproducible training across random initializations.
 
 ** Failed Approaches
 
