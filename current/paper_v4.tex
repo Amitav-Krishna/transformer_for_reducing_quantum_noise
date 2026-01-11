@@ -13,8 +13,7 @@
 \usepackage{capt-of}
 \usepackage{hyperref}
 \usepackage{subcaption}
-\usepackage[backend=biber]{biblatex}
-\addbibresource{references.bib}
+\usepackage{cite}
 \usepackage[font=small,labelfont=bf]{caption}
 \captionsetup{list=no}
 \author{Amitav Krishna\thanks{Correspondence: amitavkrishna@proton.me}}
@@ -36,9 +35,9 @@ We identify Frobenius normalization as a critical preprocessing step for trainin
 \section{Introduction}
 \label{sec:orgd5ddf3a}
 
-Approaches to managing quantum hardware noise broadly fall into three categories: quantum error correction (QEC), quantum error mitigation (QEM), and state-level denoising. QEC provides a principled route to fault-tolerant computation by encoding logical information into larger composite systems and continuously detecting and correcting physical errors via syndrome measurements \autocites{Bravyi_2024}[][]{202509.2149}. However, current devices remain far above fault-tolerance thresholds, and the overhead of large code distances limits near-term applicability. QEM targets near-term hardware by reducing noise impact through circuit-level extrapolation and statistical post-processing, recovering accurate expectation values rather than full quantum states \autocites{RevModPhys.95.045005}[][]{Bultrini_2023}.
+Approaches to managing quantum hardware noise broadly fall into three categories: quantum error correction (QEC), quantum error mitigation (QEM), and state-level denoising. QEC provides a principled route to fault-tolerant computation by encoding logical information into larger composite systems and continuously detecting and correcting physical errors via syndrome measurements \cite{Bravyi_2024, 202509.2149}. However, current devices remain far above fault-tolerance thresholds, and the overhead of large code distances limits near-term applicability. QEM targets near-term hardware by reducing noise impact through circuit-level extrapolation and statistical post-processing, recovering accurate expectation values rather than full quantum states \cite{RevModPhys.95.045005, Bultrini_2023}.
 
-This work focuses on a distinct problem: \textbf{state-level denoising of density matrices}, which aims to reconstruct full quantum states rather than correct logical qubits (QEC) or recover expectation values (QEM). Prior work has explored convolutional \autocite{kendre2025machinelearningquantumnoise} and feedforward \autocite{Morgillo_2024} architectures for this task, but has not systematically addressed input preprocessing for the unique properties of quantum density matrices. We identify a fundamental challenge that has been overlooked: the dramatic scale mismatch between noisy inputs and clean targets caused by decoherence in large circuits.
+This work focuses on a distinct problem: \textbf{state-level denoising of density matrices}, which aims to reconstruct full quantum states rather than correct logical qubits (QEC) or recover expectation values (QEM). Prior work has explored convolutional \cite{kendre2025machinelearningquantumnoise} and feedforward \cite{Morgillo_2024} architectures for this task, but has not systematically addressed input preprocessing for the unique properties of quantum density matrices. We identify a fundamental challenge that has been overlooked: the dramatic scale mismatch between noisy inputs and clean targets caused by decoherence in large circuits.
 \subsection{The Scale Mismatch Problem}
 \label{sec:orgc3cbcd3}
 
@@ -75,15 +74,15 @@ We additionally use hierarchical patch-based tokenization to enable scaling to l
 \subsection{Input Normalization in Deep Learning}
 \label{sec:org0812619}
 
-Input normalization is well-established in deep learning. Batch normalization \autocite{ioffe2015batch} and layer normalization \autocite{ba2016layer} address internal covariate shift, while input standardization (zero mean, unit variance) is standard practice for feedforward networks. However, quantum density matrices present a unique challenge: the \textbf{inherent} scale difference between noisy and clean states is not statistical variation but a physical consequence of decoherence. Our work identifies Frobenius normalization as the appropriate preprocessing for this domain, demonstrating that it is not merely helpful but \textbf{essential} for stable training and scaling.
+Input normalization is well-established in deep learning. Batch normalization \cite{ioffe2015batch} and layer normalization \cite{ba2016layer} address internal covariate shift, while input standardization (zero mean, unit variance) is standard practice for feedforward networks. However, quantum density matrices present a unique challenge: the \textbf{inherent} scale difference between noisy and clean states is not statistical variation but a physical consequence of decoherence. Our work identifies Frobenius normalization as the appropriate preprocessing for this domain, demonstrating that it is not merely helpful but \textbf{essential} for stable training and scaling.
 \subsection{Quantum Machine Learning for Error Correction}
 \label{sec:org9349452}
 
-Machine learning has been widely applied to quantum error correction (QEC). Recent work such as Transformer-QEC \autocite{wang2023transformerqecquantumerrorcorrection} demonstrates that attention mechanisms outperform local decoders (like CNNs) for syndrome decoding by capturing non-local error chains. Work by Morgillo et al. \autocite{Morgillo_2024} and Kendre et al. \autocite{kendre2025machinelearningquantumnoise} has explored neural approaches to quantum state reconstruction, though without addressing the input normalization challenge we identify here.
+Machine learning has been widely applied to quantum error correction (QEC). Recent work such as Transformer-QEC \cite{wang2023transformerqecquantumerrorcorrection} demonstrates that attention mechanisms outperform local decoders (like CNNs) for syndrome decoding by capturing non-local error chains. Work by Morgillo et al. \cite{Morgillo_2024} and Kendre et al. \cite{kendre2025machinelearningquantumnoise} has explored neural approaches to quantum state reconstruction, though without addressing the input normalization challenge we identify here.
 \subsection{Hierarchical Vision Transformers}
 \label{sec:org85a9a2f}
 
-For computational tractability at larger qubit counts, we adopt patch-based tokenization inspired by Vision Transformers (ViT) \autocite{dosovitskiy2020image} and hierarchical variants like the Swin Transformer \autocite{liu2021swin}. We maintain a fixed token count (64) by adjusting patch size with matrix dimension, enabling scaling to 8-qubit systems where element-wise processing is infeasible.
+For computational tractability at larger qubit counts, we adopt patch-based tokenization inspired by Vision Transformers (ViT) \cite{dosovitskiy2020image} and hierarchical variants like the Swin Transformer \cite{liu2021swin}. We maintain a fixed token count (64) by adjusting patch size with matrix dimension, enabling scaling to 8-qubit systems where element-wise processing is infeasible.
 \section{Methods}
 \label{sec:org3069912}
 
@@ -512,5 +511,6 @@ During development, we explored several approaches that failed:
 \item \textbf{Row-based tokenization}: Treating each matrix row as a token (32 tokens for 5-qubit) underperformed element-wise and patch-based approaches.
 \item \textbf{Non-residual MLP}: Removing residual connections from the MLP caused catastrophic information loss, with performance worse than baseline.
 \end{itemize}
-\printbibliography
+\bibliographystyle{unsrt}
+\bibliography{references}
 \end{document}
