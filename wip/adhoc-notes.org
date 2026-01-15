@@ -1,0 +1,38 @@
+* Introduction
+Many algorithms use quantun state data, like molecular simulations and variavle quantun eigensolvers. The problem is that  when we are running a quantum computer, noise creeps innover time from the bath, drowning out the signal we wish t captuee. We can solve this in a variety of ways
+
+We couls use QEM. QEM is a magical method that dwnoises stuff. but it only works on observable and it isn't perfect :(. Idk hiw it works (NOTE:Google)
+
+We xould use QEC. QECis also magical, but lessmqgicql, it uses like more qubits and the qubits can magically tell if there's a peoblem with re other qubits and then we have like better estimarions but its not grwat because we need more qubits and stuf d wich is expensive and odd.
+
+Previous paproaches used like mlps and cnns and shit to take noisy densitymatrixes and make them not noisy.  These approaches only went up to 5 qubits. ours is better because it goes up to 8 qubits. I forget if we do better. Our main contribution is the frobenius normalization effectiveness. Another contribution is the use of transfroemrers for this quantum state reconstruction task. Finally we scale up to 8 qubits, which AFAIK has not been done before.
+
+
+Limitations:
+- We achieve pretty good fidelity relative to the baseline, but in absolute terms, especially for 8 qubits, our fidelity sucks. Unclear if this is actually useful for anything given the low absolute fidelity
+- We did not evaluate CNNs
+- Not that many cool looking charts
+- We do not rigourously evaluate stuff like Cholesky decomposition and Bloch parametrized versions of the mods (I think Bloch parametrization was the phrase, idk, probably wrong, would have to check the archive)
+- Our main paper is unacceptably long, we need to move a FUCKTON f stuff into the apendix
+- Little theoretical backing (take inspiration from Morgillo et al. here)
+- I think that our methods section may be too verbose
+- wriying sounds inhuman
+- Unclear what problem we are solving / what question we are answering / why anybody should actually care about this
+- Our end appendix is prettyirrelevan
+- we should rethink abstract. something that goes opportunity -> limitation -> status quo -> our improvement
+opportunity: VQEs and quantum molecular sinulations and shor's algorithm
+limitation: noise when measuring the quantum state
+status quo: QEM, QEC, Kendre, Morgillo et al.
+Our innovation: Frobenius normalization of tthe input data
+ 
+Draft 1:
+Quantum computers offer asymptotic speedups of problems such as eigensolving, molecular simulation, and the factoring of large numbers. (opportunity) 17 words
+
+These capabilities are currently out of reach due to large amounts of noise. (limitation) 13 words
+
+Quite a few methods to mitigate this limitation exist, yet none are sufficient. Quantum Error Correction offers a scalable solution, yet the large number of anicllary qubits required makes this method infeasible in the short-term. Quantum Error Mitigation, on the other hand, uses (MAGIC) to reduce noise without extra qubits, however this technique only works on observable-level noise because (MAGIC), a task orthogonal to our own of state-state reconstruction. More recently, machine learning methods have emerged as effective approaches to classical post-processing of low-qubit quantum state data. (status quo)
+90 words
+
+In this work, we demonstrate that Frobenius normalization of quantum states is an inexpensive preprocessing method that greatly increases model performance for smaller circuits and prives essential to model convergence for larger circuits. (our innocation)
+
+33 words

@@ -1,0 +1,15 @@
+[0] Config.pm:308> INFO - This is Biber 2.20
+[0] Config.pm:311> INFO - Logfile is 'paper_v4.blg'
+[120] biber:340> INFO - === Thu Jan 15, 2026, 15:00:01
+[141] Biber.pm:420> INFO - Reading 'paper_v4.bcf'
+[245] Biber.pm:994> INFO - Found 11 citekeys in bib section 0
+[264] Biber.pm:4463> INFO - Processing section 0
+[279] Biber.pm:4654> INFO - Looking for bibtex file 'references.bib' for section 0
+[282] bibtex.pm:1713> INFO - LaTeX decoding ...
+[323] bibtex.pm:1519> INFO - Found BibTeX data source 'references.bib'
+[573] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'normalization = NFD' with 'normalization = prenormalized'
+[574] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'variable = shifted' with 'variable = non-ignorable'
+[574] Biber.pm:4283> INFO - Sorting list 'nty/global//global/global/global' of type 'entry' with template 'nty' and locale 'en-US'
+[574] Biber.pm:4289> INFO - No sort tailoring available for locale 'en-US'
+[599] bbl.pm:676> INFO - Writing 'paper_v4.bbl' with encoding 'UTF-8'
+[608] bbl.pm:779> INFO - Output to paper_v4.bbl

@@ -342,6 +342,8 @@ We identify Frobenius normalization as a critical preprocessing step for trainin
 
 *Future directions.* An intriguing finding is that the Transformer benefited more from normalization than the MLP (+25% vs +11% Uhlmann fidelity). We hypothesize that Transformers' internal LayerNorm operations may conflict with external scale mismatches: LayerNorm assumes inputs have consistent scale across the sequence, but unnormalized density matrices violate this assumption as different matrix regions have vastly different magnitudes depending on decoherence. Once external normalization resolves the scale mismatch, LayerNorm can function as intended. This suggests that architectures with internal normalization layers may be particularly sensitive to input preprocessing---and that other architectures previously dismissed for quantum tasks may warrant re-evaluation with proper conditioning.
 
+* Acknowledgements
+The author used a large language model to edit parts of this work for clarity in presentation. The technical content, experimental design, and interpretations are the author's own, and the author take full responsibility for this work.
 * Appendix
 
 ** Model Parameter Counts
@@ -495,18 +497,18 @@ Checkpoints will be saved to:
 
 *** Checkpoint Locations (Remote Pods)
 
-| Model | Pod IP | Port | Checkpoint Path |
-|---------|------------|------|---------------------|
+| Model              |         Pod IP |  Port | Checkpoint Path                                      |
+|--------------------+----------------+-------+------------------------------------------------------|
 | transformer_5qubit | 157.157.221.29 | 20634 | /workspace/checkpoints_16/transformer_5qubit/best.pt |
-| mlp_5qubit | 157.157.221.29 | 20634 | /workspace/checkpoints_16/mlp_5qubit/best.pt |
-| mlp_5qubit_deep | 157.157.221.29 | 20634 | /workspace/checkpoints_16/mlp_5qubit_deep/best.pt |
-| mlp_5qubit_deep | 205.196.17.100 | 9691 | /workspace/checkpoints_16/mlp_5qubit_deep/best.pt |
-| mlp_5qubit_wide | 157.157.221.29 | 20634 | /workspace/checkpoints_16/mlp_5qubit_wide/best.pt |
-| mlp_5qubit_wide | 157.157.221.29 | 19931 | /workspace/checkpoints_16/mlp_5qubit_wide/best.pt |
+| mlp_5qubit         | 157.157.221.29 | 20634 | /workspace/checkpoints_16/mlp_5qubit/best.pt         |
+| mlp_5qubit_deep    | 157.157.221.29 | 20634 | /workspace/checkpoints_16/mlp_5qubit_deep/best.pt    |
+| mlp_5qubit_deep    | 205.196.17.100 |  9691 | /workspace/checkpoints_16/mlp_5qubit_deep/best.pt    |
+| mlp_5qubit_wide    | 157.157.221.29 | 20634 | /workspace/checkpoints_16/mlp_5qubit_wide/best.pt    |
+| mlp_5qubit_wide    | 157.157.221.29 | 19931 | /workspace/checkpoints_16/mlp_5qubit_wide/best.pt    |
 | transformer_8qubit | 157.157.221.29 | 20657 | /workspace/checkpoints_16/transformer_8qubit/best.pt |
 | transformer_8qubit | 157.157.221.29 | 19975 | /workspace/checkpoints_16/transformer_8qubit/best.pt |
-| mlp_8qubit | 157.157.221.29 | 20657 | /workspace/checkpoints_16/mlp_8qubit/best.pt |
-| mlp_8qubit | 157.157.221.29 | 19975 | /workspace/checkpoints_16/mlp_8qubit/best.pt |
+| mlp_8qubit         | 157.157.221.29 | 20657 | /workspace/checkpoints_16/mlp_8qubit/best.pt         |
+| mlp_8qubit         | 157.157.221.29 | 19975 | /workspace/checkpoints_16/mlp_8qubit/best.pt         |
 
 *** Local Checkpoints (OUTDATED --- from pre---reproducibility---fix runs)
 
