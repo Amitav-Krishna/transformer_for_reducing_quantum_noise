@@ -343,7 +343,7 @@ We identify Frobenius normalization as a critical preprocessing step for trainin
 *Future directions.* An intriguing finding is that the Transformer benefited more from normalization than the MLP (+25% vs +11% Uhlmann fidelity). We hypothesize that Transformers' internal LayerNorm operations may conflict with external scale mismatches: LayerNorm assumes inputs have consistent scale across the sequence, but unnormalized density matrices violate this assumption as different matrix regions have vastly different magnitudes depending on decoherence. Once external normalization resolves the scale mismatch, LayerNorm can function as intended. This suggests that architectures with internal normalization layers may be particularly sensitive to input preprocessing---and that other architectures previously dismissed for quantum tasks may warrant re-evaluation with proper conditioning.
 
 * Acknowledgements
-The author used a large language model to edit parts of this work for clarity in presentation. The technical content, experimental design, and interpretations are the author's own, and the author take full responsibility for this work.
+The author used a large language model to edit parts of this work for clarity in presentation, and for debugging failed experiments and assisting with the code implementation. The technical content, experimental design, and interpretations are the author's own, and the author takes full responsibility for this work.
 * Appendix
 
 ** Model Parameter Counts
