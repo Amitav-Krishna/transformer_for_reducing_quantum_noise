@@ -1,0 +1,38 @@
+% Created 2025-11-13 Thu 18:38
+% Intended LaTeX compiler: pdflatex
+\documentclass[accepted]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{capt-of}
+\usepackage{hyperref}
+\usepackage{icml2025}
+\icmltitle{Transformers for Quantum Noise Reduction}
+\begin{icmlauthorlist}
+\icmlauthor{Amitav Krishna}{}
+\end{icmlauthorlist}
+\icmlkeywords{quantum computing, noise reduction, transformers}
+\author{Amitav Krishna}
+\date{\today}
+\title{}
+\hypersetup{
+ pdfauthor={Amitav Krishna},
+ pdftitle={},
+ pdfkeywords={},
+ pdfsubject={},
+ pdfcreator={},
+ pdflang={English}}
+\begin{document}
+
+\tableofcontents
+
+\section{Abstract}
+\label{sec:orgfe414da}
+Quantum computers have the potential to solve certain problems exponentially faster than classical machines. However, practical devices remain severely limited by quantum noise. Decoherence, gate imperfections, crosstalk, and other system–environment interactions introduce errors that accumulate throughout a computation, and conventional quantum error correction demands tens to thousands of physical qubits for each logical qubit. As a result, near-term quantum processors must rely on noise reduction rather than full fault tolerance. Machine learning has recently emerged as a promising approach for quantum noise mitigation. In this work, we systematically compare four data-driven denoising strategies based on two model families (a convolutional autoencoder and a transformer autoencoder) with two loss designs (a fidelity-oriented reconstruction loss and a physics-informed loss). This study aims to improve algorithm fidelity without additional qubits and inform the design of scalable denoising models for larger quantum systems.
+\end{document}

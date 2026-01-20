@@ -1,0 +1,863 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2025-12-06 Sat 17:04 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Comparing Machine Learning Strategies for Quantum Noise Reduction</title>
+<meta name="author" content="Amitav Krishna, Shanmukh Garimella" />
+<meta name="generator" content="Org Mode" />
+<style type="text/css">
+  #content { max-width: 60em; margin: auto; }
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #e6e6e6;
+    border-radius: 3px;
+    background-color: #f2f2f2;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: auto;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    top: -8px;
+    right: 12px;
+    padding: 3px;
+    color: #555;
+    background-color: #f2f2f299;
+  }
+  pre.src:hover:before { display: inline; margin-top: 14px;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-authinfo::before { content: 'Authinfo'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'JavaScript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .equation-container {
+    display: table;
+    text-align: center;
+    width: 100%;
+  }
+  .equation {
+    vertical-align: middle;
+  }
+  .equation-label {
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+  }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { }
+</style>
+<script>
+  window.MathJax = {
+    tex: {
+      ams: {
+        multlineWidth: '85%'
+      },
+      tags: 'ams',
+      tagSide: 'right',
+      tagIndent: '.8em'
+    },
+    chtml: {
+      scale: 1.0,
+      displayAlign: 'center',
+      displayIndent: '0em'
+    },
+    svg: {
+      scale: 1.0,
+      displayAlign: 'center',
+      displayIndent: '0em'
+    },
+    output: {
+      font: 'mathjax-modern',
+      displayOverflow: 'overflow'
+    }
+  };
+</script>
+
+<script
+  id="MathJax-script"
+  async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+</script>
+</head>
+<body>
+<div id="content" class="content">
+<h1 class="title">Comparing Machine Learning Strategies for Quantum Noise Reduction</h1>
+<p>
+<i>This is currently a work in progress. The todos will be removed once the training has been run.</i>
+</p>
+<div id="outline-container-orga3dbdaa" class="outline-2">
+<h2 id="orga3dbdaa"><span class="section-number-2">1.</span> Abstract</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+Running experiments on real quantum hardware remains extremely costly. Current cloud platforms charge between $0.03 and $0.05 per measurement, and practical algorithms often require tens of thousands of shots. Even modest experiments can therefore accumulate thousands of dollars in runtime fees, which places a hard barrier on iterative design and experimentation. Noise mitigation offers a way to extract higher quality results from the same number of measurements, reducing the number of measurements needed, and. This work presents a systematic comparison of four density matrix denoising strategies that pair two model classes, a convolutional autoencoder and a transformer autoencoder, with two loss formulations, a fidelity oriented reconstruction loss and a physics informed structural loss. We will be comparing how closely each model can return a pre-noise density matrix given the corresponding noisy density matrix.
+</p>
+</div>
+<div id="outline-container-org9855ed9" class="outline-3">
+<h3 id="org9855ed9"><span class="section-number-3">1.1.</span> <span class="todo TODO">TODO</span> Once results come in, add a sentence or two discussing the empirical gains</h3>
+</div>
+</div>
+<div id="outline-container-orgeebebeb" class="outline-2">
+<h2 id="orgeebebeb"><span class="section-number-2">2.</span> Introduction</h2>
+<div class="outline-text-2" id="text-2">
+</div>
+<div id="outline-container-org5d55a0f" class="outline-3">
+<h3 id="org5d55a0f"><span class="section-number-3">2.1.</span> <span class="todo TODO">TODO</span> Add context on the state of ML-based noise reduction</h3>
+<div class="outline-text-3" id="text-2-1">
+</div>
+<div id="outline-container-org0f31afc" class="outline-4">
+<h4 id="org0f31afc"><span class="section-number-4">2.1.1.</span> Kendre</h4>
+<div class="outline-text-4" id="text-2-1-1">
+<p>
+CNN autoencoder for quantum noise reduction. Converting a noisy density matrix to its clean representation. Cirq. 5 qubit circuits.
+</p>
+</div>
+</div>
+<div id="outline-container-orgc912dd2" class="outline-4">
+<h4 id="orgc912dd2"><span class="section-number-4">2.1.2.</span> Wang et al., transformer-QEC</h4>
+<div class="outline-text-4" id="text-2-1-2">
+<p>
+High error rates in quantum devices hamper useful algorithm execution. QEC mitigates error rates with redundancy, distributing quantum information across multiple <b>data qubits</b> and utilizing <b>syndrome qubits</b> to monitor their states for errors. Syndromes are decoded to identify and correct errors in the <b>data qubits</b>. MLPs and CNNs have been proposed, but they focus on <i>local</i> syndrome regions and require <i>retraining</i> when adjusting for different code distances. They introduce a transformer-based QEC decoder, <b>Transformer-QEC</b>, which employs self-attention to achieve a global receptive field across all input syndromes. It uses local physical error and global parity label losses.
+</p>
+</div>
+</div>
+<div id="outline-container-org2bb3c53" class="outline-4">
+<h4 id="org2bb3c53"><span class="section-number-4">2.1.3.</span> Halian Ma Machine Learning for Estimation and Control of quantum systems</h4>
+<div class="outline-text-4" id="text-2-1-3">
+<p>
+Machine learning have been used for different quantum quantum tasks. This paper discusses neural networks-based learning for optimal control of quantum systems, machine learning for quantum rrobust control, and reinforcement learning for quantum control. <b>Review paper</b>.
+</p>
+</div>
+</div>
+<div id="outline-container-orgfb5c0e9" class="outline-4">
+<h4 id="orgfb5c0e9"><span class="section-number-4">2.1.4.</span> Morgillo et al.</h4>
+<div class="outline-text-4" id="text-2-1-4">
+<p>
+Using feedforward neural networks to reconstruct and classify quantum states corrupted by an <b>unknown</b> noise channel.
+</p>
+</div>
+</div>
+<div id="outline-container-org039dcc6" class="outline-4">
+<h4 id="org039dcc6"><span class="section-number-4">2.1.5.</span> Neural-network QST Hradil et al.</h4>
+</div>
+<div id="outline-container-org5dd1ccf" class="outline-4">
+<h4 id="org5dd1ccf"><span class="section-number-4">2.1.6.</span> QEC w/ quantum autoencoders Locher et al.</h4>
+</div>
+</div>
+<div id="outline-container-orgcca38f6" class="outline-3">
+<h3 id="orgcca38f6"><span class="section-number-3">2.2.</span> <span class="todo TODO">TODO</span> Add context on the current status quo for quantum error correction and quantum error mitigation.</h3>
+</div>
+</div>
+<div id="outline-container-org57a929a" class="outline-2">
+<h2 id="org57a929a"><span class="section-number-2">3.</span> Related implementations</h2>
+<div class="outline-text-2" id="text-3">
+</div>
+<div id="outline-container-org52cac57" class="outline-3">
+<h3 id="org52cac57"><span class="section-number-3">3.1.</span> <span class="todo TODO">TODO</span> Summarize prior ML denoising architectures</h3>
+</div>
+</div>
+<div id="outline-container-orgc0dda66" class="outline-2">
+<h2 id="orgc0dda66"><span class="section-number-2">4.</span> Methods</h2>
+<div class="outline-text-2" id="text-4">
+</div>
+<div id="outline-container-org4da5a44" class="outline-3">
+<h3 id="org4da5a44"><span class="section-number-3">4.1.</span> Convolutional Autoencoder</h3>
+<div class="outline-text-3" id="text-4-1">
+<p>
+The convolutional autoencoder follows the architecture introduced by (Karan Kendre, 2025) for density-matrix denoising. The model treats each 32×32 complex-valued density matrix as a two-channel image (real and imaginary components), enabling the network to exploit the local spatial patterns created by different quantum noise channels. The encoder consists of a sequence of convolutional blocks with ReLU activations and 2×2 max-pooling, progressively reducing spatial resolution while expanding the channel dimension (1→32→64). The decoder mirrors the encoder through nearest-neighbor upsampling and transposed convolutions, reconstructing the full resolution density matrix. A final sigmoid activation constrains the reconstructed values to a normalized range.
+</p>
+</div>
+</div>
+<div id="outline-container-orgd33b39b" class="outline-3">
+<h3 id="orgd33b39b"><span class="section-number-3">4.2.</span> Transformer Autoencoder</h3>
+<div class="outline-text-3" id="text-4-2">
+<p>
+The Transformer autoencoder models each 32×32 complex-valued density matrix as a sequence of token embeddings, where each token corresponds to a row or column vectorized from the matrix’s real and imaginary parts. This architecture allows every element in the input to attend globally to every other element, preserving the non-local structure characteristic of entangled quantum states. The encoder consists of a stack of Transformer encoder layers with multi-head self-attention, enabling the model to capture global correlations across the entire state. The encoded sequence is compressed through a symmetric bottleneck module that projects the embedding dimension down and back up, serving as a latent representation. The decoder comprises Transformer decoder layers that apply both self-attention within the output sequence and cross-attention to the encoder memory. A linear projection and sigmoid activation generate the reconstructed sequence, which is reshaped into a 2D matrix.
+</p>
+</div>
+</div>
+<div id="outline-container-orga517daa" class="outline-3">
+<h3 id="orga517daa"><span class="section-number-3">4.3.</span> Uhlmann fidelity-oriented reconstruction loss</h3>
+<div class="outline-text-3" id="text-4-3">
+<p>
+The reconstruction loss incorporates the Uhlmann fidelity, the standard measure of similarity between mixed quantum states. For each predicted–target pair of density matrices (\(\hat{\rho}\)) and (\(\rho\)), the fidelity is computed by diagonalizing (\(\hat{\rho}\)), forming its matrix square root, and evaluating the trace of the geometric mean (\(\sqrt{\hat{\rho}}\), \(\rho\), \(\sqrt{\hat{\rho}}\)). This procedure captures discrepancies across eigenvalues and coherences, making it substantially more informative than elementwise losses when evaluating density-matrix reconstructions.
+</p>
+
+<p>
+The Uhlmann fidelity is defined as
+\[
+F(\hat{\rho}, \rho)
+= \left( \mathrm{Tr}\sqrt{\sqrt{\hat{\rho}}\,\rho\,\sqrt{\hat{\rho}}}\right)^2 
+\]
+</p>
+</div>
+<div id="outline-container-orgd758a75" class="outline-4">
+<h4 id="orgd758a75"><span class="section-number-4">4.3.1.</span> <span class="todo TODO">TODO</span> Switch out Uhlmann fidelity with frobenius reconstruction loss</h4>
+</div>
+<div id="outline-container-org1c0e262" class="outline-4">
+<h4 id="org1c0e262"><span class="section-number-4">4.3.2.</span> <span class="todo TODO">TODO</span> Citation needed on that frobeniuis reconstruction loss</h4>
+</div>
+</div>
+<div id="outline-container-org1a402cd" class="outline-3">
+<h3 id="org1a402cd"><span class="section-number-3">4.4.</span> Physics-informed loss</h3>
+<div class="outline-text-3" id="text-4-4">
+<p>
+The physics term enforces the basic structural axioms of a valid density matrix during reconstruction. Given a predicted state (\(\hat{\rho}\)), the loss penalizes violations of Hermiticity, trace normalization, and positive semidefiniteness, which are the three core constraints defining legitimate quantum states. Hermiticity is enforced by measuring the deviation between (\(\hat{\rho}\)) and its conjugate transpose, trace preservation is encouraged by penalizing deviations of (\(\mathrm{Tr}(\hat{\rho})\)) from unity, and positivity is promoted by penalizing negative eigenvalues of (\(\hat{\rho}\)). Together, these terms guide the model toward producing physically consistent outputs, irrespective of the noise model or architecture.
+</p>
+
+<p>
+Formally, 
+\[
+\mathcal{L}_{physics}(\hat{\rho})
+= \lambda_{\mathrm{herm}} \left|\hat{\rho} - \hat{\rho}^\dagger\right|_2^2 +
+\lambda_{\mathrm{trace}},\big(\mathrm{Tr}(\hat{\rho}) - 1\big)^2 +
+\lambda_{\mathrm{psd}},\big| \min(0,, \lambda_i(\hat{\rho})) \big|_2^2 ,
+\]
+</p>
+
+<p>
+where (\(\lambda_i(\hat{\rho})\)) are the eigenvalues of (\(\hat{\rho}\)). The total training loss combines this term with the Uhlmann fidelity loss
+</p>
+
+<p>
+\[
+\mathcal{L}_{total} = F(\hat{\rho}, \rho) + \mathcal{L}_{physics}(\hat{\rho}).
+\]
+</p>
+</div>
+</div>
+<div id="outline-container-orgdb90889" class="outline-3">
+<h3 id="orgdb90889"><span class="section-number-3">4.5.</span> <span class="todo TODO">TODO</span> Talk about how the transformer reshapes outputs to images for compatibility with CNN and how the loss functions are designed around the CNN</h3>
+<div class="outline-text-3" id="text-4-5">
+</div>
+<div id="outline-container-org04e6c9c" class="outline-4">
+<h4 id="org04e6c9c"><span class="section-number-4">4.5.1.</span> <span class="todo TODO">TODO</span> Citation needed on that loss</h4>
+</div>
+</div>
+<div id="outline-container-org99debff" class="outline-3">
+<h3 id="org99debff"><span class="section-number-3">4.6.</span> Dataset</h3>
+<div class="outline-text-3" id="text-4-6">
+<p>
+Clean states are generated by sampling random pure states and evolving them under randomly drawn single and two qubit unitaries. Each state is then corrupted by a stochastic noise channel that includes a mixture of depolarizing, amplitude damping, and phase damping noise with randomly sampled strengths. This produces paired datasets of noisy inputs and clean targets for supervised training. The full dataset contains one million simulated examples drawn uniformly from twenty noise type and noise level combinations.
+</p>
+</div>
+</div>
+<div id="outline-container-org81f5d61" class="outline-3">
+<h3 id="org81f5d61"><span class="section-number-3">4.7.</span> <span class="todo TODO">TODO</span> Add link to circuit generator</h3>
+</div>
+<div id="outline-container-orgde806c3" class="outline-3">
+<h3 id="orgde806c3"><span class="section-number-3">4.8.</span> <span class="todo TODO">TODO</span> Add expansion / citations for types of noise.</h3>
+</div>
+</div>
+<div id="outline-container-orgd73d630" class="outline-2">
+<h2 id="orgd73d630"><span class="section-number-2">5.</span> Experimental Design</h2>
+<div class="outline-text-2" id="text-5">
+<p>
+We evaluate the four denoising configurations under a controlled and reproducible simulation pipeline designed to isolate the effects of architecture and loss function. All models are trained to map noisy density matrices to their clean counterparts using identical optimization settings. Training uses the Adam optimizer with a learning rate of 1e−4, a batch size of 8 for the transformer, and a fixed budget of 50 epochs. Weight initialization follows PyTorch defaults, and a validation split of ten percent of the training set is used for early stopping based on validation fidelity. Each model is trained from five different random seeds to account for stochastic variation, and reported results are averaged across these runs.
+</p>
+
+<p>
+Evaluation is performed on the held out test set using multiple metrics. These include Uhlmann fidelity between the reconstructed and target states, Frobenius reconstruction error, trace deviation, Hermiticity deviation, and the magnitude of any negative eigenvalues. This combination of metrics allows us to assess both denoising performance and physical validity. Model capacities are kept comparable across architectures by matching parameter counts within ten percent.
+</p>
+</div>
+<div id="outline-container-orgb71fefe" class="outline-3">
+<h3 id="orgb71fefe"><span class="section-number-3">5.1.</span> Hyperparameters</h3>
+<div class="outline-text-3" id="text-5-1">
+</div>
+<div id="outline-container-orgf0cea0c" class="outline-4">
+<h4 id="orgf0cea0c"><span class="section-number-4">5.1.1.</span> Shared Hyperparameters</h4>
+<div class="outline-text-4" id="text-5-1-1">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Component</th>
+<th scope="col" class="org-left">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">Optimizer</td>
+<td class="org-left">Adam</td>
+</tr>
+
+<tr>
+<td class="org-left">Learning rate</td>
+<td class="org-left">1e-4</td>
+</tr>
+
+<tr>
+<td class="org-left">Weight decay</td>
+<td class="org-left">0</td>
+</tr>
+
+<tr>
+<td class="org-left">Epochs</td>
+<td class="org-left">50</td>
+</tr>
+
+<tr>
+<td class="org-left">Early stopping</td>
+<td class="org-left">Validation fidelity</td>
+</tr>
+
+<tr>
+<td class="org-left">Dataset size</td>
+<td class="org-left">100,000 circuits</td>
+</tr>
+
+<tr>
+<td class="org-left">Train/validation/test split</td>
+<td class="org-left">80/10/10</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="outline-container-orge0910ba" class="outline-4">
+<h4 id="orge0910ba"><span class="section-number-4">5.1.2.</span> Architecture-Specific Hyperparameters</h4>
+<div class="outline-text-4" id="text-5-1-2">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Component</th>
+<th scope="col" class="org-left">Convolutional Autoencoder</th>
+<th scope="col" class="org-left">Transformer Autoencoder</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">Input representation</td>
+<td class="org-left">32 \(\times\) 32 \(\times\) 2</td>
+<td class="org-left">1024 tokens (real/imag)</td>
+</tr>
+
+<tr>
+<td class="org-left">Embedding / channels</td>
+<td class="org-left">2 \(\rightarrow\) 48 \(\rightarrow\) 96 \(\rightarrow\) 192</td>
+<td class="org-left">Linear 2 \(\rightarrow\) 32</td>
+</tr>
+
+<tr>
+<td class="org-left">Batch size</td>
+<td class="org-left">8</td>
+<td class="org-left">32</td>
+</tr>
+
+<tr>
+<td class="org-left">Encoder depth</td>
+<td class="org-left">3 conv blocks</td>
+<td class="org-left">4 layers, 4 heads</td>
+</tr>
+
+<tr>
+<td class="org-left">Decoder depth</td>
+<td class="org-left">3 conv blocks</td>
+<td class="org-left">4 layers</td>
+</tr>
+
+<tr>
+<td class="org-left">Kernel size</td>
+<td class="org-left">3 \(\times\) 3</td>
+<td class="org-left">—</td>
+</tr>
+
+<tr>
+<td class="org-left">Pooling</td>
+<td class="org-left">MaxPool 2 \(\times\) 2</td>
+<td class="org-left">—</td>
+</tr>
+
+<tr>
+<td class="org-left">Upsampling</td>
+<td class="org-left">Nearest neighbor</td>
+<td class="org-left">—</td>
+</tr>
+
+<tr>
+<td class="org-left">MLP hidden size</td>
+<td class="org-left">—</td>
+<td class="org-left">64</td>
+</tr>
+
+<tr>
+<td class="org-left">Dropout</td>
+<td class="org-left">0.1 — 0.2</td>
+<td class="org-left">0.1</td>
+</tr>
+
+<tr>
+<td class="org-left">Bottleneck</td>
+<td class="org-left">—</td>
+<td class="org-left">Linear 32 \(\rightarrow\) 16 \(\rightarrow\) 32</td>
+</tr>
+
+<tr>
+<td class="org-left">Output projection</td>
+<td class="org-left">Conv2d(32 \(\rightarrow\) 2)</td>
+<td class="org-left">Linear 32 \(\rightarrow\) 2</td>
+</tr>
+
+<tr>
+<td class="org-left">Activation</td>
+<td class="org-left">ReLU, Sigmoid</td>
+<td class="org-left">GELU, Sigmoid</td>
+</tr>
+
+<tr>
+<td class="org-left">Parameter Budget</td>
+<td class="org-left">~500k</td>
+<td class="org-left">~500k</td>
+</tr>
+</tbody>
+</table>
+<p>
+<i>We avoid patch embeddings in the Transformer to preserve element-level nonlocal structure; patching would impose a locality bias that conflicts with the architectural comparison.</i>
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org7a376cb" class="outline-3">
+<h3 id="org7a376cb"><span class="section-number-3">5.2.</span> <span class="todo TODO">TODO</span> Add details on compute used</h3>
+<div class="outline-text-3" id="text-5-2">
+</div>
+<div id="outline-container-org3de5e8a" class="outline-4">
+<h4 id="org3de5e8a"><span class="section-number-4">5.2.1.</span> It was an RTX A4000</h4>
+</div>
+</div>
+<div id="outline-container-orgeea76d8" class="outline-3">
+<h3 id="orgeea76d8"><span class="section-number-3">5.3.</span> <span class="todo TODO">TODO</span> Add random-seed table or specify seed range</h3>
+</div>
+</div>
+<div id="outline-container-org07bc4c1" class="outline-2">
+<h2 id="org07bc4c1"><span class="section-number-2">6.</span> Results</h2>
+<div class="outline-text-2" id="text-6">
+</div>
+<div id="outline-container-org2fad20b" class="outline-4">
+<h4 id="org2fad20b"><span class="section-number-4">6.0.1.</span> Quantitative Performance Comparison</h4>
+<div class="outline-text-4" id="text-6-0-1">
+<p>
+Across all models, the CNN with Frobenius loss achieves the lowest final reconstruction loss, while the Transformer with Frobenius loss achieves the highest fidelity proxy. Physics-informed losses systematically reduce reconstruction quality but increase physical consistency.
+</p>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-right" />
+
+<col  class="org-right" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Architecture</th>
+<th scope="col" class="org-left">Loss Function<sup><a id="fnr.1" class="footref" href="#fn.1" role="doc-backlink">1</a></sup></th>
+<th scope="col" class="org-right">Final test loss</th>
+<th scope="col" class="org-right">Final fidelity proxy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">CNN</td>
+<td class="org-left">Frobenius</td>
+<td class="org-right">0.72</td>
+<td class="org-right">0.02</td>
+</tr>
+
+<tr>
+<td class="org-left">Transformer</td>
+<td class="org-left">Frobenius</td>
+<td class="org-right">0.57</td>
+<td class="org-right">0.52</td>
+</tr>
+
+<tr>
+<td class="org-left">CNN</td>
+<td class="org-left">Physics</td>
+<td class="org-right">0.74</td>
+<td class="org-right">0.05</td>
+</tr>
+
+<tr>
+<td class="org-left">Transformer</td>
+<td class="org-left">Physics</td>
+<td class="org-right">0.55</td>
+<td class="org-right">0.23</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="outline-container-org00de689" class="outline-4">
+<h4 id="org00de689"><span class="section-number-4">6.0.2.</span> Training Dynamics and Convergence Behavior</h4>
+<div class="outline-text-4" id="text-6-0-2">
+<p>
+<img src="./figures/cnn_frob_train_loss.png" alt="cnn_frob_train_loss.png" />
+<img src="./figures/cnn_physics_train_loss.png" alt="cnn_physics_train_loss.png" />
+<img src="./figures/transformer_frob_train_loss.png" alt="transformer_frob_train_loss.png" />
+<img src="./figures/transformer_physics_train_loss.png" alt="transformer_physics_train_loss.png" />
+</p>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-right" />
+
+<col  class="org-right" />
+
+<col  class="org-right" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Architecture</th>
+<th scope="col" class="org-left">Loss Function<sup><a id="fnr.1.1" class="footref" href="#fn.1" role="doc-backlink">1</a></sup></th>
+<th scope="col" class="org-right">Final train loss</th>
+<th scope="col" class="org-right">Final test loss</th>
+<th scope="col" class="org-right">Test loss - train loss</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">CNN</td>
+<td class="org-left">Frobenius</td>
+<td class="org-right">0.57</td>
+<td class="org-right">0.72</td>
+<td class="org-right">0.15</td>
+</tr>
+
+<tr>
+<td class="org-left">Transformer</td>
+<td class="org-left">Frobenius</td>
+<td class="org-right">0.46</td>
+<td class="org-right">0.57</td>
+<td class="org-right">0.11</td>
+</tr>
+
+<tr>
+<td class="org-left">CNN</td>
+<td class="org-left">Physics</td>
+<td class="org-right">0.56</td>
+<td class="org-right">0.74</td>
+<td class="org-right">0.18</td>
+</tr>
+
+<tr>
+<td class="org-left">Transformer</td>
+<td class="org-left">Physics</td>
+<td class="org-right">0.57</td>
+<td class="org-right">0.55</td>
+<td class="org-right">-0.02</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Across all four models, we observe clear and stable convergence patterns, but with markedly different learning dynamics between the convolutional and transformer architectures. The CNN-based models exhibit slow, almost linear improvement over the full 100-epoch training horizon. Both CNN variants begin with relatively high reconstruction loss and decrease steadily, with no sharp transitions or instabilities. This behavior is typical of convolutional autoencoders trained on structured but moderately noisy data: the model capacity is modest, gradients are well-behaved, and each pass over the dataset produces small, incremental refinement. Notably, the physics-informed CNN shows a slightly higher and more persistent training loss than its Frobenius counterpart, consistent with the fact that the additional physical penalties restrict the feasible solution space and prevent the network from over-optimizing purely for numerical reconstruction error.
+</p>
+
+<p>
+The transformer models behave very differently. Both transformer variants undergo a rapid and steep drop in loss during the first 5–10 epochs, followed by a long plateau phase with only marginal improvements thereafter. This is characteristic of overparameterized attention models: once the model discovers a representation that captures the dominant global correlations, subsequent training mostly fine-tunes local structure and stabilizes the latent space. The physics-informed transformer exhibits a slightly higher early-stage loss due to the additional constraints, but it converges to a value similar to the unconstrained version, suggesting that the transformer’s capacity is large enough to satisfy physical priors without sacrificing reconstruction performance. Importantly, neither transformer shows signs of divergence, mode collapse, or pathological oscillation during training; after the initial sharp transient, the curves flatten and become smooth.
+</p>
+
+<p>
+Overall, the training trajectories align well with architectural expectations: CNNs improve slowly but consistently, while transformers learn fast and then saturate. The physics-informed regularization increases training loss for both families, but does not destabilize optimization, and the regularized models converge to values within a small margin of their unconstrained baselines.
+</p>
+</div>
+</div>
+<div id="outline-container-orgbc000ad" class="outline-4">
+<h4 id="orgbc000ad"><span class="section-number-4">6.0.3.</span> Architecture and Loss Function Comparison</h4>
+<div class="outline-text-4" id="text-6-0-3">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-right" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Architecture</th>
+<th scope="col" class="org-left">Loss Function</th>
+<th scope="col" class="org-right">Final fidelity proxy<sup><a id="fnr.2" class="footref" href="#fn.2" role="doc-backlink">2</a></sup></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">CNN</td>
+<td class="org-left">Frobenius</td>
+<td class="org-right">0.02</td>
+</tr>
+
+<tr>
+<td class="org-left">Transformer</td>
+<td class="org-left">Frobenius</td>
+<td class="org-right">0.52</td>
+</tr>
+
+<tr>
+<td class="org-left">CNN</td>
+<td class="org-left">Physics</td>
+<td class="org-right">0.05</td>
+</tr>
+
+<tr>
+<td class="org-left">Transformer</td>
+<td class="org-left">Physics</td>
+<td class="org-right">0.23</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+The fidelity comparison reveals a clear separation in capability between the two architectural families. Models trained with Frobenius loss show the largest gap: the transformer achieves more than an order of magnitude higher fidelity than the CNN. This aligns with the architectural expectation. CNNs operate with strictly local receptive fields, which makes them fundamentally poor at modeling the long-range phase correlations and global coherence patterns that define mixed-state quantum structure. The transformer, which attends across the entire density matrix, has no such bottleneck and therefore captures a much richer portion of the underlying state manifold.
+</p>
+
+<p>
+Introducing the physics-informed loss shifts performance in opposite directions for the two architectures. The CNN benefits modestly from physical constraints: fidelity increases from 0.02 to 0.05, suggesting that the regularizer suppresses some of the CNN’s pathological outputs and nudges it toward valid density-matrix regions. The transformer, however, loses a substantial amount of performance when physics constraints are applied. This is consistent with what you observed qualitatively during training. The physics-informed loss penalizes deviations from Hermiticity, unit trace, and PSD, and the transformer responds by collapsing toward generic, low-information “safe” states rather than aggressively reconstructing the underlying quantum structure. The result is physically valid output with significantly reduced alignment to the target state.
+</p>
+
+<p>
+Taken together, these results show that (i) transformers are strictly more capable fidelity reconstruction models than CNNs for density-matrix denoising, and (ii) physics-informed regularization can improve weak models but can overly constrain expressive ones.
+</p>
+</div>
+</div>
+<div id="outline-container-org108bd4c" class="outline-4">
+<h4 id="org108bd4c"><span class="section-number-4">6.0.4.</span> Noise-type and Noise-Level Comparison</h4>
+<div class="outline-text-4" id="text-6-0-4">
+<p>
+<img src="./figures/cnn_frob_noise_cells_heatmap.png" alt="cnn_frob_noise_cells_heatmap.png" />
+<img src="./figures/transformer_frob_noise_cells_heatmap.png" alt="transformer_frob_noise_cells_heatmap.png" />
+<img src="./figures/cnn_physics_noise_cells_heatmap.png" alt="cnn_physics_noise_cells_heatmap.png" />
+<img src="./figures/transformer_physics_noise_cells_heatmap.png" alt="transformer_physics_noise_cells_heatmap.png" />
+Across all architectures, fidelity varies systematically with both noise type and noise level, revealing clear differences in robustness among the four models. The CNN models achieve only marginal fidelity overall and show weak sensitivity to noise type, with values typically in the 0.02 to 0.05 range regardless of corruption. In contrast, the Transformer architectures display structured behavior: the Frobenius-loss Transformer consistently achieves the highest fidelity across nearly every noise cell, particularly for low-level phase damping and mixed noise, where it reaches its best performance. Its fidelity decays as the noise level increases, but it remains substantially above all CNN baselines. The physics-informed Transformer shows the opposite pattern. Although its absolute fidelity is lower than the Frobenius variant, it is markedly more stable across noise types and noise levels, exhibiting much smaller drops in fidelity as corruption increases. This indicates that the constraints enforced by the physics-informed loss improve robustness in high-noise regimes at the cost of peak performance in cleaner settings. Overall, these noise-resolved results show that Transformers not only outperform CNNs in denoising fidelity but also capture structure in the noise process itself, with the Frobenius variant excelling in low-noise cells and the physics-informed variant maintaining comparatively consistent behavior under stronger corruptions.
+</p>
+</div>
+</div>
+<div id="outline-container-orgc254f6c" class="outline-4">
+<h4 id="orgc254f6c"><span class="section-number-4">6.0.5.</span> Failure Modes and Qualitative Analysis</h4>
+<div class="outline-text-4" id="text-6-0-5">
+<p>
+A closer inspection of individual reconstruction failures reveals distinct failure modes tied to both architecture and loss design. The CNN models exhibit the most brittle behavior: when they fail, they typically collapse toward oversmoothed density matrices with attenuated off-diagonal structure, especially under high noise levels. This is consistent with their convolutional inductive bias, which cannot easily represent long-range correlations in the density matrix. The Frobenius-loss CNN is especially prone to this collapse, while the physics-informed CNN occasionally produces outputs that satisfy physical constraints but remain far from the true clean states, indicating that the added constraints can steer optimization without meaningfully improving reconstruction. The Transformer models fail in more structured ways. The Frobenius-loss Transformer sometimes produces sharp but globally misaligned reconstructions, suggesting that it has learned expressive global patterns but can be destabilized under heavy noise. The physics-informed Transformer exhibits the most “graceful” failures: even when fidelity drops, its outputs tend to retain Hermiticity, a well-formed eigenvalue spectrum, and approximately correct trace, confirming that the loss constraints operate as intended. These qualitative differences underline that architectural capacity governs how a model fails, while the loss function governs how bad those failures become.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org34e77d2" class="outline-2">
+<h2 id="org34e77d2"><span class="section-number-2">7.</span> Limitations</h2>
+</div>
+<div id="outline-container-org8e0ccb2" class="outline-2">
+<h2 id="org8e0ccb2"><span class="section-number-2">8.</span> Conclusion</h2>
+<div class="outline-text-2" id="text-8">
+</div>
+<div id="outline-container-org36e8572" class="outline-3">
+<h3 id="org36e8572"><span class="section-number-3">8.1.</span> <span class="todo TODO">TODO</span> Add conclusion</h3>
+</div>
+<div id="outline-container-org5dc7295" class="outline-3">
+<h3 id="org5dc7295"><span class="section-number-3">8.2.</span> <span class="todo TODO">TODO</span> Talk about the scalabitlity of each approach</h3>
+</div>
+</div>
+<div id="outline-container-orgd05e705" class="outline-2">
+<h2 id="orgd05e705"><span class="section-number-2">9.</span> References</h2>
+<div class="outline-text-2" id="text-9">
+<p>
+Karan Kendre (2025). <i>Machine Learning for Quantum Noise Reduction</i>.</p>
+</div>
+<div id="outline-container-orgc41a5ca" class="outline-3">
+<h3 id="orgc41a5ca"><span class="section-number-3">9.1.</span> <span class="todo TODO">TODO</span> Add more citations</h3>
+</div>
+</div>
+<div id="footnotes">
+<h2 class="footnotes">Footnotes: </h2>
+<div id="text-footnotes">
+
+<div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1" role="doc-backlink">1</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">
+Reconstruction losses are only comparable within the same loss family (Frobenius vs. Frobenius, Physics vs. Physics). Cross-family comparisons have no physical meaning.
+</p></div></div>
+
+<div class="footdef"><sup><a id="fn.2" class="footnum" href="#fnr.2" role="doc-backlink">2</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">
+The Frobenius loss is model-agnostic and architecture-agnostic, and so can be compared directly
+</p></div></div>
+
+
+</div>
+</div></div>
+<div id="postamble" class="status">
+<p class="author">Author: Amitav Krishna, Shanmukh Garimella</p>
+<p class="date">Created: 2025-12-06 Sat 17:04</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

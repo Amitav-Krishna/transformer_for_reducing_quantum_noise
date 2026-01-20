@@ -1,0 +1,166 @@
+nohup: ignoring input
+==============================================
+Evaluating train_16 (UNNORMALIZED) checkpoints
+==============================================
+
+=== MLP 5-qubit (matched) ===
+Device: cuda (NVIDIA RTX A4000)
+Dtype: torch.float64
+Running self-check: F(rho, rho) should equal 1.0...
+  PASSED: F(rho, rho) = 1.000000000000000
+
+Loading dataset from dataset_5qubit_float64...
+  Verified: 100 chunks, 1000 samples each, dtype=torch.float64
+Test set: 10 chunks
+
+============================================================
+BASELINE: F(noisy, clean)
+============================================================
+  Mean:     0.167060
+  Std:      0.173329
+  Samples:  10000
+  Failures: 0
+
+============================================================
+MODEL: mlp_5qubit
+============================================================
+Loaded checkpoint (direct state_dict)
+Parameters: 1,092,960
+
+Evaluating model fidelity: F(pred, clean)...
+
+============================================================
+RESULTS
+============================================================
+Metric               Baseline        Model          
+------------------------------------------------------------
+Mean Fidelity        0.167060        0.462799       
+Std Fidelity         0.173329        0.379273       
+N Samples            10000           10000          
+N Failures           0               0              
+
+Improvement ratio: 2.77x
+Absolute improvement: +0.295739
+Model failure rate: 0.0000%
+
+=== MLP 5-qubit (wide) ===
+Device: cuda (NVIDIA RTX A4000)
+Dtype: torch.float64
+Running self-check: F(rho, rho) should equal 1.0...
+  PASSED: F(rho, rho) = 1.000000000000000
+
+Loading dataset from dataset_5qubit_float64...
+  Verified: 100 chunks, 1000 samples each, dtype=torch.float64
+Test set: 10 chunks
+
+============================================================
+BASELINE: F(noisy, clean)
+============================================================
+  Mean:     0.167060
+  Std:      0.173329
+  Samples:  10000
+  Failures: 0
+
+============================================================
+MODEL: mlp_5qubit_wide
+============================================================
+Loaded checkpoint (direct state_dict)
+Parameters: 5,288,352
+
+Evaluating model fidelity: F(pred, clean)...
+
+============================================================
+RESULTS
+============================================================
+Metric               Baseline        Model          
+------------------------------------------------------------
+Mean Fidelity        0.167060        0.309936       
+Std Fidelity         0.173329        0.243888       
+N Samples            10000           10000          
+N Failures           0               0              
+
+Improvement ratio: 1.86x
+Absolute improvement: +0.142876
+Model failure rate: 0.0000%
+
+=== MLP 5-qubit (deep) ===
+Device: cuda (NVIDIA RTX A4000)
+Dtype: torch.float64
+Running self-check: F(rho, rho) should equal 1.0...
+  PASSED: F(rho, rho) = 0.999999999999992
+
+Loading dataset from dataset_5qubit_float64...
+  Verified: 100 chunks, 1000 samples each, dtype=torch.float64
+Test set: 10 chunks
+
+============================================================
+BASELINE: F(noisy, clean)
+============================================================
+  Mean:     0.167060
+  Std:      0.173329
+  Samples:  10000
+  Failures: 0
+
+============================================================
+MODEL: mlp_5qubit_deep
+============================================================
+Loaded checkpoint (direct state_dict)
+Parameters: 2,152,800
+
+Evaluating model fidelity: F(pred, clean)...
+
+============================================================
+RESULTS
+============================================================
+Metric               Baseline        Model          
+------------------------------------------------------------
+Mean Fidelity        0.167060        0.406881       
+Std Fidelity         0.173329        0.322338       
+N Samples            10000           10000          
+N Failures           0               0              
+
+Improvement ratio: 2.44x
+Absolute improvement: +0.239821
+Model failure rate: 0.0000%
+
+=== Transformer 5-qubit ===
+Device: cuda (NVIDIA RTX A4000)
+Dtype: torch.float64
+Running self-check: F(rho, rho) should equal 1.0...
+  PASSED: F(rho, rho) = 0.999999999999565
+
+Loading dataset from dataset_5qubit_float64...
+  Verified: 100 chunks, 1000 samples each, dtype=torch.float64
+Test set: 10 chunks
+
+============================================================
+BASELINE: F(noisy, clean)
+============================================================
+  Mean:     0.167060
+  Std:      0.173329
+  Samples:  10000
+  Failures: 0
+
+============================================================
+MODEL: transformer_5qubit
+============================================================
+Traceback (most recent call last):
+  File "/workspace/train_16/eval/eval_uhlmann.py", line 423, in <module>
+    main()
+  File "/workspace/train_16/eval/eval_uhlmann.py", line 368, in main
+    checkpoint = torch.load(args.checkpoint, map_location=device, weights_only=False)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/venv/lib/python3.11/site-packages/torch/serialization.py", line 1484, in load
+    with _open_file_like(f, "rb") as opened_file:
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/venv/lib/python3.11/site-packages/torch/serialization.py", line 759, in _open_file_like
+    return _open_file(name_or_buffer, mode)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/venv/lib/python3.11/site-packages/torch/serialization.py", line 740, in __init__
+    super().__init__(open(name, mode))
+                     ^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/train_16/checkpoints_16/transformer_5qubit/best.pt'
+
+==============================================
+All evaluations complete!
+==============================================
