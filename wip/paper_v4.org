@@ -8,65 +8,85 @@
 #+LATEX_HEADER: \usepackage[font=small,labelfont=bf]{caption}
 #+LATEX_HEADER: \captionsetup{list=no}
 #+cite_export: biblatex
+
 * Abstract
-Quantum computers offer asymptotic speedups for problems like molecular simulation and integer factorization, but noise severely limits their near-term utility.  Quantum Error Correction can address this, but requires too many ancillary qubits for current hardware.  Quantum Error Mitigation is a near-term alternative, but only recovers expectation values, not the full quantum state needed for extracting accurate results from simulations run on quantum hardware.  For these, we need quantum state reconstruction.  Quantum state tomography estimates a state by measuring the system across many bases, but these measurements are inherently noisy; quantum state reconstruction recovers a clean density matrix from this noisy data.  Neural networks have shown promise here, but previous work has only been demonstrated up to 5 qubits.  We find that Frobenius normalization (scaling inputs to unit purity) removes this bottleneck, enabling scaling to 8-qubit systems. 
+Quantum computers offer asymptotic speedups for problems like molecular simulation and integer factorization, but noise severely limits their near-term utility.  Quantum Error Correction can address this, but the number of extra qubits required makes it infeasible for near-term use while the cost per qubit remains high.  Quantum Error Mitigation is a near-term alternative, but only recovers expectation values, not the full quantum state needed for extracting accurate results from simulations run on quantum hardware.  For these, we need quantum state reconstruction.  Quantum state tomography estimates a state by measuring the system across many bases, but these measurements are inherently noisy; quantum state reconstruction recovers a clean density matrix from this noisy data.  Neural networks have shown promise here, but previous work has only been demonstrated up to 5 qubits.  We find that Frobenius normalization (scaling inputs to unit purity) removes this bottleneck, enabling scaling to 8-qubit systems while maintaining a  relatively large improvement in fidelity. 
 
 ** Notes :noexport:
-*** Bravyi et al is not an authoritative source for the definition of quantum error correction.
-*** The inline citations are inappropriate for this type of writing.
-*** QST and QSR explanation sucks
+*** Previously
+**** Bravyi et al is not an authoritative source for the definition of quantum error correction.
+**** The inline citations are inappropriate for this type of writing.
+**** QST and QSR explanation sucks
+
 #+BEGIN_QUOTE
 The way it works is that we have our quantum system, then we take +a fuck ton of+ many measurements of that quantum system from +a fuck ton of+ many different angles, +and then thta+ which allows us to form a picture of the quantum state.  That process is known as *quantum state tomography*.  Now, the issue is that our measurement +devices are+ inherently +really fucking bad at their jobs+ flawed and there will always be some error (/citation needed/).  Because of this, on top of quantum state tomography, we need some way to compensate for our really shitty measurements.  This is where *quantum state reconstruction* comes in.  Once we have a quantum state, we use quantum state reconstruction to make our state more accurate.
 #+END_QUOTE
 Critiques:
-**** Profanity
-***** "a fuck ton of measurements" -> "many measurements"
-***** "a fuck ton of different angles" -> "many different angles"
-***** "our measurement devices are inherently really fucking bad " -> "our measurements are inherently flawed"
-**** Informal language
-**** Lack of comprehensiveness in the explanations
-**** Overly verbose
-**** Incorrect framing
+***** Profanity
+****** "a fuck ton of measurements" -> "many measurements"
+****** "a fuck ton of different angles" -> "many different angles"
+****** "our measurement devices are inherently really fucking bad " -> "our measurements are inherently flawed"
+***** Informal language
+***** Lack of comprehensiveness in the explanations
+***** Overly verbose
+***** Incorrect framing
 
 
 >>>>>>> master
+*** 2026-01-22
+#+BEGIN_QUOTE
+Quantum computers offer asymptotic speedups for problems like molecular simulation and integer factorization, but noise severely limits their near-term utility.  Quantum Error Correction can address this, but requires too many ancillary qubits for current hardware.  Quantum Error Mitigation is a near-term alternative, but only recovers expectation values, not the full quantum state needed for extracting accurate results from simulations run on quantum hardware.  For these, we need quantum state reconstruction.  Quantum state tomography estimates a state by measuring the system across many bases, but these measurements are inherently noisy; quantum state reconstruction recovers a clean density matrix from this noisy data.  Neural networks have shown promise here, but previous work has only been demonstrated up to 5 qubits.  We find that Frobenius normalization (scaling inputs to unit purity) removes this bottleneck, enabling scaling to 8-qubit systems.
+#+END_QUOTE
+
+We want to figure out how this is structured so that from there we may restructure it.
+
+*Opportunity* ("Quantum computers offer [...]", 13 words) -> *problem* ("but noise [...]", 8 words) -> *status quo* ("Quantum Error Correction [...]", 44 words) -> *Extraneous technical background* ("For these [...]", 38 words) -> *status quo* ("Neural networks [...]", 17 words) -> *Core Contribution* ("We find [...]", 13 words) -> *Results* ("Enabling scaling to 8-qubit systems.", 5 words)
+13 + 44 + 38 + 17 + 13 + 5 = 130 words
+**** Structure of abstracts.
+***** Lin et al.
+****** Problem + Why it matters
+****** Status quo
+****** Core contribution
+****** Results
+****** Implication
+***** Kendre
+****** Opportunity / Why it matters
+****** Problem
+****** Status quo
+****** Core contribution
+****** Implication
+***** Morgillo et al.
+****** Problem + Why it matters
+****** Core contribution
+****** Results
+
+**** Superior structure for our abstract
+*Problem + why it matters* ("Quantum noise is limiting molecular simulation, drug discovery, efficient factorization of large numbers", 13 words) -> *Status quo* ("Previous work has used NNs [...]", ~30-40 words) -> *Problem + why it matters* ("However, none have demonstrated denoising above 5 qubits.  At larger scales, the noise channels cause the state to become more and more mixed, forcing the model to learn not only a structural correction, but also a scale correction.", 38 words) ->  *Core contribution* ("We introduce a method of data normalization [...] allows us to scale to 8-qubits [...] the model fails without this normalization.", ~40-50 words) -> *Results* ("This purity-proxy normalization saves the model from learning a scale correlation, greatly aiding in convergence and effectiveness for larger-scale inputs.", 22 words) -> *Implication* ("This work contributes to the advancement of data normalization techniques for machine learning models designed to aid in quantum state reconstruction", 22 words)
+**** Filled out new abstract
+Quantum noise is currently limiting efficient quantum computation and the advances it could bring in fields such as cryptography and the simulation of molecules.  Previous work has shown the effectiveness of machine learning methods for quantum state reconstruction. This type of classical post-processing is especially beneficial in the near-term as it does not require the use of ancillary qubits, unlike the more scalable quantum error correction.  However, none of these previous machine learning methods have demonstrated effectiveness for denoising circuits for circuits bigger than 5 qubits.  At larger scales, the compounding noise channels greatly reduce the state's purity, forcing the model to learn not only a structural correction, but a scale correction as well.  We introduce a method of input data normalization that projects our inputs to unit purity. This allows the model to focus only on the structure of the circuit, and in our experiments this allows our models to converge even for larger circuits.
 * Introduction
 
-Approaches to managing quantum hardware noise broadly fall into three categories: quantum error correction (QEC), quantum error mitigation (QEM), and state-level denoising. QEC provides a principled route to fault-tolerant computation by encoding logical information into larger composite systems and continuously detecting and correcting physical errors via syndrome measurements [cite:@Bravyi_2024; @202509.2149]. However, current devices remain far above fault-tolerance thresholds, and the overhead of large code distances limits near-term applicability. QEM targets near-term hardware by reducing noise impact through circuit-level extrapolation and statistical post-processing, recovering accurate expectation values rather than full quantum states [cite:@RevModPhys.95.045005; @Bultrini_2023].
+Quantum computers hold the potential to enable exponential speedups of many tasks through their exploitation of the principles of quantum mechanics [cite:@feynman1982simulating], specifically the ability to explore possibilities in superposition, with paths that interfere to amplify correct answers and cancel wrong ones. However, this interference is both a blessing and a curse. After enough time, the computer will inevitably become fully entangled with the environment, locking the information in correlations with the rest of the universe and throwing away the key, leaving us, the observers, with nothing to work with.
 
-This work focuses on a distinct problem: *state-level denoising of density matrices*, which aims to reconstruct full quantum states rather than correct logical qubits (QEC) or recover expectation values (QEM). Prior work has explored convolutional [cite:@kendre2025machinelearningquantumnoise] and feedforward [cite:@Morgillo_2024] architectures for this task, but has not systematically addressed input preprocessing for the unique properties of quantum density matrices. We identify a fundamental challenge that has been overlooked: the dramatic scale mismatch between noisy inputs and clean targets caused by decoherence in large circuits.
+Quantum Error Correction addresses this by encoding a single logical qubit on multiple physical qubits, and then using ancillary qubits to detect errors. To detect errors, we check whether pairs of data qubits match, entangling the ancilla with just this parity information. Crucially, we do not entangle the ancilla with the data itself, so measuring the ancilla only collapses the parity, not the data itself, which stays in superposition. Measuring the bitstring of the ancilla gives us the syndrome, which is then decoded on a classical computer to find the necessary correction. While QEC is a scalable, principled method to reducing errors in quantum computers, useful error rates require on the order of ~1,000+ physical qubits per logical qubit [cite:@2024], making it infeasible for the near-term [cite:@preskill2018quantum].
 
-** The Scale Mismatch Problem
+Quantum Error Mitigation, on the other hand, is a method to reducing quantum noise in the short term [cite:@RevModPhys.95.045005]. QEM requires no extra qubits, and instead runs corrections classically. Common techniques include zero-noise extrapolation, where one runs a circuit multiple times with artificially increased noise levels and extrapolates back to zero noise, and probabilistic error cancellation, which inserts random operations that statistically average out the noise. However, QEM only recovers expectation values—single numbers like ⟨Z⟩—not the full quantum state. For tasks that require the complete density matrix, such as verifying entanglement or extracting detailed simulation results, expectation values are not enough.
 
-A fundamental challenge in training neural networks for quantum state denoising is the dramatic scale mismatch between noisy inputs and clean targets. Quantum noise channels (depolarizing, amplitude damping, phase damping) drive density matrices toward the maximally mixed state $I/d$, significantly reducing their Frobenius norm. For a 5-qubit system:
-- Clean pure states: $\|\rho_{\text{clean}}\|_F = 1.0$
-- Noisy mixed states: $\|\rho_{\text{noisy}}\|_F \approx 0.07$
+Quantum State Reconstruction addresses this gap. Like QEM, it uses classical post-processing and requires no extra qubits. But instead of recovering expectation values, QSR recovers the full density matrix from noisy tomographic data. Recent work has shown that neural networks can learn to invert noise channels, taking a noisy density matrix and outputting a denoised estimate [cite:@Morgillo_2024;@kendre2025machinelearningquantumnoise;@Torlai2018]. However, previous neural network approaches have only been demonstrated up to 5 qubits. We introduce a data normalization method that removes this bottleneck, enabling scaling to 8-qubit systems.
 
-This \sim15 times scale difference forces the model to simultaneously learn two distinct tasks: (1) structural denoising by recovering coherence patterns and (2) global rescaling---predicting the output magnitude. We find that models struggle to learn both tasks jointly, leading to unstable training dynamics and suboptimal convergence.
+We generate synthetic datasets by simulating random quantum circuits composed of single-qubit gates (X, Y, Z, H, rotations) and two-qubit entangling gates (CNOT, CZ, SWAP). Each circuit is simulated twice: once ideally to produce a clean density matrix, and once with noise channels (depolarizing, amplitude damping, phase damping, bit flip) applied after each layer to produce a noisy counterpart. We train neural networks to map noisy inputs to clean targets, using Frobenius fidelity as the loss function. The key preprocessing step is Frobenius normalization: we scale each density matrix to unit norm before training. The Frobenius norm of a density matrix equals the square root of its purity—a measure of how "purely quantum" vs. "classically mixed" the state is. Since noisy states have norms significantly smaller than clean states—up to ~16× for 8-qubit systems (a physical consequence of decoherence pushing states toward the maximally mixed state)—this normalization decouples scale recovery from structural denoising, allowing the model to focus on restoring coherence structure rather than learning a global rescaling.
 
-** Our Contribution
+On 5-qubit systems, normalization reduces validation loss by 25% and enables both MLP and Transformer architectures to achieve >3 times improvement in Uhlmann fidelity over the noisy baseline. Without normalization, scaling model capacity actually hurts performance—a signature of optimization pathology. On 8-qubit systems ($256 \times 256$ density matrices), training without normalization fails entirely, while normalized models achieve 3–4 times improvement over baseline. Our results suggest that for neural QSR, input conditioning matters more than architectural choice, as both MLPs and Transformers achieve similar performance once properly normalized. The scale mismatch caused by decoherence is a domain-specific challenge that requires domain-specific preprocessing, and we recommend Frobenius normalization as a standard step for any neural approach to quantum state reconstruction.
 
-We demonstrate that *Frobenius normalization*---normalizing inputs and targets to unit norm before training---is critical for stable and effective quantum state denoising:
-
-\begin{equation}
-\rho_{\text{norm}} = \frac{\rho}{\|\rho\|_F}, \quad \|\rho\|_F = \sqrt{\sum_{ij} |\rho_{ij}|^2}
-\end{equation}
-
-This simple preprocessing step decouples structural denoising from scale prediction, allowing models to focus entirely on recovering the coherence structure. The repository hosting the experiments, checkpoints, and scripts is available at https://github.com/Amitav-Krishna/transformer_for_reducing_quantum_noise.
-
-Our results demonstrate:
-1. **Dramatic Improvement**: Normalization reduces 5-qubit MLP validation loss by 25% (0.458 $\to$ 0.340).
-2. **Enables Scaling**: 8-qubit models fail completely without normalization but achieve 3.76 times baseline improvement with it.
-3. **Architecture-Agnostic**: Both Transformer and MLP architectures benefit equally from normalization, achieving similar final performance.
-4. **Capacity Ablations**: Without normalization, wider (5 times) and deeper (2 times) MLPs perform *worse* than the baseline model; with normalization, all models converge stably.
-
-We additionally use hierarchical patch-based tokenization to enable scaling to larger quantum systems while maintaining computational tractability.
-
+Section 2 reviews related work on input normalization and neural approaches to quantum error correction. Section 3 describes our dataset generation, model architectures, and the Frobenius normalization method. Section 4 presents our experimental results. Section 5 discusses the physical interpretation and limitations of our approach. Section 6 concludes.
+** Notes :noexport:
+I am unable to grok the concept of superposition and decoherence
+*** TODO Figure out what the fuck superposition and decoherence and interfering constructively and destructively acutally means
 * Related Work
 
 ** Input Normalization in Deep Learning
 
-Input normalization is well-established in deep learning. Batch normalization [cite:@ioffe2015batch] and layer normalization [cite:@ba2016layer] address internal covariate shift, while input standardization (zero mean, unit variance) is standard practice for feedforward networks. However, quantum density matrices present a unique challenge: the *inherent* scale difference between noisy and clean states is not statistical variation but a physical consequence of decoherence. Our work identifies Frobenius normalization as the appropriate preprocessing for this domain, demonstrating that it is not merely helpful but *essential* for stable training and scaling.
+Input normalization is well-established in deep learning. Batch normalization [cite:@ioffe2015batch] and layer normalization [cite:@ba2016layer] address internal covariate shift, while input standardization (zero mean, unit variance) is standard practice for feedforward networks. However, quantum density matrices present a unique challenge: the *inherent* scale difference between noisy and clean states is not statistical variation but a physical consequence of decoherence. Our work identifies Frobenius normalization as the appropriate preprocessing for this domain, demonstrating that it is not merely helpful but *essential* for stable training and scaling at larger scales.
 
 ** Quantum Machine Learning for Error Correction
 
@@ -128,11 +148,11 @@ Each density matrix is normalized to unit Frobenius norm before training:
 \rho_{\text{norm}} = \frac{\rho}{\|\rho\|_F}, \quad \|\rho\|_F = \sqrt{\sum_{ij} |\rho_{ij}|^2}
 \end{equation}
 
-The Frobenius norm of a density matrix equals the square root of its purity: $\|\rho\|_F = \sqrt{\mathrm{Tr}(\rho^2)}$. Pure states have purity 1, so $\|\rho_{\text{clean}}\|_F = 1.0$. Noisy states are mixed by decoherence channels, reducing their purity and hence their Frobenius norm (down to $\approx 0.18$ for maximally mixed 5-qubit states, with our noisy inputs typically around 0.07).
+The Frobenius norm of a density matrix equals the square root of its purity: $\|\rho\|_F = \sqrt{\mathrm{Tr}(\rho^2)}$. Pure states have purity 1, so $\|\rho_{\text{clean}}\|_F = 1.0$. Noisy states are mixed by decoherence channels, reducing their purity and hence their Frobenius norm. The maximally mixed state has norm $1/\sqrt{d}$ where $d = 2^n$: approximately 0.18 for 5 qubits and 0.06 for 8 qubits. Our noisy inputs fall near these floors, with the scale mismatch growing exponentially with qubit count.
 
-Since our clean target states are always pure, Frobenius normalization leaves them unchanged ($\|\rho_{\text{clean}}\|_F = 1$ already). Normalization only affects the noisy inputs, artificially "purifying" their scale to match the targets. This means we deliberately discard the purity information from the input---but this is acceptable because we already know the answer: clean states are fully pure. The network need not predict the output purity; it only needs to recover the coherence *structure* (which off-diagonal elements to restore, their relative phases, etc.).
+Since our clean target states are always pure, Frobenius normalization leaves them unchanged ($\|\rho_{\text{clean}}\|_F = 1$ already). Normalization only affects the noisy inputs, artificially "purifying" their scale to match the targets. This means we deliberately discard the purity information from the input---but this is acceptable because we already know the answer: clean states are fully pure. The network need not predict the output purity; it only needs to recover the coherence *structure* (which off-diagonal elements to restore, their relative phases, etc.). However, it should be 
 
-Without normalization, the model must simultaneously perform two distinct tasks: (1) structural denoising and (2) predicting the \sim15 times scale correction. We found that models struggled to learn both jointly. By normalizing, we decouple these tasks, allowing the model to focus purely on structural recovery. This simple preprocessing step improved 5-qubit MLP validation loss by \sim25% (0.458 $\to$ 0.340) and was essential for convergence in the 8-qubit regime.
+Without normalization, the model must simultaneously perform two distinct tasks: (1) structural denoising and (2) predicting a large scale correction (up to \sim16 times for 8-qubit systems). We found that models struggled to learn both jointly. By normalizing, we decouple these tasks, allowing the model to focus purely on structural recovery. This simple preprocessing step improved 5-qubit MLP validation loss by \sim25% (0.458 $\to$ 0.340) and was essential for convergence in the 8-qubit regime.
 
 *Note on validity*: Frobenius-normalized matrices are not valid density matrices---they have trace $\neq 1$. We use them only as a convenient representation during training. At evaluation time, we project outputs back to valid density matrices (Hermitianize, clamp negative eigenvalues, normalize trace) before computing Uhlmann fidelity.
 
@@ -234,7 +254,7 @@ Our central finding is that Frobenius normalization dramatically improves traini
 | Normalized      |                0.340 | Stable      |
 | *Improvement*   |             *25.8%*  |             |
 
-Without normalization, the model must learn a \sim15 times scale correction (noisy norm $\approx$ 0.07, clean norm = 1.0) simultaneously with structural denoising. This dual objective creates optimization difficulties: gradients from the scale mismatch dominate early training, preventing the model from learning fine-grained coherence recovery.
+Without normalization, the model must learn a significant scale correction simultaneously with structural denoising. For 5-qubit systems, noisy states have norms near 0.18 (the maximally mixed floor), requiring a ~5× rescaling; for 8-qubit systems, this grows to ~16× (norms near 0.06). This dual objective creates optimization difficulties: gradients from the scale mismatch dominate early training, preventing the model from learning fine-grained coherence recovery.
 
 ** Normalization Enables Capacity Scaling
 
@@ -297,7 +317,7 @@ The 5-qubit curves show the expected pattern: rapid early improvement as models 
 
 The physical origin of the scale mismatch is fundamental to quantum decoherence. The Frobenius norm of a density matrix equals the square root of its purity: $\|\rho\|_F = \sqrt{\mathrm{Tr}(\rho^2)}$. Pure states have purity 1, while maximally mixed states have purity $1/d$ (where $d = 2^n$ for $n$ qubits). Noise channels drive quantum states toward the maximally mixed state, systematically reducing their Frobenius norm.
 
-For a 5-qubit system ($d = 32$), the maximally mixed state has $\|\rho\|_F = 1/\sqrt{32} \approx 0.177$. Our noisy states, which are partially decohered but not fully mixed, have norms around 0.07---intermediate between pure (1.0) and maximally mixed (0.177). This \sim15 times scale gap is not noise or measurement error; it is the physical signature of decoherence itself.
+For a 5-qubit system ($d = 32$), the maximally mixed state has $\|\rho\|_F = 1/\sqrt{32} \approx 0.177$, giving a ~5× scale gap from pure states. For 8 qubits ($d = 256$), this floor drops to $1/\sqrt{256} = 0.0625$, a ~16× gap. Our noisy states, driven toward the maximally mixed state by decoherence, have norms near these floors. This scale mismatch is not noise or measurement error; it is the physical signature of decoherence itself, and it grows exponentially with system size.
 
 By normalizing to unit Frobenius norm, we remove this physically-determined but task-irrelevant scale variation, allowing models to focus on the coherence structure that distinguishes different quantum states.
 
@@ -348,7 +368,7 @@ We identify Frobenius normalization as a critical preprocessing step for trainin
 
 *Key findings:*
 
-1. *Normalization enables stable training.* Without normalization, models must simultaneously learn structural denoising and a \sim15 times scale correction, leading to optimization pathology. Normalization improves validation loss by 25% and enables stable convergence.
+1. *Normalization enables stable training.* Without normalization, models must simultaneously learn structural denoising and a large scale correction (~5× for 5 qubits, ~16× for 8 qubits), leading to optimization pathology. Normalization improves validation loss by 25% and enables stable convergence.
 
 2. *Normalization enables scaling.* 8-qubit models ($256\times 256$ matrices) fail completely without normalization but achieve 3.76 times baseline improvement with it. This demonstrates that normalization is not merely helpful but *essential* for scaling to larger quantum systems.
 
@@ -400,7 +420,7 @@ Switching to double precision (float64) eliminated these issues. While this doub
 :CUSTOM_ID: app:pre-norm-ablations
 :END:
 
-The following ablations demonstrate the optimization pathology that occurs without Frobenius normalization. With unnormalized inputs (noisy matrices \sim15 times smaller norm than clean targets), increasing model capacity *hurts* performance---a clear signature of optimization difficulties rather than underfitting.
+The following ablations demonstrate the optimization pathology that occurs without Frobenius normalization. With unnormalized inputs (noisy matrices having ~5× smaller norm than clean targets for 5-qubit systems), increasing model capacity *hurts* performance---a clear signature of optimization difficulties rather than underfitting.
 
 *** Capacity Ablation
 
@@ -443,7 +463,7 @@ To confirm that stable convergence under Frobenius normalization is not an artif
 |       100 |        0.337 |                0.347 |
 |       200 |        0.323 |                0.345 |
 
-All runs converged to similar validation loss (0.32--0.35), confirming that normalization enables reproducible training across random initializations.
+ppAll runs converged to similar validation loss (0.32--0.35), confirming that normalization enables reproducible training across random initializations.
 
 ** Failed Approaches
 
@@ -604,3 +624,6 @@ Training loss analysis:
 
 
 #+LATEX:\printbibliography
+
+** 2026-01-22
+I wish to submit this to https://www.ieeeqccl2026.com/.
