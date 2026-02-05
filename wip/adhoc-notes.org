@@ -36,3 +36,22 @@ Quite a few methods to mitigate this limitation exist, yet none are sufficient. 
 In this work, we demonstrate that Frobenius normalization of quantum states is an inexpensive preprocessing method that greatly increases model performance for smaller circuits and prives essential to model convergence for larger circuits. (our innocation)
 
 33 words
+
+* 2026-01-22
+** Structure of abstracts.
+*** Lin et al.
+**** Problem + Why it matters
+**** Status quo
+**** Core contribution
+**** Results
+**** Implication
+*** Kendre
+**** Opportunity / Why it matters
+**** Problem
+**** Status quo
+**** Core contribution
+**** Implication
+*** Morgillo et al.
+**** Problem + Why it matters
+**** Core contribution
+**** Results
