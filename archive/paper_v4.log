@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2025.12.2)  10 JAN 2026 18:51
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2025.12.2)  15 JAN 2026 15:19
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -802,7 +802,7 @@ Overfull \hbox (13.38727pt too wide) in paragraph at lines 237--249
  []
 
 [9] [10]
-<figures/val_loss_curves.pdf, id=336, 570.5591pt x 353.57721pt>
+<figures/val_loss_curves.pdf, id=340, 570.5591pt x 353.57721pt>
 File: figures/val_loss_curves.pdf Graphic file (type pdf)
 <use figures/val_loss_curves.pdf>
 Package pdftex.def Info: figures/val_loss_curves.pdf  used on input line 338.
@@ -814,40 +814,41 @@ physically-determined
  []
 
 [13] [14] [15]
-Overfull \hbox (89.80779pt too wide) in paragraph at lines 428--437
+Overfull \hbox (89.80779pt too wide) in paragraph at lines 431--440
  [][] 
  []
 
-<figures/frob_vs_uhlmann_correlation.pdf, id=416, 499.24329pt x 393.98067pt>
+[16]
+<figures/frob_vs_uhlmann_correlation.pdf, id=425, 499.24329pt x 393.98067pt>
 File: figures/frob_vs_uhlmann_correlation.pdf Graphic file (type pdf)
 <use figures/frob_vs_uhlmann_correlation.pdf>
 Package pdftex.def Info: figures/frob_vs_uhlmann_correlation.pdf  used on input
- line 444.
+ line 447.
 (pdftex.def)             Requested size: 323.9978pt x 255.69363pt.
-[16] [17 <./figures/frob_vs_uhlmann_correlation.pdf>] [18] [19]
-Overfull \hbox (4.30449pt too wide) in paragraph at lines 517--517
+ [17 <./figures/frob_vs_uhlmann_correlation.pdf>] [18] [19]
+Overfull \hbox (4.30449pt too wide) in paragraph at lines 520--520
 []\T1/cmr/m/n/10.95 Daniel Bul-trini et al. ``Uni-fy-ing and bench-mark-ing sta
 te-of-the-art quan-
  []
 
 
-Overfull \hbox (2.92926pt too wide) in paragraph at lines 517--517
+Overfull \hbox (2.92926pt too wide) in paragraph at lines 520--520
 \T1/cmr/m/n/10.95 ers for Im-age Recog-ni-tion at Scale''. In: \T1/cmr/m/it/10.
 95 arXiv preprint arXiv:2010.11929
  []
 
-[20] [21] (./paper_v4.aux)
+[20] (./paper_v4.aux)
 Package rerunfilecheck Info: File `paper_v4.out' has not changed.
-(rerunfilecheck)             Checksum: 3F6050FB46D46439DE6F4D7AA319AA8D;9831.
+(rerunfilecheck)             Checksum: ED95121542E686392CA49F4EAB94B0C9;9955.
 Package logreq Info: Writing requests to 'paper_v4.run.xml'.
 \openout1 = `paper_v4.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 19404 strings out of 476034
- 341141 string characters out of 5792864
- 1863388 words of memory out of 6000000
- 39512 multiletter control sequences out of 15000+600000
+ 19406 strings out of 476034
+ 341170 string characters out of 5792864
+ 1862388 words of memory out of 6000000
+ 39514 multiletter control sequences out of 15000+600000
  533764 words of font info for 89 fonts, out of 8000000 for 9000
  1137 hyphenation exceptions out of 8191
  75i,11n,77p,1587b,1633s stack positions out of 10000i,1000n,20000p,200000b,200000s
@@ -871,10 +872,10 @@ t/fonts/type1/public/cm-super/sfrm1095.pfb></usr/share/texlive/texmf-dist/fonts
 public/cm-super/sfrm1728.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/
 cm-super/sfti1095.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/cm-supe
 r/sftt1095.pfb>
-Output written on paper_v4.pdf (21 pages, 446631 bytes).
+Output written on paper_v4.pdf (20 pages, 448595 bytes).
 PDF statistics:
  635 PDF objects out of 1000 (max. 8388607)
- 476 compressed objects within 5 object streams
+ 477 compressed objects within 5 object streams
  115 named destinations out of 1000 (max. 500000)
- 451 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 459 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -5,7 +5,7 @@
 #+OPTIONS: toc:nil natbib:nil
 #+TITLE: Frobenius Normalization Enables Stable Training for Quantum State Denoising
 #+AUTHOR:
-#+LATEX_HEADER: \author{Amitav Krishna\thanks{Correspondence: akrishna0511@bhncdsb.ca}}
+#+LATEX_HEADER: \author{Amitav Krishna\thanks{Correspondence: amitavkrishna@proton.me}}
 #+LATEX_HEADER: \usepackage[font=small,labelfont=bf]{caption}
 #+LATEX_HEADER: \captionsetup{list=no}
 #+cite_export: biblatex
@@ -263,7 +263,7 @@ Frobenius normalization has been applied to the preprocessing of quantum state d
 
 
 * Acknowledgements
-The author used a large language model to edit parts of this work for clarity in presentation, and for debugging failed experiments and assisting with the code implementation.  The technical content, experimental design, and interpretations are the author's own, and the author takes full responsibility for this work.
+The author used a large language model to edit parts of this work for clarity in presentation, and for debugging failed experiments and assisting with the code implementation.  The technical content, experimental design, and interpretations are the author's own, and the author takes full responsibility for this work.  Code and data are available at \url{https://github.com/Amitav-Krishna/transformer_for_reducing_quantum_noise}.
 * Notes :noexport:
 
 ** Seed Ablation Experiments (train_18)

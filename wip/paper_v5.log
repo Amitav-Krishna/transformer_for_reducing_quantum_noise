@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.1.20)  9 FEB 2026 00:51
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.1.20)  9 FEB 2026 01:19
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -832,11 +832,17 @@ Overfull \hbox (6.2398pt too wide) in paragraph at lines 174--181
 [4 <./figures/norm_vs_unnorm_mlp.pdf>] [5 <./figures/val_loss_5qubit.pdf> <./fi
 gures/val_loss_8qubit.pdf>]
 LaTeX Font Info:    Trying to load font information for T1+pcr on input line 24
-9.
+8.
 
 (/usr/share/texlive/texmf-dist/tex/latex/psnfss/t1pcr.fd
 File: t1pcr.fd 2001/06/04 font definitions for T1/pcr.
 )
+Underfull \hbox (badness 4084) in paragraph at lines 248--250
+\T1/ptm/m/n/10 able at []$\T1/pcr/m/n/10 https : / / github . com / Amitav-[]Kr
+ishna /
+ []
+
+
 Underfull \hbox (badness 2469) in paragraph at lines 250--250
 \T1/ptm/m/n/10 put-ers''. In: \T1/ptm/m/it/10 In-ter-na-tional Jour-nal of The-
 o-ret-i-cal
@@ -887,10 +893,10 @@ exmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/share/texlive/texmf-dist/fonts
 /type1/urw/times/utmbi8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/tim
 es/utmr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
 
-Output written on paper_v5.pdf (6 pages, 461584 bytes).
+Output written on paper_v5.pdf (6 pages, 462924 bytes).
 PDF statistics:
- 791 PDF objects out of 1000 (max. 8388607)
- 399 compressed objects within 4 object streams
+ 794 PDF objects out of 1000 (max. 8388607)
+ 401 compressed objects within 5 object streams
  43 named destinations out of 1000 (max. 500000)
  74 words of extra memory for PDF output out of 10000 (max. 10000000)
 
