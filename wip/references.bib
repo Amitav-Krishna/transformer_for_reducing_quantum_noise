@@ -248,6 +248,26 @@ month=aug
   year={2021}
 }
 
+@article{tolstikhin2021mlpmixer,
+  title={MLP-Mixer: An all-MLP Architecture for Vision},
+  author={Tolstikhin, Ilya O. and Houlsby, Neil and Kolesnikov, Alexander and Beyer, Lucas and Zhai, Xiaohua and Unterthiner, Thomas and Yung, Jessica and Steiner, Andreas and Keysers, Daniel and Uszkoreit, Jakob and Lucic, Mario and Dosovitskiy, Alexey},
+  journal={Advances in Neural Information Processing Systems},
+  volume={34},
+  pages={24261--24272},
+  year={2021}
+}
+
+@article{jacobs1991adaptive,
+  title={Adaptive Mixtures of Local Experts},
+  author={Jacobs, Robert A. and Jordan, Michael I. and Nowlan, Steven J. and Hinton, Geoffrey E.},
+  journal={Neural Computation},
+  volume={3},
+  number={1},
+  pages={79--87},
+  year={1991},
+  publisher={MIT Press}
+}
+
 @inproceedings{ioffe2015batch,
   title={Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift},
   author={Ioffe, Sergey and Szegedy, Christian},
@@ -321,4 +341,17 @@ month=aug
 	year = {2022},
 	pages = {012409},
 	file = {PDF:/home/work/Zotero/storage/CTUJQECL/Koutný et al. - 2022 - Neural-network quantum state tomography.pdf:application/pdf},
+}
+@inproceedings{linQuantumErrorMitigation2025,
+  title = {Quantum {{Error Mitigation}} via {{Autoencoder Neural Networks}}},
+  booktitle = {2025 {{IEEE International Conference}} on {{Quantum Control}}, {{Computing}} and {{Learning}} ({{qCCL}})},
+  author = {Lin, Xiao-Dao and Chang, Hsi-Ming and You, Jhih-Shih and Hsu, Hsiu-Chuan},
+  year = 2025,
+  month = jun,
+  pages = {58--64},
+  doi = {10.1109/qCCL65142.2025.11158291},
+  urldate = {2026-01-22},
+  abstract = {Quantum computing has gained significant attention in recent years, with numerous algorithms and applications under active development. Limited by the current quantum technology, quantum noise and readout error have become critical issues. Various methods have been proposed to address readout error through error mitigation techniques, typically involving post-processing of measurement data. However, most of these methods increase the quantum hardware overhead, leading to higher computational costs. In this work, we present a machine-learning-based approach that minimizes hardware overhead while improving accuracy of the measurement probability distributions. We employed a convolutional neural network (CNN) autoencoder, commonly used for image denoising, as our baseline model. The datasets were derived from 4-qubit random circuits with depths ranging from 1 to 18, generated using Qiskit backends for target and noisy measurement data. The model was trained using mean squared error (MSE) as the loss function and Adam optimizer over 500 epochs, achieving an average noise reduction by 95\% across the validation set, with no signs of overfitting. To validate the model's effectiveness across diverse quantum states, we conducted extensive tests on both typical quantum circuits and algorithms, including Grover's search algorithm, Quantum Fourier Transform, Haar random circuits and Trivial Paramagnet. The results demonstrated consistent and robust denoising in noisy measurement data, indicating that the autoencoder model is well-suited for efficient quantum error mitigation for current noisy quantum computers. This work contributes to the advancement of quantum error mitigation techniques using machine learning.},
+  keywords = {Autoencoders,Convolutional neural networks,Current measurement,Hardware,Integrated circuit modeling,Measurement uncertainty,Noise measurement,Noise reduction,Prevention and mitigation,Quantum computing},
+  file = {/home/amitav-krishna/Zotero/storage/SWAAWJKT/Lin et al. - 2025 - Quantum Error Mitigation via Autoencoder Neural Networks.pdf}
 }

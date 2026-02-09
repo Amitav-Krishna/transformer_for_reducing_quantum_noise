@@ -1,15 +1,15 @@
-[0] Config.pm:307> INFO - This is Biber 2.19
-[0] Config.pm:310> INFO - Logfile is 'paper_v5.blg'
-[225] biber:340> INFO - === Wed Feb  4, 2026, 17:29:30
-[253] Biber.pm:419> INFO - Reading 'paper_v5.bcf'
-[403] Biber.pm:979> INFO - Found 12 citekeys in bib section 0
-[428] Biber.pm:4419> INFO - Processing section 0
-[442] Biber.pm:4610> INFO - Looking for bibtex file '/home/amitav-krishna/qnr/wip/references.bib' for section 0
-[447] bibtex.pm:1713> INFO - LaTeX decoding ...
-[515] bibtex.pm:1519> INFO - Found BibTeX data source '/home/amitav-krishna/qnr/wip/references.bib'
-[1626] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'normalization = NFD' with 'normalization = prenormalized'
-[1626] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'variable = shifted' with 'variable = non-ignorable'
-[1626] Biber.pm:4239> INFO - Sorting list 'nty/global//global/global' of type 'entry' with template 'nty' and locale 'en-US'
-[1626] Biber.pm:4245> INFO - No sort tailoring available for locale 'en-US'
-[1680] bbl.pm:660> INFO - Writing 'paper_v5.bbl' with encoding 'UTF-8'
-[1762] bbl.pm:763> INFO - Output to paper_v5.bbl
+[8] Config.pm:307> INFO - This is Biber 2.19
+[8] Config.pm:310> INFO - Logfile is 'paper_v5.blg'
+[338] biber:340> INFO - === Mon Feb  9, 2026, 00:50:56
+[424] Biber.pm:419> INFO - Reading 'paper_v5.bcf'
+[736] Biber.pm:979> INFO - Found 15 citekeys in bib section 0
+[798] Biber.pm:4419> INFO - Processing section 0
+[840] Biber.pm:4610> INFO - Looking for bibtex file '/home/amitav-krishna/qnr/wip/references.bib' for section 0
+[848] bibtex.pm:1713> INFO - LaTeX decoding ...
+[1000] bibtex.pm:1519> INFO - Found BibTeX data source '/home/amitav-krishna/qnr/wip/references.bib'
+[3289] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'normalization = NFD' with 'normalization = prenormalized'
+[3289] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'variable = shifted' with 'variable = non-ignorable'
+[3289] Biber.pm:4239> INFO - Sorting list 'nty/global//global/global' of type 'entry' with template 'nty' and locale 'en-US'
+[3290] Biber.pm:4245> INFO - No sort tailoring available for locale 'en-US'
+[3444] bbl.pm:660> INFO - Writing 'paper_v5.bbl' with encoding 'UTF-8'
+[3658] bbl.pm:763> INFO - Output to paper_v5.bbl

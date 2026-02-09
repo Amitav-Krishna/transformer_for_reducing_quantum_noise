@@ -1566,6 +1566,50 @@
       \field{pages}{448\bibrangedash 456}
       \range{pages}{9}
     \endentry
+    \entry{jacobs1991adaptive}{article}{}
+      \name{author}{4}{}{%
+        {{hash=4e5539055dd250cdec438f5877d88e37}{%
+           family={Jacobs},
+           familyi={J\bibinitperiod},
+           given={Robert\bibnamedelima A.},
+           giveni={R\bibinitperiod\bibinitdelim A\bibinitperiod}}}%
+        {{hash=8a36116840c7ee55901618c95fd08a58}{%
+           family={Jordan},
+           familyi={J\bibinitperiod},
+           given={Michael\bibnamedelima I.},
+           giveni={M\bibinitperiod\bibinitdelim I\bibinitperiod}}}%
+        {{hash=fec3530204d5fbe0be592820de4de0e3}{%
+           family={Nowlan},
+           familyi={N\bibinitperiod},
+           given={Steven\bibnamedelima J.},
+           giveni={S\bibinitperiod\bibinitdelim J\bibinitperiod}}}%
+        {{hash=813bd95fe553e6079cd53a567b238287}{%
+           family={Hinton},
+           familyi={H\bibinitperiod},
+           given={Geoffrey\bibnamedelima E.},
+           giveni={G\bibinitperiod\bibinitdelim E\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {MIT Press}%
+      }
+      \strng{namehash}{7b82222b40a3c04f19034058e1b7c6d7}
+      \strng{fullhash}{64cf4e90f8636cbac923e44ddc299a76}
+      \strng{bibnamehash}{7b82222b40a3c04f19034058e1b7c6d7}
+      \strng{authorbibnamehash}{7b82222b40a3c04f19034058e1b7c6d7}
+      \strng{authornamehash}{7b82222b40a3c04f19034058e1b7c6d7}
+      \strng{authorfullhash}{64cf4e90f8636cbac923e44ddc299a76}
+      \field{sortinit}{J}
+      \field{sortinithash}{b2f54a9081ace9966a7cb9413811edb4}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Neural Computation}
+      \field{number}{1}
+      \field{title}{Adaptive Mixtures of Local Experts}
+      \field{volume}{3}
+      \field{year}{1991}
+      \field{pages}{79\bibrangedash 87}
+      \range{pages}{9}
+    \endentry
     \entry{kendre2025machinelearningquantumnoise}{misc}{}
       \name{author}{1}{}{%
         {{hash=ec455575cd03269ef58ea6177bf0b688}{%
@@ -1600,6 +1644,58 @@
       \verb{url}
       \verb https://arxiv.org/abs/2509.16242
       \endverb
+    \endentry
+    \entry{linQuantumErrorMitigation2025}{inproceedings}{}
+      \name{author}{4}{}{%
+        {{hash=69fd4f713cb4df85750a862018c68a07}{%
+           family={Lin},
+           familyi={L\bibinitperiod},
+           given={Xiao-Dao},
+           giveni={X\bibinithyphendelim D\bibinitperiod}}}%
+        {{hash=f85aeca92f34f6f3425cc2f7723d212f}{%
+           family={Chang},
+           familyi={C\bibinitperiod},
+           given={Hsi-Ming},
+           giveni={H\bibinithyphendelim M\bibinitperiod}}}%
+        {{hash=d436dd3384346ef9c273eba10b631ad5}{%
+           family={You},
+           familyi={Y\bibinitperiod},
+           given={Jhih-Shih},
+           giveni={J\bibinithyphendelim S\bibinitperiod}}}%
+        {{hash=1725e052ee466bec2746fcbaaa21cea3}{%
+           family={Hsu},
+           familyi={H\bibinitperiod},
+           given={Hsiu-Chuan},
+           giveni={H\bibinithyphendelim C\bibinitperiod}}}%
+      }
+      \strng{namehash}{e25dde292e6bb7fcf5cab75efb123c06}
+      \strng{fullhash}{1645c8630e0861e7009a25de2908e205}
+      \strng{bibnamehash}{e25dde292e6bb7fcf5cab75efb123c06}
+      \strng{authorbibnamehash}{e25dde292e6bb7fcf5cab75efb123c06}
+      \strng{authornamehash}{e25dde292e6bb7fcf5cab75efb123c06}
+      \strng{authorfullhash}{1645c8630e0861e7009a25de2908e205}
+      \field{sortinit}{L}
+      \field{sortinithash}{7c47d417cecb1f4bd38d1825c427a61a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Quantum computing has gained significant attention in recent years, with numerous algorithms and applications under active development. Limited by the current quantum technology, quantum noise and readout error have become critical issues. Various methods have been proposed to address readout error through error mitigation techniques, typically involving post-processing of measurement data. However, most of these methods increase the quantum hardware overhead, leading to higher computational costs. In this work, we present a machine-learning-based approach that minimizes hardware overhead while improving accuracy of the measurement probability distributions. We employed a convolutional neural network (CNN) autoencoder, commonly used for image denoising, as our baseline model. The datasets were derived from 4-qubit random circuits with depths ranging from 1 to 18, generated using Qiskit backends for target and noisy measurement data. The model was trained using mean squared error (MSE) as the loss function and Adam optimizer over 500 epochs, achieving an average noise reduction by 95\% across the validation set, with no signs of overfitting. To validate the model's effectiveness across diverse quantum states, we conducted extensive tests on both typical quantum circuits and algorithms, including Grover's search algorithm, Quantum Fourier Transform, Haar random circuits and Trivial Paramagnet. The results demonstrated consistent and robust denoising in noisy measurement data, indicating that the autoencoder model is well-suited for efficient quantum error mitigation for current noisy quantum computers. This work contributes to the advancement of quantum error mitigation techniques using machine learning.}
+      \field{booktitle}{2025 {{IEEE International Conference}} on {{Quantum Control}}, {{Computing}} and {{Learning}} ({{qCCL}})}
+      \field{month}{6}
+      \field{title}{Quantum {{Error Mitigation}} via {{Autoencoder Neural Networks}}}
+      \field{urlday}{22}
+      \field{urlmonth}{1}
+      \field{urlyear}{2026}
+      \field{year}{2025}
+      \field{urldateera}{ce}
+      \field{pages}{58\bibrangedash 64}
+      \range{pages}{7}
+      \verb{doi}
+      \verb 10.1109/qCCL65142.2025.11158291
+      \endverb
+      \verb{file}
+      \verb /home/amitav-krishna/Zotero/storage/SWAAWJKT/Lin et al. - 2025 - Quantum Error Mitigation via Autoencoder Neural Networks.pdf
+      \endverb
+      \keyw{Autoencoders,Convolutional neural networks,Current measurement,Hardware,Integrated circuit modeling,Measurement uncertainty,Noise measurement,Noise reduction,Prevention and mitigation,Quantum computing}
     \endentry
     \entry{liu2021swin}{article}{}
       \name{author}{8}{}{%
@@ -1742,6 +1838,86 @@
       \field{year}{2018}
       \field{pages}{79}
       \range{pages}{1}
+    \endentry
+    \entry{tolstikhin2021mlpmixer}{article}{}
+      \name{author}{12}{}{%
+        {{hash=04a0732ca86954d52ce07b999ab99b9d}{%
+           family={Tolstikhin},
+           familyi={T\bibinitperiod},
+           given={Ilya\bibnamedelima O.},
+           giveni={I\bibinitperiod\bibinitdelim O\bibinitperiod}}}%
+        {{hash=493a532418540859dca92cf3b579de2a}{%
+           family={Houlsby},
+           familyi={H\bibinitperiod},
+           given={Neil},
+           giveni={N\bibinitperiod}}}%
+        {{hash=6807e3c00242c6bf6a3179905040471b}{%
+           family={Kolesnikov},
+           familyi={K\bibinitperiod},
+           given={Alexander},
+           giveni={A\bibinitperiod}}}%
+        {{hash=836254958eac09b30d45dd67a75ce4fa}{%
+           family={Beyer},
+           familyi={B\bibinitperiod},
+           given={Lucas},
+           giveni={L\bibinitperiod}}}%
+        {{hash=00b950307c7d096765bb6df00c7c5c3a}{%
+           family={Zhai},
+           familyi={Z\bibinitperiod},
+           given={Xiaohua},
+           giveni={X\bibinitperiod}}}%
+        {{hash=1a47640139e63b9b5969c969dfe95def}{%
+           family={Unterthiner},
+           familyi={U\bibinitperiod},
+           given={Thomas},
+           giveni={T\bibinitperiod}}}%
+        {{hash=1ea4844e1dad648dad2457fd050da6b3}{%
+           family={Yung},
+           familyi={Y\bibinitperiod},
+           given={Jessica},
+           giveni={J\bibinitperiod}}}%
+        {{hash=691741bd2b633db83517eb795e58b5db}{%
+           family={Steiner},
+           familyi={S\bibinitperiod},
+           given={Andreas},
+           giveni={A\bibinitperiod}}}%
+        {{hash=f1c8b9825fb787670cd8f32a95bf0158}{%
+           family={Keysers},
+           familyi={K\bibinitperiod},
+           given={Daniel},
+           giveni={D\bibinitperiod}}}%
+        {{hash=831027ee0ebf22375e2a86afc1881909}{%
+           family={Uszkoreit},
+           familyi={U\bibinitperiod},
+           given={Jakob},
+           giveni={J\bibinitperiod}}}%
+        {{hash=26b9b9f1c61e9425fb38070e6d2c9f31}{%
+           family={Lucic},
+           familyi={L\bibinitperiod},
+           given={Mario},
+           giveni={M\bibinitperiod}}}%
+        {{hash=72308762399d6ab62bbd9391c64c7bfd}{%
+           family={Dosovitskiy},
+           familyi={D\bibinitperiod},
+           given={Alexey},
+           giveni={A\bibinitperiod}}}%
+      }
+      \strng{namehash}{b683f9c7c1e93baa12a97aa75a8a87cd}
+      \strng{fullhash}{8a487b095d9147ed9dceef5acdf90928}
+      \strng{bibnamehash}{b683f9c7c1e93baa12a97aa75a8a87cd}
+      \strng{authorbibnamehash}{b683f9c7c1e93baa12a97aa75a8a87cd}
+      \strng{authornamehash}{b683f9c7c1e93baa12a97aa75a8a87cd}
+      \strng{authorfullhash}{8a487b095d9147ed9dceef5acdf90928}
+      \field{sortinit}{T}
+      \field{sortinithash}{9af77f0292593c26bde9a56e688eaee9}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Advances in Neural Information Processing Systems}
+      \field{title}{MLP-Mixer: An all-MLP Architecture for Vision}
+      \field{volume}{34}
+      \field{year}{2021}
+      \field{pages}{24261\bibrangedash 24272}
+      \range{pages}{12}
     \endentry
     \entry{Torlai2018}{article}{}
       \name{author}{6}{}{%

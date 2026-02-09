@@ -2371,11 +2371,15 @@
     <bcf:citekey order="5" intorder="3">Torlai2018</bcf:citekey>
     <bcf:citekey order="6" intorder="1">ioffe2015batch</bcf:citekey>
     <bcf:citekey order="7" intorder="1">ba2016layer</bcf:citekey>
-    <bcf:citekey order="8" intorder="1">wang2023transformerqecquantumerrorcorrection</bcf:citekey>
-    <bcf:citekey order="9" intorder="1">Morgillo_2024</bcf:citekey>
-    <bcf:citekey order="10" intorder="1">kendre2025machinelearningquantumnoise</bcf:citekey>
-    <bcf:citekey order="11" intorder="1">dosovitskiy2020image</bcf:citekey>
-    <bcf:citekey order="12" intorder="1">liu2021swin</bcf:citekey>
+    <bcf:citekey order="8" intorder="1">dosovitskiy2020image</bcf:citekey>
+    <bcf:citekey order="9" intorder="1">liu2021swin</bcf:citekey>
+    <bcf:citekey order="10" intorder="1">wang2023transformerqecquantumerrorcorrection</bcf:citekey>
+    <bcf:citekey order="11" intorder="1">linQuantumErrorMitigation2025</bcf:citekey>
+    <bcf:citekey order="12" intorder="1">Morgillo_2024</bcf:citekey>
+    <bcf:citekey order="13" intorder="1">kendre2025machinelearningquantumnoise</bcf:citekey>
+    <bcf:citekey order="14" intorder="1">tolstikhin2021mlpmixer</bcf:citekey>
+    <bcf:citekey order="15" intorder="1">Morgillo_2024</bcf:citekey>
+    <bcf:citekey order="16" intorder="1">jacobs1991adaptive</bcf:citekey>
   </bcf:section>
   <!-- SORTING TEMPLATES -->
   <bcf:sortingtemplate name="nty">
