@@ -1,0 +1,5 @@
+[0] Config.pm:307> INFO - This is Biber 2.19
+[0] Config.pm:310> INFO - Logfile is 'paper_v5.blg'
+[135] biber:340> INFO - === Mon Feb  9, 2026, 01:35:17
+[353] Utils.pm:399> ERROR - Cannot find 'paper_v5.bcf'!
+[354] Biber.pm:136> INFO - ERRORS: 1
