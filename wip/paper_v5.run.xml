@@ -79,7 +79,7 @@
       <file>paper_v5.bcf</file>
     </requires>
     <requires type="editable">
-      <file>/home/amitav-krishna/qnr/wip/references.bib</file>
+      <file>/home/amitav-krishna/codage/transformer_for_reducing_quantum_noise/wip/references.bib</file>
       <file>references.bib</file>
     </requires>
   </external>

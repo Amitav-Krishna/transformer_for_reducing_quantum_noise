@@ -5,7 +5,7 @@
 #+OPTIONS: toc:nil natbib:nil
 #+TITLE: Frobenius Normalization Enables Stable Training for Quantum State Denoising
 #+AUTHOR:
-#+LATEX_HEADER: \author{Amitav Krishna\thanks{Correspondence: krishna@amitav.net}}
+#+LATEX_HEADER: \author{Amitav Krishna\thanks{Correspondence: krishna@amitav.net}\thanks{This work has been submitted to IEEE for possible publication.  Copyright may be transferred without further notice, after which this version may no longer be accessible.}}
 #+LATEX_HEADER: \usepackage[font=small,labelfont=bf]{caption}
 #+LATEX_HEADER: \captionsetup{list=no}
 #+cite_export: biblatex

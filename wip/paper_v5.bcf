@@ -2358,7 +2358,7 @@
   <!-- CITATION DATA -->
   <!-- SECTION 0 -->
   <bcf:bibdata section="0">
-    <bcf:datasource type="file" datatype="bibtex" glob="false">/home/amitav-krishna/qnr/wip/references.bib</bcf:datasource>
+    <bcf:datasource type="file" datatype="bibtex" glob="false">/home/amitav-krishna/codage/transformer_for_reducing_quantum_noise/wip/references.bib</bcf:datasource>
     <bcf:datasource type="file" datatype="bibtex" glob="false">references.bib</bcf:datasource>
   </bcf:bibdata>
   <bcf:section number="0">

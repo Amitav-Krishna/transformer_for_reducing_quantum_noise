@@ -1,6 +1,6 @@
 # Frobenius Normalization for Quantum State Denoising
 
-Code and paper for *Frobenius Normalization Enables Stable Training for Quantum State Denoising*.
+Code and paper for *Frobenius Normalization Enables Stable Training for Quantum State Denoising*.  This work has been submitted to IEEE for possible publication.  Copyright may be transferred without notice, after which this version may no longer be acessible.  
 
 ## Directory Structure
 
